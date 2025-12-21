@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import privatkundenHero from "@/assets/privatkunden-hero.png";
+import serviceRepair from "@/assets/service-repair.png";
 
 const services = [
   {
@@ -122,6 +125,11 @@ export default function Privatkunden() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
+        
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="default" className="opacity-40" />
+        </Suspense>
         
         {/* Radial light */}
         <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import websitesHero from "@/assets/websites-hero.png";
 
 const webServices = [
@@ -129,6 +131,11 @@ export default function Websites() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
+        
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="dense" className="opacity-50" />
+        </Suspense>
         
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
         

@@ -1,34 +1,60 @@
 import { Layout } from "@/components/layout/Layout";
 import { FileText } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import legalAbstract from "@/assets/legal-abstract.png";
 
-const Impressum = () => {
+export default function Impressum() {
+  const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-tech-900/20 via-background to-tech-800/10" />
+      <section className="relative min-h-[40vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src={legalAbstract} 
+            alt="" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+        </div>
         
-        <div className="container-tight relative z-10">
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="minimal" className="opacity-30" />
+        </Suspense>
+        
+        <div className="absolute top-1/3 left-1/3 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[150px]" />
+        
+        <div 
+          ref={heroRef}
+          className={cn(
+            "container-tight relative z-10 py-24 transition-all duration-1000",
+            heroRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          )}
+        >
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <FileText className="w-4 h-4" />
+            <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
               Rechtliches
             </span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Impressum
+            <h1 className="text-5xl sm:text-6xl font-bold mb-6 leading-[1.1]">
+              <span className="gradient-text">Impressum</span>
             </h1>
           </div>
         </div>
       </section>
 
       {/* Content */}
-      <section className="py-12 pb-20">
+      <section className="section-padding">
         <div className="container-tight max-w-3xl">
-          <div className="glass-strong rounded-2xl p-8 md:p-12 space-y-8">
+          <div className="space-y-12">
             
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Angaben gemäß § 5 TMG</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Angaben gemäß § 5 TMG</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Petasync IT-Service<br />
                 [Ihr Name]<br />
                 [Straße und Hausnummer]<br />
@@ -36,40 +62,47 @@ const Impressum = () => {
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Kontakt</h2>
-              <p className="text-muted-foreground">
-                Telefon: [Ihre Telefonnummer]<br />
-                E-Mail: info@petasync.de
+              <h2 className="text-xl font-bold mb-4 text-foreground">Kontakt</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Telefon: +49 163 711 7198<br />
+                E-Mail: <a href="mailto:service@petasync.de" className="text-primary hover:text-primary/80 transition-colors">service@petasync.de</a>
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Umsatzsteuer-ID</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Umsatzsteuer-ID</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-                [Ihre USt-IdNr. falls vorhanden, sonst diesen Abschnitt entfernen]
+                [Ihre USt-IdNr. falls vorhanden]
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Berufsbezeichnung und berufsrechtliche Regelungen</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Berufsbezeichnung</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Berufsbezeichnung: IT-Dienstleister<br />
-                Zuständige Kammer: [falls zutreffend]<br />
                 Verliehen in: Deutschland
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">EU-Streitschlichtung</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">EU-Streitschlichtung</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{" "}
                 <a 
                   href="https://ec.europa.eu/consumers/odr/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:text-primary/80 transition-colors"
                 >
                   https://ec.europa.eu/consumers/odr/
                 </a>
@@ -78,17 +111,21 @@ const Impressum = () => {
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Verbraucherstreitbeilegung</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer 
                 Verbraucherschlichtungsstelle teilzunehmen.
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Haftung für Inhalte</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Haftung für Inhalte</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten 
                 nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als 
                 Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde 
@@ -97,41 +134,34 @@ const Impressum = () => {
                 <br /><br />
                 Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den 
                 allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch 
-                erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei 
-                Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+                erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich.
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Haftung für Links</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Haftung für Links</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen 
                 Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. 
                 Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der 
-                Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf 
-                mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der 
-                Verlinkung nicht erkennbar.
+                Seiten verantwortlich.
                 <br /><br />
                 Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete 
-                Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von 
-                Rechtsverletzungen werden wir derartige Links umgehend entfernen.
+                Anhaltspunkte einer Rechtsverletzung nicht zumutbar.
               </p>
             </div>
 
+            <div className="divider-glow" />
+
             <div>
-              <h2 className="text-xl font-display font-bold mb-4">Urheberrecht</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-xl font-bold mb-4 text-foreground">Urheberrecht</h2>
+              <p className="text-muted-foreground leading-relaxed">
                 Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen 
                 dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art 
                 der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen 
-                Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind 
-                nur für den privaten, nicht kommerziellen Gebrauch gestattet.
-                <br /><br />
-                Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die 
-                Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche 
-                gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, 
-                bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen 
-                werden wir derartige Inhalte umgehend entfernen.
+                Zustimmung des jeweiligen Autors bzw. Erstellers.
               </p>
             </div>
 
@@ -140,6 +170,4 @@ const Impressum = () => {
       </section>
     </Layout>
   );
-};
-
-export default Impressum;
+}

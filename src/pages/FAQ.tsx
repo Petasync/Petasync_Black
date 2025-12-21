@@ -10,6 +10,8 @@ import { Link } from "react-router-dom";
 import { HelpCircle, MessageCircle, ArrowRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import faqHero from "@/assets/faq-hero.png";
 
 const faqCategories = [
@@ -131,6 +133,11 @@ export default function FAQ() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
+        
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="minimal" className="opacity-40" />
+        </Suspense>
         
         <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
         

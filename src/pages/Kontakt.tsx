@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import kontaktHero from "@/assets/kontakt-hero.png";
 
 const contactInfo = [
@@ -96,6 +97,11 @@ export default function Kontakt() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
+        
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="minimal" className="opacity-40" />
+        </Suspense>
         
         <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
         
