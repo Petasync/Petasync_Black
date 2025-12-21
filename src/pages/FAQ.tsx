@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { HelpCircle, MessageCircle, ArrowRight } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { cn } from "@/lib/utils";
+import faqHero from "@/assets/faq-hero.png";
 
 const faqCategories = [
   {
@@ -113,24 +116,40 @@ const faqCategories = [
   }
 ];
 
-const FAQ = () => {
+export default function FAQ() {
+  const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-tech-900/20 via-background to-tech-800/10" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
+      <section className="relative min-h-[50vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src={faqHero} 
+            alt="" 
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+        </div>
         
-        <div className="container-tight relative z-10">
+        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
+        
+        <div 
+          ref={heroRef}
+          className={cn(
+            "container-tight relative z-10 py-24 transition-all duration-1000",
+            heroRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          )}
+        >
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <HelpCircle className="w-4 h-4" />
+            <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
               Häufig gestellte Fragen
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-              Wie können wir <span className="text-gradient">helfen?</span>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
+              Wie können wir{" "}
+              <span className="gradient-text">helfen?</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground">
               Hier finden Sie Antworten auf die häufigsten Fragen zu unseren Services.
             </p>
           </div>
@@ -138,28 +157,28 @@ const FAQ = () => {
       </section>
 
       {/* FAQ Sections */}
-      <section className="py-12 pb-20">
+      <section className="section-padding">
         <div className="container-tight max-w-4xl">
           {faqCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex} className="mb-12">
-              <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-sm text-primary-foreground">
+            <div key={categoryIndex} className="mb-16">
+              <div className="flex items-center gap-4 mb-8">
+                <span className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-sm font-medium">
                   {categoryIndex + 1}
                 </span>
-                {category.title}
-              </h2>
+                <h2 className="text-2xl font-bold">{category.title}</h2>
+              </div>
               
-              <Accordion type="single" collapsible className="space-y-4">
+              <Accordion type="single" collapsible className="space-y-2">
                 {category.questions.map((faq, faqIndex) => (
                   <AccordionItem 
                     key={faqIndex} 
                     value={`${categoryIndex}-${faqIndex}`}
-                    className="glass-strong rounded-xl px-6 border-0"
+                    className="border-b border-white/5 last:border-0"
                   >
-                    <AccordionTrigger className="text-left hover:no-underline py-5">
+                    <AccordionTrigger className="text-left hover:no-underline py-6 text-foreground">
                       <span className="font-medium pr-4">{faq.question}</span>
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pb-5">
+                    <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
@@ -171,34 +190,37 @@ const FAQ = () => {
       </section>
 
       {/* Contact CTA */}
-      <section className="py-16 bg-muted/30">
+      <section className="section-padding">
         <div className="container-tight">
-          <div className="glass-strong rounded-3xl p-8 md:p-12 text-center">
-            <MessageCircle className="w-12 h-12 text-primary mx-auto mb-6" />
-            <h2 className="text-2xl md:text-3xl font-display font-bold mb-4">
-              Ihre Frage war nicht dabei?
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-              Kein Problem! Kontaktieren Sie uns direkt – wir helfen Ihnen gerne persönlich weiter.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="gradient-bg border-0 gap-2" asChild>
-                <Link to="/kontakt">
-                  Kontakt aufnehmen
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="https://wa.me/4991611234567" target="_blank" rel="noopener noreferrer">
-                  WhatsApp schreiben
-                </a>
-              </Button>
+          <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden text-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
+            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+            
+            <div className="relative">
+              <MessageCircle className="w-12 h-12 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl font-bold mb-4">
+                Ihre Frage war nicht dabei?
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+                Kein Problem! Kontaktieren Sie uns direkt – wir helfen Ihnen gerne persönlich weiter.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
+                  <Link to="/kontakt">
+                    Kontakt aufnehmen
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white/5" asChild>
+                  <a href="https://wa.me/491637117198" target="_blank" rel="noopener noreferrer">
+                    WhatsApp schreiben
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
     </Layout>
   );
-};
-
-export default FAQ;
+}
