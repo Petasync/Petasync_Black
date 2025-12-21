@@ -35,20 +35,19 @@ export function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled
-          ? "py-3 bg-background/80 backdrop-blur-xl border-b border-white/[0.08]"
-          : "py-5 bg-transparent"
+          ? "py-4 bg-background/80 backdrop-blur-xl"
+          : "py-6 bg-transparent"
       )}
     >
       <div className="container-tight">
         <nav className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-xl gradient-bg flex items-center justify-center overflow-hidden">
-              <span className="text-white font-bold text-lg relative z-10">P</span>
-              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative w-9 h-9 rounded-lg bg-foreground flex items-center justify-center overflow-hidden">
+              <span className="text-background font-bold text-lg relative z-10">P</span>
             </div>
-            <span className="font-bold text-xl text-foreground">
-              Peta<span className="gradient-text-colored">sync</span>
+            <span className="font-semibold text-lg text-foreground">
+              Petasync
             </span>
           </Link>
 
@@ -59,10 +58,10 @@ export function Header() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  "px-4 py-2 text-sm transition-colors duration-200",
                   location.pathname === item.href
-                    ? "text-foreground bg-white/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {item.name}
@@ -71,25 +70,21 @@ export function Header() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              asChild 
-              className="gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5"
+          <div className="hidden lg:flex items-center gap-4">
+            <Link 
+              to="/privatkunden#leih-pc"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
             >
-              <Link to="/privatkunden#leih-pc">
-                <Monitor className="w-4 h-4" />
-                <span>Leih-PC</span>
-              </Link>
-            </Button>
+              <Monitor className="w-4 h-4" />
+              <span>Leih-PC</span>
+            </Link>
             <Button 
               size="sm" 
               asChild 
-              className="gap-2 gradient-bg border-0 btn-glow hover:opacity-90"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-full gap-2"
             >
               <Link to="/kontakt">
-                <Phone className="w-4 h-4" />
+                <Phone className="w-3.5 h-3.5" />
                 <span>Kontakt</span>
               </Link>
             </Button>
@@ -98,43 +93,43 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+            className="lg:hidden p-2 text-foreground"
             aria-label="Menü öffnen"
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             )}
           </button>
         </nav>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 animate-fade-in">
-            <div className="glass rounded-2xl p-4 space-y-1">
+          <div className="lg:hidden mt-6 pb-6 animate-fade-in">
+            <div className="space-y-1">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}
                   className={cn(
-                    "block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200",
+                    "block py-3 text-base transition-colors",
                     location.pathname === item.href
-                      ? "text-foreground bg-white/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      ? "text-foreground"
+                      : "text-muted-foreground"
                   )}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4 space-y-2 border-t border-white/10 mt-2">
-                <Button variant="outline" className="w-full gap-2 border-white/10" asChild>
+              <div className="pt-6 space-y-3">
+                <Button variant="outline" className="w-full gap-2 rounded-full border-white/10" asChild>
                   <Link to="/privatkunden#leih-pc">
                     <Monitor className="w-4 h-4" />
                     Leih-PC Service
                   </Link>
                 </Button>
-                <Button className="w-full gap-2 gradient-bg border-0" asChild>
+                <Button className="w-full gap-2 bg-foreground text-background rounded-full" asChild>
                   <Link to="/kontakt">
                     <Phone className="w-4 h-4" />
                     Jetzt anfragen
