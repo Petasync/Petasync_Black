@@ -5,9 +5,8 @@
 @tailwind utilities;
 
 @layer base {
-  /* Linear-Style Pure Black/White Theme */
+  /* Dark Theme (Default) */
   :root {
-    /* Pure black background */
     --background: 0 0% 2%;
     --foreground: 0 0% 98%;
 
@@ -17,19 +16,15 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary: Subtle warm gray - used sparingly */
     --primary: 25 70% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Cool gray */
     --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 98%;
 
-    /* Muted grays - the main palette */
     --muted: 0 0% 8%;
     --muted-foreground: 0 0% 50%;
 
-    /* Accent: Subtle teal for small highlights */
     --accent: 170 50% 40%;
     --accent-foreground: 0 0% 100%;
 
@@ -41,6 +36,67 @@
     --ring: 0 0% 30%;
 
     --radius: 0.5rem;
+  }
+
+  /* Light Theme */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 25 70% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 170 50% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 70%;
+  }
+
+  .dark {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 25 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 170 50% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 30%;
   }
 }
 
@@ -62,50 +118,49 @@
   }
 
   ::selection {
-    @apply bg-white/20 text-foreground;
+    @apply bg-foreground/20 text-foreground;
   }
 }
 
 @layer components {
-  /* Linear-style gradient text - silver/white */
+  /* Gradient text - works in both themes */
   .gradient-text {
-    @apply bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent;
+    @apply bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent;
   }
 
   .gradient-text-subtle {
-    @apply bg-gradient-to-b from-white/90 to-white/40 bg-clip-text text-transparent;
+    @apply bg-gradient-to-b from-foreground/90 to-foreground/40 bg-clip-text text-transparent;
   }
 
-  /* Accent gradient - used very sparingly */
   .gradient-text-accent {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
 
-  /* Light glow effect for important elements */
+  /* Glow effects */
   .glow-white {
-    box-shadow: 0 0 60px hsl(0 0% 100% / 0.08);
+    box-shadow: 0 0 60px hsl(var(--foreground) / 0.08);
   }
 
   .glow-subtle {
-    box-shadow: 0 0 100px hsl(0 0% 100% / 0.04);
+    box-shadow: 0 0 100px hsl(var(--foreground) / 0.04);
   }
 
-  /* Radial light from center - Linear signature */
+  /* Radial light */
   .radial-light {
-    background: radial-gradient(ellipse 60% 40% at 50% 0%, hsl(0 0% 100% / 0.06), transparent);
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, hsl(var(--foreground) / 0.06), transparent);
   }
 
   .radial-light-bottom {
-    background: radial-gradient(ellipse 80% 50% at 50% 100%, hsl(0 0% 100% / 0.04), transparent);
+    background: radial-gradient(ellipse 80% 50% at 50% 100%, hsl(var(--foreground) / 0.04), transparent);
   }
 
-  /* Subtle divider line with light effect */
+  /* Divider */
   .divider-glow {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.15), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.15), transparent);
   }
 
-  /* NO BORDERS - Content separation through space and light */
+  /* Content block */
   .content-block {
     @apply relative;
   }
@@ -118,7 +173,7 @@
     transform: translateX(-50%);
     width: 60%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.1), transparent);
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.1), transparent);
   }
 
   /* Sections */
@@ -155,7 +210,7 @@
   .stagger-children.revealed > *:nth-child(5) { animation: stagger-in 0.8s 0.5s forwards; }
   .stagger-children.revealed > *:nth-child(6) { animation: stagger-in 0.8s 0.6s forwards; }
 
-  /* Noise texture overlay */
+  /* Noise overlay */
   .noise-overlay::after {
     content: '';
     position: absolute;
@@ -165,30 +220,30 @@
     pointer-events: none;
   }
 
-  /* Fine grid pattern */
+  /* Grid pattern */
   .grid-pattern {
     background-image: 
-      linear-gradient(hsl(0 0% 100% / 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(0 0% 100% / 0.02) 1px, transparent 1px);
+      linear-gradient(hsl(var(--foreground) / 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black, transparent);
   }
 
-  /* Hover link style */
+  /* Link hover */
   .link-hover {
     @apply text-muted-foreground transition-colors duration-200 hover:text-foreground;
   }
 
-  /* CTA Button - subtle glow on hover */
+  /* CTA Button */
   .btn-primary {
     @apply relative bg-foreground text-background font-medium transition-all duration-300;
   }
 
   .btn-primary:hover {
-    box-shadow: 0 0 30px hsl(0 0% 100% / 0.2);
+    box-shadow: 0 0 30px hsl(var(--foreground) / 0.2);
   }
 
-  /* Feature highlight - subtle background glow */
+  /* Feature highlight */
   .feature-highlight {
     position: relative;
   }
@@ -203,6 +258,11 @@
     height: 200%;
     background: radial-gradient(circle, hsl(var(--primary) / 0.08), transparent 50%);
     pointer-events: none;
+  }
+
+  /* Glass effect for light mode */
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-xl border border-border/50;
   }
 }
 
@@ -236,12 +296,8 @@
 }
 
 @keyframes pulse-soft {
-  0%, 100% { 
-    opacity: 0.3;
-  }
-  50% { 
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes gradient-shift {
@@ -263,18 +319,18 @@
   animation: gradient-shift 8s ease infinite;
 }
 
-/* Scroll Progress Indicator */
+/* Scroll Progress */
 .scroll-progress {
   position: fixed;
   top: 0;
   left: 0;
   height: 1px;
-  background: linear-gradient(90deg, hsl(0 0% 30%), hsl(0 0% 60%), hsl(0 0% 30%));
+  background: linear-gradient(90deg, hsl(var(--muted-foreground)), hsl(var(--foreground)), hsl(var(--muted-foreground)));
   z-index: 9999;
   transition: width 0.1s linear;
 }
 
-/* Image with depth effect */
+/* Image depth effect */
 .image-depth {
   position: relative;
 }
@@ -283,12 +339,22 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 60%, hsl(0 0% 2%));
+  background: linear-gradient(180deg, transparent 60%, hsl(var(--background)));
   pointer-events: none;
 }
 
 .image-float-shadow {
   box-shadow: 
-    0 30px 60px -20px hsl(0 0% 0% / 0.5),
-    0 60px 100px -30px hsl(0 0% 0% / 0.4);
+    0 30px 60px -20px hsl(var(--background) / 0.5),
+    0 60px 100px -30px hsl(var(--background) / 0.4);
+}
+
+/* Light mode specific overrides */
+.light .gradient-text {
+  @apply bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent;
+}
+
+/* Dark mode 3D elements need white, light mode needs dark */
+.light .three-element {
+  filter: invert(1);
 }

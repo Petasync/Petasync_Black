@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
+import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
+import teamSupport from "@/assets/team-support.png";
 
 const services = [
   {
@@ -121,6 +124,11 @@ export default function Geschaeftskunden() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
+        
+        {/* 3D Scene */}
+        <Suspense fallback={null}>
+          <Floating3DScene variant="dense" className="opacity-40" />
+        </Suspense>
         
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
         

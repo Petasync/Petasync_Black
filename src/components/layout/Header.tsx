@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, Monitor } from "lucide-react";
+import { Menu, X, Phone, Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 const navItems = [
   { name: "Start", href: "/" },
@@ -16,7 +17,13 @@ const navItems = [
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,7 +42,7 @@ export function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled
-          ? "py-4 bg-background/80 backdrop-blur-xl"
+          ? "py-4 bg-background/80 backdrop-blur-xl border-b border-border/50"
           : "py-6 bg-transparent"
       )}
     >
@@ -69,8 +76,8 @@ export function Header() {
             ))}
           </div>
 
-          {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop CTA & Theme Toggle */}
+          <div className="hidden lg:flex items-center gap-3">
             <Link 
               to="/privatkunden#leih-pc"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
@@ -78,6 +85,21 @@ export function Header() {
               <Monitor className="w-4 h-4" />
               <span>Leih-PC</span>
             </Link>
+            
+            {/* Theme Toggle */}
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="w-9 h-9 rounded-full hover:bg-muted"
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Theme wechseln</span>
+              </Button>
+            )}
+            
             <Button 
               size="sm" 
               asChild 
@@ -91,17 +113,30 @@ export function Header() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-foreground"
-            aria-label="Menü öffnen"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
+          <div className="lg:hidden flex items-center gap-2">
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="w-9 h-9 rounded-full hover:bg-muted"
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
             )}
-          </button>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-foreground"
+              aria-label="Menü öffnen"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </nav>
 
         {/* Mobile Menu */}
@@ -123,7 +158,7 @@ export function Header() {
                 </Link>
               ))}
               <div className="pt-6 space-y-3">
-                <Button variant="outline" className="w-full gap-2 rounded-full border-white/10" asChild>
+                <Button variant="outline" className="w-full gap-2 rounded-full border-border" asChild>
                   <Link to="/privatkunden#leih-pc">
                     <Monitor className="w-4 h-4" />
                     Leih-PC Service
