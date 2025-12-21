@@ -20,7 +20,7 @@ export function Hero() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">IT-Service aus Dietenhofen</span>
+              <span className="text-sm font-medium text-primary">IT-Service für Ansbach & Nürnberg</span>
             </div>
 
             {/* Headline */}

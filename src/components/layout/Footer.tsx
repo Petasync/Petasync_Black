@@ -17,7 +17,7 @@ const infoLinks = [
 ];
 
 const serviceAreas = [
-  "Dietenhofen", "Ansbach", "Nürnberg", "Neustadt an der Aisch", "Oberasbach"
+  "Ansbach", "Oberasbach", "Nürnberg", "Fürth", "Erlangen"
 ];
 
 export function Footer() {
@@ -43,17 +43,17 @@ export function Footer() {
               Professioneller IT-Service mit persönlicher Beratung.
             </p>
             <div className="space-y-3 text-sm">
-              <a href="tel:+4991611234567" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href="tel:+491637117198" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>09161 / 123 45 67</span>
+                <span>+49 163 711 7198</span>
               </a>
-              <a href="mailto:info@petasync.de" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href="mailto:service@petasync.de" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>info@petasync.de</span>
+                <span>service@petasync.de</span>
               </a>
               <div className="flex items-start gap-3 text-background/70">
                 <MapPin className="w-4 h-4 mt-0.5" />
-                <span>Dietenhofen & Umgebung</span>
+                <span>Mobil vor Ort – Ansbach / Oberasbach</span>
               </div>
             </div>
           </div>
@@ -120,8 +120,8 @@ export function Footer() {
               <Clock className="w-4 h-4 mt-0.5" />
               <div>
                 <p className="font-medium text-background/90">Öffnungszeiten</p>
-                <p>Mo - Fr: 9:00 - 18:00 Uhr</p>
-                <p>Sa: nach Vereinbarung</p>
+                <p>Mo - Fr: 09:00 - 19:00 Uhr</p>
+                <p>Sa & So: Geschlossen</p>
               </div>
             </div>
           </div>
@@ -133,7 +133,7 @@ export function Footer() {
         <div className="container-tight py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-background/50">
             <p>© {currentYear} Petasync. Alle Rechte vorbehalten.</p>
-            <p>IT-Service aus Dietenhofen für Ansbach, Nürnberg und Umgebung</p>
+            <p>IT-Service für Ansbach, Nürnberg, Fürth und Umgebung</p>
           </div>
         </div>
       </div>

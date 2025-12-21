@@ -11,30 +11,30 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Telefon",
-    value: "+49 156 78123456",
-    href: "tel:+4915678123456",
-    description: "Mo-Fr: 8:00 - 18:00 Uhr"
+    value: "+49 163 711 7198",
+    href: "tel:+491637117198",
+    description: "Mo-Fr: 09:00 - 19:00 Uhr"
   },
   {
     icon: Mail,
     title: "E-Mail",
-    value: "info@petasync.de",
-    href: "mailto:info@petasync.de",
+    value: "service@petasync.de",
+    href: "mailto:service@petasync.de",
     description: "Antwort innerhalb von 24h"
   },
   {
     icon: MapPin,
     title: "Standort",
-    value: "Dietenhofen & Umgebung",
+    value: "Mobil vor Ort",
     href: null,
-    description: "Ansbach, Nürnberg, Neustadt, Oberasbach"
+    description: "Ansbach, Oberasbach, Nürnberg, Fürth, Erlangen"
   },
   {
     icon: Clock,
     title: "Öffnungszeiten",
-    value: "Mo-Fr: 8:00 - 18:00",
+    value: "Mo-Fr: 09:00 - 19:00",
     href: null,
-    description: "Termine nach Vereinbarung auch Sa"
+    description: "Sa & So: Geschlossen"
   }
 ];
 
@@ -251,7 +251,7 @@ export default function Kontakt() {
 
               {/* WhatsApp Card */}
               <a 
-                href="https://wa.me/4915678123456"
+                href="https://wa.me/491637117198"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 hover:border-green-500/40 transition-colors"
@@ -269,7 +269,7 @@ export default function Kontakt() {
 
               {/* Phone Card */}
               <a 
-                href="tel:+4915678123456"
+                href="tel:+491637117198"
                 className="block p-6 rounded-xl bg-gradient-to-br from-primary/10 to-tech-500/10 border border-primary/20 hover:border-primary/40 transition-colors"
               >
                 <div className="flex items-center gap-4">
@@ -278,7 +278,7 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Telefon</h3>
-                    <p className="text-muted-foreground">+49 156 78123456 (Mo-Fr: 8-18 Uhr)</p>
+                    <p className="text-muted-foreground">+49 163 711 7198 (Mo-Fr: 09-19 Uhr)</p>
                   </div>
                 </div>
               </a>
@@ -293,7 +293,7 @@ export default function Kontakt() {
                   Wir sind in der gesamten Region für Sie da – vor Ort oder per Remote-Support.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {["Dietenhofen", "Ansbach", "Nürnberg", "Neustadt a.d. Aisch", "Oberasbach"].map((city) => (
+                  {["Ansbach", "Oberasbach", "Nürnberg", "Fürth", "Erlangen"].map((city) => (
                     <span 
                       key={city}
                       className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium"

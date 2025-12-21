@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const serviceAreas = [
-  { city: "Dietenhofen", description: "Unser Hauptstandort" },
   { city: "Ansbach", description: "Kreisstadt Mittelfranken" },
-  { city: "Nürnberg", description: "Metropolregion" },
-  { city: "Neustadt a.d. Aisch", description: "Landkreis NEA" },
   { city: "Oberasbach", description: "Landkreis Fürth" },
+  { city: "Nürnberg", description: "Metropolregion" },
+  { city: "Fürth", description: "Großstadt Mittelfranken" },
+  { city: "Erlangen", description: "Universitätsstadt" },
 ];
 
 export function LocalSEO() {
@@ -62,7 +62,7 @@ export function LocalSEO() {
 
             <div className="space-y-6">
               <a
-                href="tel:+4991611234567"
+                href="tel:+491637117198"
                 className="flex items-center gap-4 p-4 rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors group"
               >
                 <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center">
@@ -70,12 +70,12 @@ export function LocalSEO() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Telefon</p>
-                  <p className="font-semibold group-hover:text-primary transition-colors">09161 / 123 45 67</p>
+                  <p className="font-semibold group-hover:text-primary transition-colors">+49 163 711 7198</p>
                 </div>
               </a>
 
               <a
-                href="mailto:info@petasync.de"
+                href="mailto:service@petasync.de"
                 className="flex items-center gap-4 p-4 rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors group"
               >
                 <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
@@ -83,7 +83,7 @@ export function LocalSEO() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">E-Mail</p>
-                  <p className="font-semibold group-hover:text-primary transition-colors">info@petasync.de</p>
+                  <p className="font-semibold group-hover:text-primary transition-colors">service@petasync.de</p>
                 </div>
               </a>
 
