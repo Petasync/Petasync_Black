@@ -9,64 +9,57 @@ export function CTASection() {
 
   return (
     <section className="section-padding relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/10 to-primary/5" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/20 rounded-full blur-[120px]" />
-      
-      {/* Grid pattern */}
-      <div className="absolute inset-0 dot-pattern opacity-20" />
+      {/* Large radial light */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] bg-white/[0.03] rounded-full blur-[150px]" />
 
       <div className="container-tight relative">
+        {/* Divider */}
+        <div className="divider-glow mb-20" />
+
         <div 
           ref={ref}
           className={cn(
-            "text-center max-w-3xl mx-auto transition-all duration-700",
-            isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            "text-center max-w-3xl mx-auto transition-all duration-1000",
+            isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Bereit für IT ohne <span className="gradient-text-colored">Kopfschmerzen</span>?
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 gradient-text">
+            Bereit für IT ohne Kopfschmerzen?
           </h2>
 
-          <p className="text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-12 leading-relaxed">
             Lassen Sie uns gemeinsam Ihre IT-Herausforderungen lösen. 
-            <span className="text-foreground font-medium"> Kostenlose Erstberatung – unverbindlich und ohne Risiko.</span>
+            <span className="text-foreground"> Kostenlose Erstberatung – unverbindlich und ohne Risiko.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
               asChild
-              className="h-14 px-8 text-base gradient-bg border-0 btn-glow hover:opacity-90"
+              className="h-14 px-8 text-base bg-foreground text-background hover:bg-foreground/90 rounded-full"
             >
               <Link to="/kontakt">
-                <Phone className="w-5 h-5 mr-2" />
+                <Phone className="w-4 h-4 mr-2" />
                 Jetzt Kontakt aufnehmen
               </Link>
             </Button>
             <Button
               size="lg"
-              variant="outline"
+              variant="ghost"
               asChild
-              className="h-14 px-8 text-base border-white/10 hover:bg-white/5"
+              className="h-14 px-8 text-base text-muted-foreground hover:text-foreground hover:bg-transparent"
             >
               <Link to="/privatkunden#leih-pc">
-                <Monitor className="w-5 h-5 mr-2" />
+                <Monitor className="w-4 h-4 mr-2" />
                 Leih-PC Service
               </Link>
             </Button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <span className="text-primary">✓</span> Kostenlose Beratung
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="text-primary">✓</span> Transparente Preise
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="text-primary">✓</span> Vor-Ort-Service
-            </span>
+          <div className="flex flex-wrap justify-center gap-8 mt-16 text-sm text-muted-foreground">
+            <span>Kostenlose Beratung</span>
+            <span>Transparente Preise</span>
+            <span>Vor-Ort-Service</span>
           </div>
         </div>
       </div>

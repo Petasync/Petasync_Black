@@ -9,42 +9,37 @@ const services = [
     title: "PC & Laptop Reparatur",
     description: "Hardware-Defekte, Software-Probleme, Virenentfernung – wir bringen Ihren Computer wieder zum Laufen.",
     href: "/privatkunden",
-    accent: false,
   },
   {
     icon: Monitor,
     title: "Leih-PC Service",
     description: "Keine Ausfallzeit! Nutzen Sie während der Reparatur kostenlos eines unserer Leihgeräte.",
     href: "/privatkunden#leih-pc",
-    accent: true,
+    highlight: true,
   },
   {
     icon: Shield,
     title: "IT-Sicherheit",
     description: "Virenschutz, Datensicherung und Schutz vor Cyber-Bedrohungen für Ihre Geräte.",
     href: "/privatkunden",
-    accent: false,
   },
   {
     icon: Wifi,
     title: "Netzwerk & WLAN",
     description: "Einrichtung, Optimierung und Absicherung Ihres Heimnetzwerks für stabiles Internet.",
     href: "/privatkunden",
-    accent: false,
   },
   {
     icon: Building2,
     title: "IT für Unternehmen",
     description: "Professionelle IT-Infrastruktur, Wartungsverträge und Support für Ihr Unternehmen.",
     href: "/geschaeftskunden",
-    accent: false,
   },
   {
     icon: Globe,
     title: "Webdesign",
     description: "Moderne, responsive Websites die Kunden überzeugen – von der Visitenkarte bis zum Shop.",
     href: "/websites",
-    accent: "green" as const,
   },
 ];
 
@@ -54,31 +49,37 @@ export function Services() {
 
   return (
     <section className="section-padding relative">
+      {/* Subtle radial light */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[400px] radial-light" />
+      
       <div className="container-tight relative">
+        {/* Divider line with glow */}
+        <div className="divider-glow mb-20" />
+
         {/* Header */}
         <div 
           ref={headerRef}
           className={cn(
-            "text-center max-w-2xl mx-auto mb-16 transition-all duration-700",
-            headerRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            "text-center max-w-2xl mx-auto mb-20 transition-all duration-1000",
+            headerRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          <span className="inline-block text-sm font-medium text-primary mb-4 tracking-wider uppercase">
+          <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
             Services
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 gradient-text">
             IT-Lösungen für jeden Bedarf
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-lg">
             Von der schnellen Reparatur bis zur langfristigen IT-Betreuung.
           </p>
         </div>
 
-        {/* Services Grid */}
+        {/* Services Grid - NO BORDERS */}
         <div 
           ref={gridRef}
           className={cn(
-            "grid md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children",
+            "grid md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16 stagger-children",
             gridRevealed ? "revealed" : ""
           )}
         >
@@ -86,44 +87,37 @@ export function Services() {
             <Link
               key={service.title}
               to={service.href}
-              className={cn(
-                "group card-interactive p-6 hover:scale-[1.02] transition-all duration-300",
-                service.accent === true && "border-primary/30",
-                service.accent === "green" && "border-accent/30"
-              )}
+              className="group relative"
             >
-              {service.accent === true && (
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+              {/* Subtle highlight glow for featured item */}
+              {service.highlight && (
+                <div className="absolute -inset-8 bg-white/[0.02] rounded-3xl -z-10" />
               )}
               
               <div className={cn(
-                "w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-all duration-300",
-                service.accent === true ? "bg-primary" : 
-                service.accent === "green" ? "bg-accent" : "bg-white/10",
-                "group-hover:scale-110"
+                "w-10 h-10 rounded-xl flex items-center justify-center mb-5 transition-all duration-300",
+                service.highlight ? "bg-white/10" : "bg-white/5",
+                "group-hover:bg-white/10"
               )}>
-                <service.icon className={cn(
-                  "w-5 h-5",
-                  service.accent ? "text-white" : "text-foreground"
-                )} />
+                <service.icon className="w-5 h-5 text-foreground" />
               </div>
 
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground text-lg mb-3 flex items-center gap-3">
                 {service.title}
-                {service.accent === true && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium uppercase tracking-wider">
+                {service.highlight && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-muted-foreground font-medium uppercase tracking-wider">
                     USP
                   </span>
                 )}
               </h3>
 
-              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 {service.description}
               </p>
 
-              <div className="flex items-center gap-1 text-sm text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium group-hover:text-foreground transition-colors">
                 <span>Mehr erfahren</span>
-                <ArrowRight className="w-3 h-3" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
           ))}
