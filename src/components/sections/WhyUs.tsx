@@ -1,69 +1,98 @@
-import { MapPin, Clock, Shield, Users, Zap, HeadphonesIcon } from "lucide-react";
+import { MapPin, Clock, Shield, Zap } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { cn } from "@/lib/utils";
 
 const reasons = [
   {
     icon: MapPin,
     title: "Lokal vor Ort",
-    description: "Persönlicher Service in Dietenhofen, Ansbach, Nürnberg und Umgebung – kein anonymes Callcenter.",
+    description: "Persönlicher Service in Ansbach, Nürnberg und Umgebung.",
+    accent: false,
   },
   {
     icon: Clock,
     title: "Schnelle Hilfe",
-    description: "Kurze Reaktionszeiten und flexible Terminvergabe – weil IT-Probleme nicht warten können.",
+    description: "Kurze Reaktionszeiten und flexible Terminvergabe.",
+    accent: true,
   },
   {
     icon: Shield,
     title: "Transparente Preise",
-    description: "Keine versteckten Kosten. Sie wissen vorher, was die Reparatur kosten wird.",
-  },
-  {
-    icon: Users,
-    title: "Persönliche Beratung",
-    description: "Wir erklären verständlich und nehmen uns Zeit für Ihre Fragen – ohne Fachchinesisch.",
+    description: "Keine versteckten Kosten. Festpreis vorab.",
+    accent: false,
   },
   {
     icon: Zap,
     title: "Moderne Lösungen",
-    description: "Aktuelle Technologien und bewährte Methoden für nachhaltige IT-Lösungen.",
-  },
-  {
-    icon: HeadphonesIcon,
-    title: "Support der bleibt",
-    description: "Auch nach der Reparatur sind wir für Sie da – bei Fragen einfach melden.",
+    description: "Aktuelle Technologien für nachhaltige IT-Lösungen.",
+    accent: false,
   },
 ];
 
 export function WhyUs() {
+  const { ref: headerRef, isRevealed: headerRevealed } = useScrollReveal();
+  const { ref: cardsRef, isRevealed: cardsRevealed } = useScrollReveal();
+
   return (
-    <section className="section-padding">
-      <div className="container-tight">
+    <section className="section-padding relative">
+      <div className="absolute inset-0 dot-pattern opacity-20" />
+      
+      <div className="container-tight relative">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">Warum Petasync</span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mt-4 mb-6">
+        <div 
+          ref={headerRef}
+          className={cn(
+            "text-center max-w-2xl mx-auto mb-16 transition-all duration-700",
+            headerRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
+          <span className="inline-block text-sm font-medium text-primary mb-4 tracking-wider uppercase">
+            Warum Petasync
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             IT-Service mit{" "}
-            <span className="gradient-text">Handschlag-Qualität</span>
+            <span className="gradient-text-colored">Handschlag-Qualität</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Wir sind kein anonymer Großkonzern. Bei uns bekommen Sie echten, 
-            persönlichen Service von Menschen, die ihre Arbeit lieben.
+          <p className="text-muted-foreground">
+            Persönlicher Service von Menschen, die ihre Arbeit lieben.
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {reasons.map((reason, index) => (
+        {/* Cards */}
+        <div 
+          ref={cardsRef}
+          className={cn(
+            "grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children",
+            cardsRevealed ? "revealed" : ""
+          )}
+        >
+          {reasons.map((reason) => (
             <div
               key={reason.title}
-              className="group text-center p-6 rounded-2xl hover:bg-muted/50 transition-all duration-300"
+              className={cn(
+                "card-interactive p-6 text-center transition-all duration-300 hover:scale-[1.02]",
+                reason.accent && "border-primary/20"
+              )}
             >
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                <reason.icon className="w-8 h-8" />
+              {reason.accent && (
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+              )}
+              
+              <div className={cn(
+                "w-12 h-12 rounded-xl mx-auto mb-4 flex items-center justify-center",
+                reason.accent ? "bg-primary" : "bg-white/10"
+              )}>
+                <reason.icon className={cn(
+                  "w-6 h-6",
+                  reason.accent ? "text-white" : "text-foreground"
+                )} />
               </div>
-              <h3 className="text-xl font-display font-semibold mb-3">
+
+              <h3 className="font-semibold text-foreground mb-2">
                 {reason.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+
+              <p className="text-sm text-muted-foreground">
                 {reason.description}
               </p>
             </div>

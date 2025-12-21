@@ -10,76 +10,74 @@ export function Hero() {
       {/* Background base */}
       <div className="absolute inset-0 bg-background" />
       
-      {/* Gradient orbs - behind 3D */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/15 rounded-full blur-[120px] opacity-60" />
-      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-secondary/15 rounded-full blur-[100px] opacity-40" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] opacity-30" />
+      {/* Subtle gradient */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[150px] opacity-50" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] opacity-30" />
 
       {/* 3D Scene */}
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }>
         <Hero3DScene />
       </Suspense>
 
       {/* Content overlay */}
       <div className="container-tight relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-3xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-subtle mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-in">
             <div className="relative">
               <Sparkles className="w-4 h-4 text-primary" />
-              <div className="absolute inset-0 animate-pulse-ring">
-                <Sparkles className="w-4 h-4 text-primary/50" />
-              </div>
             </div>
             <span className="text-sm font-medium text-muted-foreground">
-              IT-Service für Ansbach & Nürnberg
+              IT-Service • Ansbach & Nürnberg
             </span>
           </div>
 
           {/* Main headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-fade-in-up">
-            <span className="text-foreground">IT-Service der </span>
-            <span className="relative inline-block">
-              <span className="gradient-text-colored">Zukunft</span>
-              <span className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 blur-2xl -z-10" />
-            </span>
+            <span className="text-foreground">IT-Service</span>
+            <br />
+            <span className="text-foreground">der </span>
+            <span className="gradient-text-colored">Zukunft</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mb-8 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
             Professionelle IT-Lösungen für Privat- und Geschäftskunden. 
-            Von der PC-Reparatur bis zur kompletten IT-Infrastruktur – 
-            <span className="text-foreground font-medium"> persönlich, schnell und zuverlässig.</span>
+            Persönlich, schnell und zuverlässig.
           </p>
 
-          {/* USP Highlight - Leih-PC */}
-          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-2xl glass mb-10 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
-            <div className="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center glow-subtle">
-              <Monitor className="w-6 h-6 text-white" />
+          {/* USP Highlight */}
+          <div className="inline-flex items-center gap-4 px-5 py-3 rounded-xl glass border-primary/20 mb-10 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <Monitor className="w-5 h-5 text-white" />
             </div>
             <div className="text-left">
-              <p className="font-semibold text-foreground">Leih-PC Service</p>
-              <p className="text-sm text-muted-foreground">Weiterarbeiten während der Reparatur</p>
+              <p className="font-semibold text-foreground text-sm">Leih-PC Service</p>
+              <p className="text-xs text-muted-foreground">Weiterarbeiten während der Reparatur</p>
             </div>
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
             <Button 
               size="lg" 
               asChild 
-              className="h-14 px-8 text-base gradient-bg border-0 btn-glow hover:opacity-90 transition-all"
+              className="h-12 px-6 text-sm font-medium bg-primary hover:bg-primary/90 text-white"
             >
               <Link to="/kontakt">
                 Kostenlose Beratung
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
               asChild 
-              className="h-14 px-8 text-base border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all"
+              className="h-12 px-6 text-sm font-medium border-white/10 hover:bg-white/5"
             >
               <Link to="/privatkunden">
                 Services entdecken
@@ -88,14 +86,14 @@ export function Hero() {
           </div>
 
           {/* Trust indicators */}
-          <div className="flex flex-wrap justify-center gap-8 mt-16 animate-fade-in" style={{ animationDelay: "500ms" }}>
+          <div className="flex flex-wrap gap-6 mt-12 animate-fade-in" style={{ animationDelay: "500ms" }}>
             {[
-              { label: "Schnelle Reaktion", icon: "⚡" },
-              { label: "Faire Preise", icon: "✓" },
-              { label: "Vor-Ort-Service", icon: "📍" },
+              { label: "Schnelle Reaktion" },
+              { label: "Faire Preise" },
+              { label: "Vor-Ort-Service" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-lg">{item.icon}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 <span>{item.label}</span>
               </div>
             ))}
@@ -105,6 +103,13 @@ export function Hero() {
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
+      
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 animate-fade-in" style={{ animationDelay: "800ms" }}>
+        <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center p-2">
+          <div className="w-1 h-2 rounded-full bg-primary animate-bounce" />
+        </div>
+      </div>
     </section>
   );
 }
