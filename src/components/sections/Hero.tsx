@@ -1,54 +1,26 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Monitor, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMouseParallax } from "@/hooks/useScrollReveal";
+import { Hero3DScene } from "@/components/3d/Hero3DScene";
+import { Suspense } from "react";
 
 export function Hero() {
-  const floatingRef1 = useMouseParallax(15);
-  const floatingRef2 = useMouseParallax(25);
-  const floatingRef3 = useMouseParallax(10);
-
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background layers */}
+      {/* Background base */}
       <div className="absolute inset-0 bg-background" />
       
-      {/* Gradient orbs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/20 rounded-full blur-[120px] opacity-60" />
-      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[100px] opacity-40" />
+      {/* Gradient orbs - behind 3D */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/15 rounded-full blur-[120px] opacity-60" />
+      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-secondary/15 rounded-full blur-[100px] opacity-40" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] opacity-30" />
-      
-      {/* Grid pattern */}
-      <div className="absolute inset-0 dot-pattern opacity-30" />
-      
-      {/* Video placeholder - user can add video later */}
-      <div className="absolute inset-0 opacity-0 pointer-events-none">
-        {/* 
-          Video-Platzhalter: Füge hier dein Artlist-Video ein
-          <video autoPlay muted loop playsInline className="video-background">
-            <source src="/your-video.mp4" type="video/mp4" />
-          </video>
-          <div className="video-overlay" />
-        */}
-      </div>
 
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          ref={floatingRef1}
-          className="absolute top-[15%] right-[10%] w-64 h-64 rounded-full border border-primary/20 animate-spin-slow opacity-20"
-        />
-        <div 
-          ref={floatingRef2}
-          className="absolute bottom-[20%] left-[5%] w-48 h-48 rounded-full border border-secondary/20 animate-spin-slow opacity-15"
-          style={{ animationDirection: "reverse", animationDuration: "30s" }}
-        />
-        <div 
-          ref={floatingRef3}
-          className="absolute top-[40%] left-[15%] w-32 h-32 rounded-full bg-accent/5 blur-xl animate-float"
-        />
-      </div>
+      {/* 3D Scene */}
+      <Suspense fallback={null}>
+        <Hero3DScene />
+      </Suspense>
 
+      {/* Content overlay */}
       <div className="container-tight relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
@@ -67,9 +39,9 @@ export function Hero() {
           {/* Main headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-fade-in-up">
             <span className="text-foreground">IT-Service der </span>
-            <span className="relative">
+            <span className="relative inline-block">
               <span className="gradient-text-colored">Zukunft</span>
-              <span className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 blur-2xl -z-10" />
+              <span className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 blur-2xl -z-10" />
             </span>
           </h1>
 
@@ -129,61 +101,10 @@ export function Hero() {
             ))}
           </div>
         </div>
-
-        {/* Floating cards */}
-        <div className="hidden lg:block absolute inset-0 pointer-events-none">
-          {/* Card 1 - Top right */}
-          <div 
-            className="absolute top-[20%] right-[5%] card-depth p-5 max-w-[240px] animate-float"
-            style={{ animationDelay: "0s" }}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-                <span className="text-white text-lg">🔧</span>
-              </div>
-              <div>
-                <p className="font-medium text-sm text-foreground">PC Reparatur</p>
-                <p className="text-xs text-muted-foreground">Hardware & Software</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2 - Bottom left */}
-          <div 
-            className="absolute bottom-[25%] left-[5%] card-depth p-5 max-w-[240px] animate-float-delayed"
-            style={{ animationDelay: "2s" }}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-                <span className="text-white text-lg">🛡️</span>
-              </div>
-              <div>
-                <p className="font-medium text-sm text-foreground">IT-Sicherheit</p>
-                <p className="text-xs text-muted-foreground">Schutz & Backup</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 - Center right */}
-          <div 
-            className="absolute top-[50%] right-[2%] card-depth p-5 max-w-[220px] animate-float"
-            style={{ animationDelay: "1s" }}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-                <span className="text-white text-lg">💻</span>
-              </div>
-              <div>
-                <p className="font-medium text-sm text-foreground">Leih-PC</p>
-                <p className="text-xs text-muted-foreground">Unser USP</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20" />
     </section>
   );
 }
