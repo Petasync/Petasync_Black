@@ -87,7 +87,7 @@ export default function Privatkunden() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                <a href="tel:+4915678123456">
+                <a href="tel:+491637117198">
                   <Phone className="mr-2 h-5 w-5" />
                   Jetzt anrufen
                 </a>
@@ -206,7 +206,7 @@ export default function Privatkunden() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10">
-              <a href="https://wa.me/4915678123456" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/491637117198" target="_blank" rel="noopener noreferrer">
                 WhatsApp schreiben
               </a>
             </Button>

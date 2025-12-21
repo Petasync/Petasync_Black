@@ -14,26 +14,27 @@ const Index = () => {
         __html: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
-          "name": "Petasync IT-Service",
-          "description": "Professioneller IT-Service für Privat- und Geschäftskunden in Dietenhofen, Ansbach, Nürnberg und Umgebung. PC-Reparatur, Netzwerk, Webdesign.",
+          "name": "PetaSync IT-Service",
+          "description": "Professioneller IT-Service für Privat- und Geschäftskunden in Ansbach, Nürnberg, Fürth und Umgebung. PC-Reparatur, Netzwerk, Webdesign.",
           "url": "https://petasync.de",
-          "telephone": "+4991611234567",
-          "email": "info@petasync.de",
+          "telephone": "+491637117198",
+          "email": "service@petasync.de",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Dietenhofen",
+            "streetAddress": "Mobil vor Ort",
+            "addressLocality": "Ansbach / Oberasbach",
             "addressRegion": "Bayern",
             "addressCountry": "DE"
           },
           "areaServed": [
-            { "@type": "City", "name": "Dietenhofen" },
             { "@type": "City", "name": "Ansbach" },
+            { "@type": "City", "name": "Oberasbach" },
             { "@type": "City", "name": "Nürnberg" },
-            { "@type": "City", "name": "Neustadt an der Aisch" },
-            { "@type": "City", "name": "Oberasbach" }
+            { "@type": "City", "name": "Fürth" },
+            { "@type": "City", "name": "Erlangen" }
           ],
           "priceRange": "€€",
-          "openingHours": "Mo-Fr 09:00-18:00"
+          "openingHours": "Mo-Fr 09:00-19:00"
         })
       }} />
 

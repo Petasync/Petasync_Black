@@ -1,7 +1,7 @@
 import { MessageCircle } from "lucide-react";
 
 export function WhatsAppButton() {
-  const phoneNumber = "4991611234567"; // Replace with actual number
+  const phoneNumber = "491637117198";
   const message = encodeURIComponent("Hallo Petasync, ich habe eine Frage zu Ihrem IT-Service.");
   
   return (
