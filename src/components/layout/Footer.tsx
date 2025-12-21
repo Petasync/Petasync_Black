@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Clock, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin, Clock } from "lucide-react";
 
 const serviceLinks = [
   { name: "PC Reparatur", href: "/privatkunden" },
@@ -24,34 +24,37 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="relative border-t border-white/[0.08]">
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent pointer-events-none" />
+      
       {/* Main Footer */}
-      <div className="container-tight section-padding">
+      <div className="container-tight section-padding relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand & Contact */}
           <div className="space-y-6">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-lg">P</span>
+                <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="font-display font-bold text-xl">
-                Peta<span className="text-primary">sync</span>
+              <span className="font-bold text-xl text-foreground">
+                Peta<span className="gradient-text-colored">sync</span>
               </span>
             </Link>
-            <p className="text-background/70 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Ihr lokaler IT-Partner für Privat- und Geschäftskunden. 
               Professioneller IT-Service mit persönlicher Beratung.
             </p>
             <div className="space-y-3 text-sm">
-              <a href="tel:+491637117198" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href="tel:+491637117198" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
                 <Phone className="w-4 h-4" />
                 <span>+49 163 711 7198</span>
               </a>
-              <a href="mailto:service@petasync.de" className="flex items-center gap-3 text-background/70 hover:text-primary transition-colors">
+              <a href="mailto:service@petasync.de" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
                 <Mail className="w-4 h-4" />
                 <span>service@petasync.de</span>
               </a>
-              <div className="flex items-start gap-3 text-background/70">
+              <div className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4 mt-0.5" />
                 <span>Mobil vor Ort – Ansbach / Oberasbach</span>
               </div>
@@ -60,13 +63,13 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-6">Services</h4>
+            <h4 className="font-semibold text-foreground mb-6">Services</h4>
             <ul className="space-y-3">
               {serviceLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-primary transition-colors text-sm"
+                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -77,49 +80,38 @@ export function Footer() {
 
           {/* Info Links */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-6">Informationen</h4>
+            <h4 className="font-semibold text-foreground mb-6">Informationen</h4>
             <ul className="space-y-3">
               {infoLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-primary transition-colors text-sm"
+                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="mt-6 flex gap-4">
-              <a href="#" className="text-background/50 hover:text-primary transition-colors" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-background/50 hover:text-primary transition-colors" aria-label="Instagram">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-background/50 hover:text-primary transition-colors" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Service Area - Local SEO */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-6">Einsatzgebiet</h4>
+            <h4 className="font-semibold text-foreground mb-6">Einsatzgebiet</h4>
             <div className="flex flex-wrap gap-2 mb-6">
               {serviceAreas.map((area) => (
                 <span
                   key={area}
-                  className="text-xs px-3 py-1.5 rounded-full bg-background/10 text-background/80"
+                  className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground"
                 >
                   {area}
                 </span>
               ))}
             </div>
-            <div className="flex items-start gap-3 text-sm text-background/70">
+            <div className="flex items-start gap-3 text-sm text-muted-foreground">
               <Clock className="w-4 h-4 mt-0.5" />
               <div>
-                <p className="font-medium text-background/90">Öffnungszeiten</p>
+                <p className="font-medium text-foreground">Öffnungszeiten</p>
                 <p>Mo - Fr: 09:00 - 19:00 Uhr</p>
                 <p>Sa & So: Geschlossen</p>
               </div>
@@ -129,9 +121,9 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-background/10">
+      <div className="border-t border-white/[0.08]">
         <div className="container-tight py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-background/50">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Petasync. Alle Rechte vorbehalten.</p>
             <p>IT-Service für Ansbach, Nürnberg, Fürth und Umgebung</p>
           </div>
