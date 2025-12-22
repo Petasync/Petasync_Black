@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, Monitor, Moon, Sun } from "lucide-react";
+import { Menu, X, Phone, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -78,14 +78,6 @@ export function Header() {
 
           {/* Desktop CTA & Theme Toggle */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link 
-              to="/privatkunden#leih-pc"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
-            >
-              <Monitor className="w-4 h-4" />
-              <span>Leih-PC</span>
-            </Link>
-            
             {/* Theme Toggle */}
             {mounted && (
               <Button
@@ -158,12 +150,6 @@ export function Header() {
                 </Link>
               ))}
               <div className="pt-6 space-y-3">
-                <Button variant="outline" className="w-full gap-2 rounded-full border-border" asChild>
-                  <Link to="/privatkunden#leih-pc">
-                    <Monitor className="w-4 h-4" />
-                    Leih-PC Service
-                  </Link>
-                </Button>
                 <Button className="w-full gap-2 bg-foreground text-background rounded-full" asChild>
                   <Link to="/kontakt">
                     <Phone className="w-4 h-4" />

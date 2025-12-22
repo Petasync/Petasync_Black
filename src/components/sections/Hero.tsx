@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Monitor } from "lucide-react";
+import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero3DScene } from "@/components/3d/Hero3DScene";
 import { Suspense } from "react";
@@ -23,41 +23,44 @@ export function Hero() {
       </Suspense>
 
       {/* Content overlay */}
-      <div className="container-tight relative z-10">
-        <div className="max-w-3xl">
+      <div className="container-tight relative z-10 pt-20">
+        <div className="max-w-3xl mx-auto text-center lg:text-left lg:mx-0">
           {/* Badge - minimal */}
-          <div className="inline-flex items-center gap-3 mb-10 animate-fade-in">
+          <div className="inline-flex items-center gap-3 mb-8 animate-fade-in">
             <span className="text-sm text-muted-foreground tracking-wide">
               IT-Service • Ansbach & Nürnberg
             </span>
           </div>
 
-          {/* Main headline - Linear style gradient text */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8 animate-fade-in-up">
-            <span className="gradient-text">IT-Service</span>
+          {/* Main headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-6 animate-fade-in-up">
+            <span className="gradient-text">Professioneller</span>
             <br />
-            <span className="gradient-text">der Zukunft</span>
+            <span className="gradient-text">IT-Service</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: "100ms" }}>
-            Professionelle IT-Lösungen für Privat- und Geschäftskunden. 
-            Persönlich, schnell und zuverlässig.
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-xl mb-8 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: "100ms" }}>
+            Für Privat- und Geschäftskunden. Reparatur, Netzwerk, Webdesign – 
+            alles aus einer Hand. Inkl. kostenlosem Leih-PC.
           </p>
 
-          {/* USP Highlight - no border, just subtle background */}
-          <div className="inline-flex items-center gap-4 px-5 py-3 rounded-2xl bg-white/[0.03] mb-12 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <Monitor className="w-5 h-5 text-foreground" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium text-foreground text-sm">Leih-PC Service</p>
-              <p className="text-xs text-muted-foreground">Weiterarbeiten während der Reparatur</p>
-            </div>
+          {/* Key benefits inline */}
+          <div className="flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 mb-8 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
+            {[
+              "Leih-PC inklusive",
+              "Vor-Ort-Service",
+              "Faire Festpreise"
+            ].map((benefit) => (
+              <span key={benefit} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-primary" />
+                {benefit}
+              </span>
+            ))}
           </div>
 
-          {/* CTAs - clean white button */}
-          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: "200ms" }}>
             <Button 
               size="lg" 
               asChild 
@@ -75,18 +78,18 @@ export function Hero() {
               className="h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-transparent"
             >
               <Link to="/privatkunden">
-                Services entdecken
+                Für Privatkunden
                 <ArrowRight className="w-4 h-4 ml-2 opacity-50" />
               </Link>
             </Button>
           </div>
 
-          {/* Trust indicators - minimal */}
-          <div className="flex flex-wrap gap-8 mt-16 animate-fade-in" style={{ animationDelay: "500ms" }}>
+          {/* Trust indicators */}
+          <div className="flex flex-wrap justify-center lg:justify-start gap-6 mt-12 animate-fade-in" style={{ animationDelay: "400ms" }}>
             {[
-              "Schnelle Reaktion",
-              "Faire Preise",
-              "Vor-Ort-Service",
+              "24h Express",
+              "500+ Kunden",
+              "5.0 ★ Google",
             ].map((item) => (
               <span key={item} className="text-sm text-muted-foreground">
                 {item}
