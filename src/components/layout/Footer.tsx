@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 
 const serviceLinks = [
-  { name: "PC Reparatur", href: "/privatkunden" },
-  { name: "Leih-PC Service", href: "/privatkunden#leih-pc" },
-  { name: "Netzwerk & WLAN", href: "/privatkunden" },
+  { name: "Kostenlose Diagnose", href: "/services/diagnose" },
+  { name: "PC Reparatur", href: "/services/pc-reparatur" },
+  { name: "Leih-PC Service", href: "/services/leih-pc" },
+  { name: "PC-Zusammenbau", href: "/services/pc-zusammenbau" },
+  { name: "Fernwartung", href: "/services/fernwartung" },
   { name: "IT für Unternehmen", href: "/geschaeftskunden" },
   { name: "Webdesign", href: "/websites" },
 ];

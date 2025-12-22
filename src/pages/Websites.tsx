@@ -1,12 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  Globe, 
-  Palette, 
-  Smartphone, 
-  Search, 
-  Zap, 
+import {
+  Globe,
+  Palette,
+  Smartphone,
+  Search,
+  Zap,
   ArrowRight,
   Check,
   Code,
@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import websitesHero from "@/assets/websites-hero.png";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const webServices = [
   {
@@ -141,6 +142,7 @@ export default function Websites() {
 
   return (
     <Layout>
+      <SEO {...seoConfig.websites} canonical="https://petasync.de/websites" />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">

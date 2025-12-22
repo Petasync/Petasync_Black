@@ -4,10 +4,12 @@ import { FeaturesShowcase } from "@/components/sections/FeaturesShowcase";
 import { WhyUs } from "@/components/sections/WhyUs";
 import { LocalSEO } from "@/components/sections/LocalSEO";
 import { CTASection } from "@/components/sections/CTASection";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const Index = () => {
   return (
     <Layout>
+      <SEO {...seoConfig.home} canonical="https://petasync.de" />
       {/* SEO Meta - Local Business Schema */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({

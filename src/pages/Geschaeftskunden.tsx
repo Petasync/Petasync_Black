@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const services = [
   {
@@ -128,6 +129,7 @@ export default function Geschaeftskunden() {
 
   return (
     <Layout>
+      <SEO {...seoConfig.geschaeftskunden} canonical="https://petasync.de/geschaeftskunden" />
       {/* Hero Section - Centered */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">

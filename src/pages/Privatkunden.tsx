@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import privatkundenHero from "@/assets/privatkunden-hero.png";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const services = [
   {
@@ -92,6 +93,7 @@ export default function Privatkunden() {
 
   return (
     <Layout>
+      <SEO {...seoConfig.privatkunden} canonical="https://petasync.de/privatkunden" />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         {/* Background Image */}

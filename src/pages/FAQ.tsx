@@ -1,9 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import faqHero from "@/assets/faq-hero.png";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const faqCategories = [
   {
@@ -160,6 +161,7 @@ export default function FAQ() {
 
   return (
     <Layout>
+      <SEO {...seoConfig.faq} canonical="https://petasync.de/faq" />
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">

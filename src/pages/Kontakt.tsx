@@ -10,6 +10,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import kontaktHero from "@/assets/kontakt-hero.png";
+import { SEO, seoConfig } from "@/components/SEO";
 
 const contactInfo = [
   {
@@ -87,6 +88,7 @@ export default function Kontakt() {
 
   return (
     <Layout>
+      <SEO {...seoConfig.kontakt} canonical="https://petasync.de/kontakt" />
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
