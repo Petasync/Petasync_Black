@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users } from "lucide-react";
+import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users, Zap, FileText, Monitor } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -76,10 +76,55 @@ const advantages = [
   }
 ];
 
+const pricingModels = [
+  {
+    icon: Zap,
+    title: "On-Demand Support",
+    description: "Flexible IT-Unterstützung bei Bedarf – ohne langfristige Bindung.",
+    price: "ab 79€/Std",
+    priceNote: "(remote)",
+    features: [
+      "Keine Vertragsbindung",
+      "Abrechnung nach Aufwand",
+      "Remote & Vor-Ort möglich",
+      "Schnelle Reaktionszeit"
+    ]
+  },
+  {
+    icon: Monitor,
+    title: "Managed IT",
+    description: "Rundum-Betreuung Ihrer IT-Infrastruktur mit proaktivem Monitoring.",
+    price: "Individuell",
+    priceNote: "nach Bedarf",
+    features: [
+      "24/7 Monitoring",
+      "Automatische Backups",
+      "Regelmäßige Updates",
+      "Monatlicher Report",
+      "Priorisierter Support"
+    ],
+    highlight: true
+  },
+  {
+    icon: FileText,
+    title: "SLA-Support",
+    description: "Garantierte Reaktionszeiten und definierte Service-Level für Ihr Unternehmen.",
+    price: "Auf Anfrage",
+    priceNote: "maßgeschneidert",
+    features: [
+      "Garantierte Reaktionszeit",
+      "Definierte SLAs",
+      "Persönlicher Ansprechpartner",
+      "Regelmäßige Reviews"
+    ]
+  }
+];
+
 export default function Geschaeftskunden() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: advantagesRef, isRevealed: advantagesRevealed } = useScrollReveal();
+  const { ref: pricingRef, isRevealed: pricingRevealed } = useScrollReveal();
 
   return (
     <Layout>
@@ -237,13 +282,137 @@ export default function Geschaeftskunden() {
         </div>
       </section>
 
+      {/* Pricing Models Section */}
+      <section className="section-padding relative">
+        <div className="container-tight">
+          <div className="divider-glow mb-20" />
+
+          <div className="mb-16 text-center">
+            <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
+              Flexible Modelle
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
+              IT-Support nach{" "}
+              <span className="gradient-text">Ihrem Bedarf</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Ob einmalige Unterstützung oder langfristige Partnerschaft – wir bieten das passende Modell
+              für jede Unternehmensgröße und jeden Bedarf.
+            </p>
+          </div>
+
+          <div
+            ref={pricingRef}
+            className={cn(
+              "grid md:grid-cols-3 gap-8 transition-all duration-1000",
+              pricingRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
+            {pricingModels.map((model, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "relative p-8 rounded-2xl transition-all",
+                  model.highlight
+                    ? "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20"
+                    : "border border-white/5 hover:border-white/10 bg-gradient-to-br from-white/[0.02] to-transparent"
+                )}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                {model.highlight && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full bg-primary text-primary-foreground font-medium">
+                    Empfohlen
+                  </span>
+                )}
+
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center mb-6",
+                  model.highlight ? "bg-primary/20" : "bg-white/5"
+                )}>
+                  <model.icon className={cn(
+                    "w-6 h-6",
+                    model.highlight ? "text-primary" : "text-foreground"
+                  )} />
+                </div>
+
+                <h3 className="text-xl font-semibold text-foreground mb-2">{model.title}</h3>
+                <p className="text-muted-foreground text-sm mb-4">{model.description}</p>
+
+                <div className="mb-6">
+                  <span className="text-2xl font-bold text-foreground">{model.price}</span>
+                  <span className="text-sm text-muted-foreground ml-2">{model.priceNote}</span>
+                </div>
+
+                <div className="space-y-3">
+                  {model.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <CheckCircle2 className={cn(
+                        "w-4 h-4 flex-shrink-0",
+                        model.highlight ? "text-primary" : "text-muted-foreground"
+                      )} />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Petasync for Business */}
+      <section className="section-padding relative overflow-hidden">
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
+
+        <div className="container-tight relative">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <div>
+              <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
+                Ihr IT-Partner
+              </span>
+              <h2 className="text-4xl font-bold mb-6">
+                Warum Unternehmen mit uns{" "}
+                <span className="gradient-text">zusammenarbeiten</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                Als lokaler IT-Dienstleister in der Region Ansbach und Nürnberg verstehen wir die
+                Bedürfnisse kleiner und mittlerer Unternehmen. Wir bieten persönlichen Service
+                ohne die Bürokratie großer IT-Häuser.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Unser Ziel: Ihre IT läuft reibungslos, damit Sie sich auf Ihr Kerngeschäft
+                konzentrieren können. Mit transparenten Preisen, kurzen Reaktionszeiten und
+                einem festen Ansprechpartner, der Ihre Infrastruktur kennt.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { title: "Transparente Kommunikation", desc: "Keine IT-Fachsprache – wir erklären verständlich, was wir tun und warum." },
+                { title: "Faire Preise", desc: "Abrechnung nach Aufwand oder Flatrate – Sie wählen, was zu Ihnen passt." },
+                { title: "Kurze Wege", desc: "Als lokaler Partner sind wir schnell bei Ihnen – vor Ort in unter einer Stunde." },
+                { title: "Proaktiver Service", desc: "Wir warten nicht auf Probleme, sondern verhindern sie durch regelmäßige Wartung." }
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="py-4 border-b border-white/5 last:border-0"
+                >
+                  <h4 className="text-foreground font-medium mb-1">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Leih-PC Highlight - Alternating */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
             <div className="absolute inset-0 border border-white/10 rounded-3xl" />
-            
+
             <div className="relative grid lg:grid-cols-2 gap-12 items-center">
               <div className="lg:order-2 lg:text-right">
                 <span className="text-sm text-primary tracking-widest uppercase mb-4 block">
@@ -253,10 +422,10 @@ export default function Geschaeftskunden() {
                   Leih-PC Service für Unternehmen
                 </h2>
                 <p className="text-muted-foreground text-lg mb-8">
-                  Kein Produktivitätsverlust durch defekte Hardware: Wir stellen Ihren Mitarbeitern 
+                  Kein Produktivitätsverlust durch defekte Hardware: Wir stellen Ihren Mitarbeitern
                   während der Reparatur Leihgeräte zur Verfügung – inklusive Datenübertragung.
                 </p>
-                
+
                 <div className="space-y-3">
                   {[
                     "Sofortige Verfügbarkeit von Ersatzgeräten",
@@ -271,7 +440,7 @@ export default function Geschaeftskunden() {
                   ))}
                 </div>
               </div>
-              
+
               <div className="lg:order-1 flex justify-center">
                 <div className="relative">
                   <Laptop className="w-32 h-32 text-primary" />

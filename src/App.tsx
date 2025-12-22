@@ -23,6 +23,11 @@ import Webdesign from "./pages/services/Webdesign";
 import ITInfrastruktur from "./pages/services/ITInfrastruktur";
 import ITSupport from "./pages/services/ITSupport";
 import Beratung from "./pages/services/Beratung";
+import Diagnose from "./pages/services/Diagnose";
+import PCZusammenbau from "./pages/services/PCZusammenbau";
+import Datenrettung from "./pages/services/Datenrettung";
+import Aufruestung from "./pages/services/Aufruestung";
+import Fernwartung from "./pages/services/Fernwartung";
 import WebsiteTemplate from "./pages/websites/Template";
 import WebsiteStarter from "./pages/websites/Starter";
 import WebsiteBusiness from "./pages/websites/Business";
@@ -72,6 +77,11 @@ const App = () => (
             <Route path="/services/it-infrastruktur" element={<ITInfrastruktur />} />
             <Route path="/services/it-support" element={<ITSupport />} />
             <Route path="/services/beratung" element={<Beratung />} />
+            <Route path="/services/diagnose" element={<Diagnose />} />
+            <Route path="/services/pc-zusammenbau" element={<PCZusammenbau />} />
+            <Route path="/services/datenrettung" element={<Datenrettung />} />
+            <Route path="/services/aufruestung" element={<Aufruestung />} />
+            <Route path="/services/fernwartung" element={<Fernwartung />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />

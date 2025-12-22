@@ -16,6 +16,43 @@ import faqHero from "@/assets/faq-hero.png";
 
 const faqCategories = [
   {
+    title: "PC-Probleme selbst lösen",
+    questions: [
+      {
+        question: "Mein PC zeigt nur einen schwarzen Bildschirm – was tun?",
+        answer: "Ein schwarzer Bildschirm kann verschiedene Ursachen haben: 1) Prüfen Sie, ob der Monitor eingeschaltet und richtig angeschlossen ist (Strom und Videokabel). 2) Testen Sie einen anderen Videoausgang (HDMI statt DisplayPort oder umgekehrt). 3) Hören Sie beim Start Pieptöne? Das deutet auf Hardware-Probleme hin. 4) Versuchen Sie einen Neustart mit gedrückter Shift-Taste (Safe Mode). Wenn nichts hilft, kontaktieren Sie uns für eine kostenlose Diagnose."
+      },
+      {
+        question: "Mein PC startet nicht mehr – was kann ich tun?",
+        answer: "Wenn der PC gar nicht reagiert: 1) Prüfen Sie das Stromkabel und die Steckdose. 2) Bei Laptops: Netzteil anschließen und 30 Sekunden warten. 3) Alle USB-Geräte abziehen und erneut starten. 4) Bei Desktop-PCs: Prüfen Sie, ob die LED am Netzteil leuchtet. Startet er, bleibt aber beim Windows-Logo hängen? Versuchen Sie die automatische Windows-Reparatur (mehrfach ein- und ausschalten). Hilft das nicht, rufen Sie uns an."
+      },
+      {
+        question: "Mein Computer ist extrem langsam – woran liegt das?",
+        answer: "Häufige Ursachen für einen langsamen PC: 1) Volle Festplatte – mindestens 15% sollten frei sein. 2) Zu viele Autostart-Programme – deaktivieren Sie unnötige im Task-Manager. 3) Veraltete Hardware – eine SSD kann Wunder wirken. 4) Viren oder Malware – führen Sie einen Scan durch. 5) Windows-Updates ausstehend. Tipp: Ein SSD-Upgrade ist oft die beste Investition für einen alten PC. Wir beraten Sie gerne!"
+      },
+      {
+        question: "Mein PC stürzt ständig ab oder zeigt einen Bluescreen",
+        answer: "Bluescreens (BSOD) deuten auf ernste Probleme hin: 1) Notieren Sie den Fehlercode (z.B. 'KERNEL_DATA_INPAGE_ERROR'). 2) Prüfen Sie die Temperaturen mit einem Tool wie HWiNFO – Überhitzung ist oft die Ursache. 3) Aktualisieren Sie alle Treiber, besonders Grafikkarten-Treiber. 4) Testen Sie den Arbeitsspeicher mit dem Windows-Speicherdiagnosetool. Bei häufigen Abstürzen sollten Sie einen Profi hinzuziehen – eine defekte Festplatte oder RAM kann Datenverlust bedeuten."
+      },
+      {
+        question: "Mein PC macht komische Geräusche – ist das schlimm?",
+        answer: "Geräusche können auf verschiedene Probleme hindeuten: 1) Klickende Geräusche von der Festplatte = Warnsignal! Daten sofort sichern und uns kontaktieren. 2) Laute Lüfter = Staub oder Überhitzung. Eine Reinigung hilft. 3) Summen oder Pfeifen = Oft das Netzteil oder Spulenfiepen der Grafikkarte. 4) Knacken beim Start = Meist harmlos (Materialausdehnung). Bei klickenden Festplatten ist schnelles Handeln wichtig!"
+      },
+      {
+        question: "Ich habe versehentlich wichtige Dateien gelöscht – kann man die wiederherstellen?",
+        answer: "In vielen Fällen ja! Wichtig: Nutzen Sie das Laufwerk NICHT weiter, um die Chancen zu erhöhen. 1) Prüfen Sie zuerst den Papierkorb. 2) Bei SSDs ist schnelles Handeln besonders wichtig (TRIM löscht Daten endgültig). 3) Laden Sie keine Software auf die betroffene Festplatte herunter. Professionelle Datenrettung ist oft möglich – auch bei formatierten Festplatten. Kontaktieren Sie uns für eine Einschätzung."
+      },
+      {
+        question: "Windows Update hängt oder schlägt fehl – was nun?",
+        answer: "Windows Updates können manchmal Probleme machen: 1) Starten Sie den PC neu und warten Sie – manchmal brauchen Updates einfach Zeit. 2) Führen Sie die Windows Update-Problembehandlung aus (Einstellungen > Update > Problembehandlung). 3) Leeren Sie den Windows Update-Cache: Dienste 'wuauserv' und 'bits' stoppen, Ordner C:\\Windows\\SoftwareDistribution löschen, Dienste neu starten. 4) Installieren Sie das Update manuell über den Microsoft Update-Katalog. Hilft nichts? Wir helfen per Fernwartung ab 19€."
+      },
+      {
+        question: "Mein WLAN ist langsam oder bricht ständig ab",
+        answer: "WLAN-Probleme lassen sich oft einfach lösen: 1) Router neu starten (Strom aus, 30 Sekunden warten). 2) Position des Routers optimieren – zentral und erhöht aufstellen, weg von Störquellen wie Mikrowellen. 3) WLAN-Kanal wechseln (im Router-Menü) – Nachbarn nutzen oft dieselben Kanäle. 4) 5 GHz statt 2,4 GHz nutzen für weniger Störungen. 5) WLAN-Treiber aktualisieren. Bei älteren Geräten kann auch der WLAN-Adapter defekt sein."
+      }
+    ]
+  },
+  {
     title: "Allgemein",
     questions: [
       {

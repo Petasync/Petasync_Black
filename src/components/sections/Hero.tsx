@@ -88,7 +88,7 @@ export function Hero() {
           <div className="flex flex-wrap justify-center lg:justify-start gap-6 mt-12 animate-fade-in" style={{ animationDelay: "400ms" }}>
             {[
               "24h Express",
-              "500+ Kunden",
+              "Lokal & Persönlich",
               "5.0 ★ Google",
             ].map((item) => (
               <span key={item} className="text-sm text-muted-foreground">

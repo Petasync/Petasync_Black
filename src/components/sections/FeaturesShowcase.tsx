@@ -18,9 +18,9 @@ const features = [
   },
   {
     icon: Users,
-    label: "Zufrieden",
-    value: "500+",
-    description: "Kunden betreut"
+    label: "Persönlich",
+    value: "100%",
+    description: "Einsatz für Sie"
   },
   {
     icon: Star,

@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone } from "lucide-react";
+import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone, Search, Cpu, Headphones } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -10,6 +10,14 @@ import privatkundenHero from "@/assets/privatkunden-hero.png";
 
 const services = [
   {
+    icon: Search,
+    title: "Kostenlose Diagnose",
+    description: "Ihr PC macht Probleme? Wir analysieren kostenlos, was los ist und erstellen einen transparenten Kostenvoranschlag.",
+    features: ["Fehleranalyse gratis", "Transparenter Kostenvoranschlag", "Keine versteckten Kosten", "Ehrliche Beratung"],
+    href: "/services/diagnose",
+    highlight: true
+  },
+  {
     icon: Monitor,
     title: "PC & Laptop Reparatur",
     description: "Schnelle Diagnose und professionelle Reparatur aller gängigen Marken und Modelle.",
@@ -17,11 +25,18 @@ const services = [
     href: "/services/pc-reparatur"
   },
   {
+    icon: Cpu,
+    title: "PC-Zusammenbau",
+    description: "Wir bauen Ihren Wunsch-PC zusammen – ob Gaming-Rechner, Arbeits-PC oder Home-Office Setup.",
+    features: ["Individuelle Konfiguration", "Komponenten-Beratung", "Professioneller Einbau", "Windows Installation"],
+    href: "/services/pc-zusammenbau"
+  },
+  {
     icon: HardDrive,
     title: "Datenrettung",
     description: "Professionelle Wiederherstellung Ihrer wertvollen Daten von defekten Speichermedien.",
     features: ["Festplatten-Recovery", "SSD-Datenrettung", "USB-Stick Rettung", "Backup-Lösungen"],
-    href: "/services/pc-reparatur"
+    href: "/services/datenrettung"
   },
   {
     icon: Shield,
@@ -35,7 +50,14 @@ const services = [
     title: "PC-Aufrüstung",
     description: "Mehr Leistung für Ihren Computer durch gezielte Hardware-Upgrades.",
     features: ["RAM-Erweiterung", "SSD-Upgrade", "Grafikkarten-Einbau", "Prozessor-Wechsel"],
-    href: "/services/pc-reparatur"
+    href: "/services/aufruestung"
+  },
+  {
+    icon: Headphones,
+    title: "Fernwartung",
+    description: "Schnelle Hilfe von zuhause aus – wir lösen viele Probleme direkt per Remote-Zugriff.",
+    features: ["Schnelle Hilfe", "Keine Anfahrt nötig", "Ab 19€ / 30 Min", "Sicher & Datenschutzkonform"],
+    href: "/services/fernwartung"
   },
   {
     icon: Wifi,
