@@ -20,6 +20,18 @@ import ITSicherheit from "./pages/services/ITSicherheit";
 import Netzwerk from "./pages/services/Netzwerk";
 import ITBusiness from "./pages/services/ITBusiness";
 import Webdesign from "./pages/services/Webdesign";
+import ITInfrastruktur from "./pages/services/ITInfrastruktur";
+import ITSupport from "./pages/services/ITSupport";
+import Beratung from "./pages/services/Beratung";
+import WebsiteTemplate from "./pages/websites/Template";
+import WebsiteStarter from "./pages/websites/Starter";
+import WebsiteBusiness from "./pages/websites/Business";
+import WebsiteEnterprise from "./pages/websites/Enterprise";
+import AdminLogin from "./pages/admin/Login";
+import AdminVerify2FA from "./pages/admin/Verify2FA";
+import AdminForgotPassword from "./pages/admin/ForgotPassword";
+import AdminDashboard from "./pages/admin/Dashboard";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +47,10 @@ const App = () => (
             <Route path="/privatkunden" element={<Privatkunden />} />
             <Route path="/geschaeftskunden" element={<Geschaeftskunden />} />
             <Route path="/websites" element={<Websites />} />
+            <Route path="/websites/template" element={<WebsiteTemplate />} />
+            <Route path="/websites/starter" element={<WebsiteStarter />} />
+            <Route path="/websites/business" element={<WebsiteBusiness />} />
+            <Route path="/websites/enterprise" element={<WebsiteEnterprise />} />
             <Route path="/kontakt" element={<Kontakt />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/impressum" element={<Impressum />} />
@@ -45,6 +61,14 @@ const App = () => (
             <Route path="/services/netzwerk" element={<Netzwerk />} />
             <Route path="/services/it-business" element={<ITBusiness />} />
             <Route path="/services/webdesign" element={<Webdesign />} />
+            <Route path="/services/it-infrastruktur" element={<ITInfrastruktur />} />
+            <Route path="/services/it-support" element={<ITSupport />} />
+            <Route path="/services/beratung" element={<Beratung />} />
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />
+            <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+            <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
