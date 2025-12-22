@@ -3,7 +3,6 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -19,11 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
-import { Search, Plus, Edit, Eye, Loader2, FileText } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { Search, Plus, Edit, Loader2, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { QuoteEditor } from '@/components/admin/QuoteEditor';
+import type { Tables } from '@/integrations/supabase/types';
 
 type QuoteStatus = 'entwurf' | 'versendet' | 'angenommen' | 'abgelehnt' | 'rechnung_erstellt';
 
@@ -64,6 +64,8 @@ export default function AdminQuotes() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<Tables<'quotes'> | null>(null);
 
   useEffect(() => {
     fetchQuotes();
@@ -84,7 +86,7 @@ export default function AdminQuotes() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     } else {
       setQuotes(data || []);
     }
@@ -98,11 +100,16 @@ export default function AdminQuotes() {
       .eq('id', id);
 
     if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     } else {
-      toast({ title: 'Status aktualisiert' });
+      toast.success('Status aktualisiert');
       fetchQuotes();
     }
+  };
+
+  const openEditor = (quote?: Quote) => {
+    setEditingQuote(quote ? quote as Tables<'quotes'> : null);
+    setEditorOpen(true);
   };
 
   const filteredQuotes = quotes.filter((quote) => {
@@ -128,11 +135,9 @@ export default function AdminQuotes() {
             <h1 className="text-3xl font-bold">Angebote</h1>
             <p className="text-muted-foreground">Alle Angebote verwalten</p>
           </div>
-          <Button asChild>
-            <Link to="/admin/quotes/new">
-              <Plus className="h-4 w-4 mr-2" />
-              Neues Angebot
-            </Link>
+          <Button onClick={() => openEditor()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Neues Angebot
           </Button>
         </div>
 
@@ -224,15 +229,8 @@ export default function AdminQuotes() {
                       {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/quotes/${quote.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/quotes/${quote.id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
+                      <Button variant="ghost" size="sm" onClick={() => openEditor(quote)}>
+                        <Edit className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -241,6 +239,13 @@ export default function AdminQuotes() {
             </TableBody>
           </Table>
         </div>
+
+        <QuoteEditor
+          quote={editingQuote}
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          onSave={fetchQuotes}
+        />
       </div>
     </AdminLayout>
   );

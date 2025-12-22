@@ -3,7 +3,6 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -19,11 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
-import { Search, Plus, Edit, Eye, Loader2, Receipt, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { Search, Plus, Edit, Loader2, Receipt, AlertCircle } from 'lucide-react';
 import { format, isPast, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { InvoiceEditor } from '@/components/admin/InvoiceEditor';
+import type { Tables } from '@/integrations/supabase/types';
 
 type InvoiceStatus = 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
 
@@ -64,6 +64,8 @@ export default function AdminInvoices() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<Tables<'invoices'> | null>(null);
 
   useEffect(() => {
     fetchInvoices();
@@ -84,7 +86,7 @@ export default function AdminInvoices() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     } else {
       // Check for overdue invoices
       const updated = (data || []).map((inv) => {
@@ -110,11 +112,16 @@ export default function AdminInvoices() {
       .eq('id', id);
 
     if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     } else {
-      toast({ title: 'Status aktualisiert' });
+      toast.success('Status aktualisiert');
       fetchInvoices();
     }
+  };
+
+  const openEditor = (invoice?: Invoice) => {
+    setEditingInvoice(invoice ? invoice as Tables<'invoices'> : null);
+    setEditorOpen(true);
   };
 
   const filteredInvoices = invoices.filter((invoice) => {
@@ -146,11 +153,9 @@ export default function AdminInvoices() {
             <h1 className="text-3xl font-bold">Rechnungen</h1>
             <p className="text-muted-foreground">Alle Rechnungen verwalten</p>
           </div>
-          <Button asChild>
-            <Link to="/admin/invoices/new">
-              <Plus className="h-4 w-4 mr-2" />
-              Neue Rechnung
-            </Link>
+          <Button onClick={() => openEditor()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Neue Rechnung
           </Button>
         </div>
 
@@ -260,15 +265,8 @@ export default function AdminInvoices() {
                       {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.total)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/invoices/${invoice.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/invoices/${invoice.id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
+                      <Button variant="ghost" size="sm" onClick={() => openEditor(invoice)}>
+                        <Edit className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -277,6 +275,13 @@ export default function AdminInvoices() {
             </TableBody>
           </Table>
         </div>
+
+        <InvoiceEditor
+          invoice={editingInvoice}
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          onSave={fetchInvoices}
+        />
       </div>
     </AdminLayout>
   );
