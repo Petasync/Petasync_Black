@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  UserCog,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ const navigation = [
   { name: 'Angebote', href: '/admin/quotes', icon: FileText },
   { name: 'Rechnungen', href: '/admin/invoices', icon: Receipt },
   { name: 'Website-Projekte', href: '/admin/projects', icon: Globe },
+  { name: 'Benutzer', href: '/admin/users', icon: UserCog },
   { name: 'Einstellungen', href: '/admin/settings', icon: Settings },
 ];
 
