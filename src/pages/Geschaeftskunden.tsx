@@ -7,44 +7,49 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
-import teamSupport from "@/assets/team-support.png";
 
 const services = [
   {
     icon: Server,
     title: "IT-Infrastruktur",
     description: "Planung, Einrichtung und Wartung Ihrer gesamten IT-Infrastruktur.",
-    features: ["Server-Management", "Netzwerk-Setup", "Cloud-Lösungen", "Backup-Systeme"]
+    features: ["Server-Management", "Netzwerk-Setup", "Cloud-Lösungen", "Backup-Systeme"],
+    href: "/services/it-business"
   },
   {
     icon: Shield,
     title: "IT-Sicherheit",
     description: "Umfassender Schutz für Ihre Unternehmensdaten und Systeme.",
-    features: ["Firewall-Konfiguration", "Endpoint-Security", "Sicherheits-Audits", "Mitarbeiter-Schulung"]
+    features: ["Firewall-Konfiguration", "Endpoint-Security", "Sicherheits-Audits", "Mitarbeiter-Schulung"],
+    href: "/services/it-sicherheit"
   },
   {
     icon: Headphones,
     title: "IT-Support",
     description: "Zuverlässiger Support für Ihr Unternehmen – vor Ort oder remote.",
-    features: ["Helpdesk-Service", "Remote-Support", "Vor-Ort-Service", "Wartungsverträge"]
+    features: ["Helpdesk-Service", "Remote-Support", "Vor-Ort-Service", "Wartungsverträge"],
+    href: "/services/it-business"
   },
   {
     icon: Globe,
     title: "Webdesign & Hosting",
     description: "Professionelle Websites und zuverlässiges Hosting für Ihr Unternehmen.",
-    features: ["Responsive Websites", "SEO-Optimierung", "Managed Hosting", "E-Mail-Lösungen"]
+    features: ["Responsive Websites", "SEO-Optimierung", "Managed Hosting", "E-Mail-Lösungen"],
+    href: "/websites"
   },
   {
     icon: Laptop,
     title: "Hardware-Service",
     description: "Beschaffung, Einrichtung und Reparatur von Geschäfts-Hardware.",
-    features: ["PC-Beschaffung", "Laptop-Reparatur", "Drucker-Service", "Leih-PC Service"]
+    features: ["PC-Beschaffung", "Laptop-Reparatur", "Drucker-Service", "Leih-PC Service"],
+    href: "/services/pc-reparatur"
   },
   {
     icon: Users,
     title: "Beratung & Planung",
     description: "Strategische IT-Beratung für nachhaltiges Unternehmenswachstum.",
-    features: ["IT-Strategie", "Digitalisierung", "Prozessoptimierung", "Kostensenkung"]
+    features: ["IT-Strategie", "Digitalisierung", "Prozessoptimierung", "Kostensenkung"],
+    href: "/services/it-business"
   }
 ];
 
@@ -71,50 +76,14 @@ const advantages = [
   }
 ];
 
-function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
-  const { ref, isRevealed } = useScrollReveal();
-  
-  return (
-    <div 
-      ref={ref}
-      className={cn(
-        "group relative py-8 transition-all duration-700",
-        isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      )}
-      style={{ transitionDelay: `${index * 100}ms` }}
-    >
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      
-      <div className="flex items-start gap-6">
-        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-          <service.icon className="w-6 h-6 text-foreground" />
-        </div>
-        
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
-          <p className="text-muted-foreground mb-4">{service.description}</p>
-          
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            {service.features.map((feature, idx) => (
-              <span key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                {feature}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Geschaeftskunden() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+  const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: advantagesRef, isRevealed: advantagesRevealed } = useScrollReveal();
 
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Hero Section - Centered */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
@@ -139,7 +108,7 @@ export default function Geschaeftskunden() {
             heroRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
               Für Unternehmen
             </span>
@@ -149,12 +118,12 @@ export default function Geschaeftskunden() {
               <span className="gradient-text">Ihr Unternehmen</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
+            <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
               Professionelle IT-Betreuung für kleine und mittlere Unternehmen in der Region. 
               Persönlich, zuverlässig und immer erreichbar.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
                   Beratungsgespräch vereinbaren
@@ -172,12 +141,12 @@ export default function Geschaeftskunden() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section - Card Grid */}
       <section className="section-padding relative">
         <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
         
         <div className="container-tight relative">
-          <div className="mb-16">
+          <div className="mb-16 text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
               Leistungen
             </span>
@@ -186,22 +155,55 @@ export default function Geschaeftskunden() {
             </h2>
           </div>
 
-          <div>
+          <div 
+            ref={servicesRef}
+            className={cn(
+              "grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-1000",
+              servicesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
             {services.map((service, index) => (
-              <ServiceCard key={index} service={service} index={index} />
+              <Link
+                key={index}
+                to={service.href}
+                className="group relative p-8 rounded-2xl border border-white/5 hover:border-white/10 bg-gradient-to-br from-white/[0.02] to-transparent transition-all hover:scale-[1.02]"
+                style={{ transitionDelay: `${index * 50}ms` }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
+                  <service.icon className="w-6 h-6 text-foreground" />
+                </div>
+                
+                <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
+                <p className="text-muted-foreground text-sm mb-4">{service.description}</p>
+                
+                <div className="flex flex-wrap gap-2">
+                  {service.features.slice(0, 2).map((feature, idx) => (
+                    <span key={idx} className="text-xs px-2 py-1 rounded-full bg-white/5 text-muted-foreground">
+                      {feature}
+                    </span>
+                  ))}
+                  {service.features.length > 2 && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-muted-foreground">
+                      +{service.features.length - 2}
+                    </span>
+                  )}
+                </div>
+                
+                <ArrowRight className="absolute top-8 right-8 w-5 h-5 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Advantages Section */}
+      {/* Advantages Section - Centered Grid */}
       <section className="section-padding relative overflow-hidden">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
         
         <div className="container-tight relative">
           <div className="divider-glow mb-20" />
           
-          <div className="mb-16">
+          <div className="mb-16 text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
               Vorteile
             </span>
@@ -221,11 +223,11 @@ export default function Geschaeftskunden() {
             {advantages.map((advantage, index) => (
               <div 
                 key={index} 
-                className="group"
+                className="text-center group"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center mb-5 group-hover:bg-white/10 transition-colors">
-                  <advantage.icon className="w-7 h-7 text-foreground" />
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-5 mx-auto group-hover:bg-white/10 transition-colors">
+                  <advantage.icon className="w-8 h-8 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">{advantage.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{advantage.description}</p>
@@ -235,7 +237,7 @@ export default function Geschaeftskunden() {
         </div>
       </section>
 
-      {/* Leih-PC Highlight */}
+      {/* Leih-PC Highlight - Alternating */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
@@ -243,9 +245,9 @@ export default function Geschaeftskunden() {
             <div className="absolute inset-0 border border-white/10 rounded-3xl" />
             
             <div className="relative grid lg:grid-cols-2 gap-12 items-center">
-              <div>
+              <div className="lg:order-2 lg:text-right">
                 <span className="text-sm text-primary tracking-widest uppercase mb-4 block">
-                  Unser USP
+                  Immer inklusive
                 </span>
                 <h2 className="text-4xl font-bold text-foreground mb-4">
                   Leih-PC Service für Unternehmen
@@ -260,9 +262,9 @@ export default function Geschaeftskunden() {
                     "Sofortige Verfügbarkeit von Ersatzgeräten",
                     "Professionelle Datenübertragung",
                     "Keine Unterbrechung der Geschäftsprozesse",
-                    "Im Wartungsvertrag oft inklusive"
+                    "Bei jeder Reparatur inklusive"
                   ].map((item, index) => (
-                    <div key={index} className="flex items-center gap-3">
+                    <div key={index} className="flex items-center gap-3 lg:flex-row-reverse">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                       <span className="text-foreground">{item}</span>
                     </div>
@@ -270,11 +272,11 @@ export default function Geschaeftskunden() {
                 </div>
               </div>
               
-              <div className="flex justify-center">
+              <div className="lg:order-1 flex justify-center">
                 <div className="relative">
                   <Laptop className="w-32 h-32 text-primary" />
                   <div className="absolute -top-2 -right-2 w-14 h-14 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-sm">
-                    24h
+                    0€
                   </div>
                 </div>
               </div>

@@ -7,44 +7,49 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import privatkundenHero from "@/assets/privatkunden-hero.png";
-import serviceRepair from "@/assets/service-repair.png";
 
 const services = [
   {
     icon: Monitor,
     title: "PC & Laptop Reparatur",
     description: "Schnelle Diagnose und professionelle Reparatur aller gängigen Marken und Modelle.",
-    features: ["Hardware-Diagnose", "Display-Austausch", "Tastatur-Reparatur", "Akku-Wechsel"]
+    features: ["Hardware-Diagnose", "Display-Austausch", "Tastatur-Reparatur", "Akku-Wechsel"],
+    href: "/services/pc-reparatur"
   },
   {
     icon: HardDrive,
     title: "Datenrettung",
     description: "Professionelle Wiederherstellung Ihrer wertvollen Daten von defekten Speichermedien.",
-    features: ["Festplatten-Recovery", "SSD-Datenrettung", "USB-Stick Rettung", "Backup-Lösungen"]
+    features: ["Festplatten-Recovery", "SSD-Datenrettung", "USB-Stick Rettung", "Backup-Lösungen"],
+    href: "/services/pc-reparatur"
   },
   {
     icon: Shield,
-    title: "Virenentfernung",
+    title: "Virenentfernung & IT-Sicherheit",
     description: "Gründliche Entfernung von Schadsoftware und Einrichtung eines effektiven Schutzes.",
-    features: ["Malware-Entfernung", "Ransomware-Hilfe", "Sicherheits-Setup", "Präventions-Beratung"]
+    features: ["Malware-Entfernung", "Ransomware-Hilfe", "Sicherheits-Setup", "Präventions-Beratung"],
+    href: "/services/it-sicherheit"
   },
   {
     icon: Wrench,
     title: "PC-Aufrüstung",
     description: "Mehr Leistung für Ihren Computer durch gezielte Hardware-Upgrades.",
-    features: ["RAM-Erweiterung", "SSD-Upgrade", "Grafikkarten-Einbau", "Prozessor-Wechsel"]
+    features: ["RAM-Erweiterung", "SSD-Upgrade", "Grafikkarten-Einbau", "Prozessor-Wechsel"],
+    href: "/services/pc-reparatur"
   },
   {
     icon: Wifi,
     title: "Netzwerk & WLAN",
     description: "Einrichtung und Optimierung Ihres Heimnetzwerks für beste Verbindung.",
-    features: ["Router-Setup", "WLAN-Optimierung", "Netzwerk-Sicherheit", "Smart Home Integration"]
+    features: ["Router-Setup", "WLAN-Optimierung", "Netzwerk-Sicherheit", "Smart Home Integration"],
+    href: "/services/netzwerk"
   },
   {
     icon: Laptop,
     title: "Leih-PC Service",
     description: "Während Ihr Gerät repariert wird, arbeiten Sie einfach mit unserem Leihgerät weiter.",
     features: ["Kostenloser Leih-PC", "Datenübertragung", "Schnelle Verfügbarkeit", "Keine Ausfallzeit"],
+    href: "/services/leih-pc",
     highlight: true
   }
 ];
@@ -52,64 +57,15 @@ const services = [
 const benefits = [
   "Persönliche Beratung vor Ort",
   "Transparente Festpreise",
-  "Kostenloser Leih-PC während der Reparatur",
+  "Kostenloser Leih-PC bei jeder Reparatur",
   "Keine versteckten Kosten",
   "Schnelle Bearbeitung",
   "Hausbesuch möglich"
 ];
 
-function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
-  const { ref, isRevealed } = useScrollReveal();
-  
-  return (
-    <div 
-      ref={ref}
-      className={cn(
-        "group relative py-8 transition-all duration-700",
-        isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      )}
-      style={{ transitionDelay: `${index * 100}ms` }}
-    >
-      {/* Top divider */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      
-      <div className="flex items-start gap-6">
-        <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
-          service.highlight 
-            ? "bg-primary/20 text-primary" 
-            : "bg-white/5 text-foreground group-hover:bg-white/10"
-        )}>
-          <service.icon className="w-6 h-6" />
-        </div>
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
-            {service.highlight && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-                USP
-              </span>
-            )}
-          </div>
-          <p className="text-muted-foreground mb-4">{service.description}</p>
-          
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            {service.features.map((feature, idx) => (
-              <span key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                {feature}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Privatkunden() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+  const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: benefitsRef, isRevealed: benefitsRevealed } = useScrollReveal();
 
   return (
@@ -141,7 +97,7 @@ export default function Privatkunden() {
             heroRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
               Für Privatpersonen
             </span>
@@ -151,12 +107,12 @@ export default function Privatkunden() {
               <span className="gradient-text">Ihr Zuhause</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
+            <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
               Professionelle Hilfe bei allen Computer-Problemen. Persönlich, zuverlässig und mit 
-              kostenlosem Leih-PC während der Reparatur.
+              kostenlosem Leih-PC während jeder Reparatur.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
                   Termin vereinbaren
@@ -174,12 +130,12 @@ export default function Privatkunden() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section - Alternating Layout */}
       <section className="section-padding relative">
         <div className="absolute top-0 left-0 w-[500px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
         
         <div className="container-tight relative">
-          <div className="mb-16">
+          <div className="mb-16 text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
               Leistungen
             </span>
@@ -188,15 +144,85 @@ export default function Privatkunden() {
             </h2>
           </div>
 
-          <div>
+          <div 
+            ref={servicesRef}
+            className={cn(
+              "space-y-24 transition-all duration-1000",
+              servicesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
             {services.map((service, index) => (
-              <ServiceCard key={index} service={service} index={index} />
+              <div 
+                key={index}
+                className={cn(
+                  "grid lg:grid-cols-2 gap-12 lg:gap-20 items-center",
+                  index % 2 === 1 && "lg:flex-row-reverse"
+                )}
+              >
+                {/* Content - alternates sides */}
+                <div className={cn(index % 2 === 1 && "lg:order-2")}>
+                  <div className={cn(
+                    "w-14 h-14 rounded-xl flex items-center justify-center mb-6",
+                    service.highlight 
+                      ? "bg-primary/20 text-primary" 
+                      : "bg-white/5 text-foreground"
+                  )}>
+                    <service.icon className="w-7 h-7" />
+                  </div>
+                  
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{service.title}</h3>
+                    {service.highlight && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                        Inklusive
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p className="text-muted-foreground text-lg mb-6">{service.description}</p>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-8">
+                    {service.features.map((feature, idx) => (
+                      <span key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground group" asChild>
+                    <Link to={service.href}>
+                      Mehr erfahren
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Visual element */}
+                <div className={cn(
+                  "relative aspect-square max-w-md mx-auto lg:max-w-none",
+                  index % 2 === 1 && "lg:order-1"
+                )}>
+                  <div className={cn(
+                    "absolute inset-0 rounded-3xl",
+                    service.highlight 
+                      ? "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20" 
+                      : "bg-gradient-to-br from-white/5 to-transparent border border-white/5"
+                  )} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <service.icon className={cn(
+                      "w-24 h-24",
+                      service.highlight ? "text-primary" : "text-muted-foreground"
+                    )} />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Benefits Section - Right aligned */}
       <section className="section-padding relative overflow-hidden">
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
         
@@ -210,7 +236,7 @@ export default function Privatkunden() {
               benefitsRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             )}
           >
-            <div>
+            <div className="lg:order-2 text-right">
               <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
                 Vorteile
               </span>
@@ -224,7 +250,7 @@ export default function Privatkunden() {
               </p>
             </div>
             
-            <div className="space-y-4">
+            <div className="lg:order-1 space-y-4">
               {benefits.map((benefit, index) => (
                 <div 
                   key={index} 
@@ -239,41 +265,7 @@ export default function Privatkunden() {
         </div>
       </section>
 
-      {/* Leih-PC Highlight */}
-      <section className="section-padding relative">
-        <div className="container-tight">
-          <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
-            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
-            
-            <div className="relative grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <span className="text-sm text-primary tracking-widest uppercase mb-4 block">
-                  Einzigartig
-                </span>
-                <h2 className="text-4xl font-bold text-foreground mb-4">
-                  Leih-PC inklusive
-                </h2>
-                <p className="text-muted-foreground text-lg">
-                  Arbeiten Sie während der Reparatur einfach mit unserem Leihgerät weiter. 
-                  Kostenlos und unkompliziert.
-                </p>
-              </div>
-              
-              <div className="flex justify-center">
-                <div className="relative">
-                  <Laptop className="w-32 h-32 text-primary" />
-                  <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-sm">
-                    0€
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
+      {/* CTA Section - Centered */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="divider-glow mb-20" />

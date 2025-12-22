@@ -31,10 +31,9 @@ const features = [
 ];
 
 const quickLinks = [
-  { label: "PC-Reparatur", href: "/services/pc-reparatur" },
-  { label: "Netzwerk", href: "/services/netzwerk" },
-  { label: "IT-Sicherheit", href: "/services/it-sicherheit" },
-  { label: "Leih-PC", href: "/services/leih-pc" },
+  { label: "Privatkunden", href: "/privatkunden" },
+  { label: "Geschäftskunden", href: "/geschaeftskunden" },
+  { label: "Websites", href: "/websites" },
 ];
 
 export function FeaturesShowcase() {
@@ -54,15 +53,15 @@ export function FeaturesShowcase() {
             isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          {/* Stats Grid */}
+          {/* Stats Grid - centered */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-20">
             {features.map((feature, index) => (
               <div 
                 key={feature.label}
-                className="text-center lg:text-left transition-all duration-500"
+                className="text-center transition-all duration-500"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 mb-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 mb-4 mx-auto">
                   <feature.icon className="w-5 h-5 text-foreground" />
                 </div>
                 <div className="text-3xl sm:text-4xl font-bold text-foreground mb-1">

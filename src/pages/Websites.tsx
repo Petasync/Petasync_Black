@@ -11,7 +11,8 @@ import {
   Check,
   Code,
   Layers,
-  Rocket
+  Rocket,
+  FileText
 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
@@ -48,45 +49,64 @@ const webServices = [
 
 const packages = [
   {
+    name: "Template",
+    description: "Schnell & günstig: Professionelles Design auf Basis bewährter Templates",
+    features: [
+      "Fertige Design-Vorlage",
+      "Ihre Texte & Bilder",
+      "Bis zu 5 Seiten",
+      "Mobile-optimiert",
+      "Kontaktformular",
+      "SSL-Zertifikat"
+    ],
+    highlight: false,
+    badge: "Günstigste Option",
+    href: "/websites/template"
+  },
+  {
     name: "Starter",
     description: "Ideal für Selbstständige und kleine Unternehmen",
     features: [
+      "Individuelles Design",
       "Bis zu 5 Seiten",
       "Responsive Design",
       "Kontaktformular",
       "Basis SEO",
-      "SSL-Zertifikat",
       "1 Monat Support"
     ],
-    highlight: false
+    highlight: false,
+    href: "/websites/starter"
   },
   {
     name: "Business",
     description: "Für wachsende Unternehmen mit mehr Anforderungen",
     features: [
-      "Bis zu 10 Seiten",
       "Premium Design",
+      "Bis zu 10 Seiten",
       "CMS (Content Management)",
       "Erweiterte SEO",
       "Google Analytics",
       "Blog-Funktion",
       "3 Monate Support"
     ],
-    highlight: true
+    highlight: true,
+    badge: "Beliebt",
+    href: "/websites/business"
   },
   {
     name: "Enterprise",
     description: "Individuelle Lösungen für anspruchsvolle Projekte",
     features: [
+      "Komplett individuell",
       "Unbegrenzte Seiten",
-      "Individuelles Design",
       "E-Commerce möglich",
       "Premium SEO Paket",
       "Performance-Optimierung",
       "API-Integrationen",
       "12 Monate Support"
     ],
-    highlight: false
+    highlight: false,
+    href: "/websites/enterprise"
   }
 ];
 
@@ -238,7 +258,7 @@ export default function Websites() {
           <div 
             ref={packagesRef}
             className={cn(
-              "grid md:grid-cols-3 gap-8 transition-all duration-1000",
+              "grid md:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-1000",
               packagesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             )}
           >
@@ -246,23 +266,28 @@ export default function Websites() {
               <div
                 key={index}
                 className={cn(
-                  "relative py-10 px-8 rounded-3xl transition-all",
+                  "relative py-8 px-6 rounded-2xl transition-all hover:scale-[1.02]",
                   pkg.highlight 
                     ? "bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/20" 
                     : "border border-white/5 hover:border-white/10"
                 )}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                {pkg.highlight && (
-                  <span className="absolute -top-3 left-8 text-xs px-3 py-1 rounded-full bg-primary text-primary-foreground font-medium">
-                    Beliebt
+                {pkg.badge && (
+                  <span className={cn(
+                    "absolute -top-3 left-6 text-xs px-3 py-1 rounded-full font-medium",
+                    pkg.highlight 
+                      ? "bg-primary text-primary-foreground" 
+                      : "bg-accent text-accent-foreground"
+                  )}>
+                    {pkg.badge}
                   </span>
                 )}
-                <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
-                <p className="text-sm text-muted-foreground mb-6">
+                <h3 className="text-xl font-bold mb-2">{pkg.name}</h3>
+                <p className="text-sm text-muted-foreground mb-5">
                   {pkg.description}
                 </p>
-                <div className="space-y-3 mb-8">
+                <div className="space-y-2.5 mb-6">
                   {pkg.features.map((feature, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-primary flex-shrink-0" />
