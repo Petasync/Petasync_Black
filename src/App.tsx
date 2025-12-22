@@ -31,6 +31,11 @@ import AdminLogin from "./pages/admin/Login";
 import AdminVerify2FA from "./pages/admin/Verify2FA";
 import AdminForgotPassword from "./pages/admin/ForgotPassword";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminInquiries from "./pages/admin/Inquiries";
+import AdminCustomers from "./pages/admin/Customers";
+import AdminQuotes from "./pages/admin/Quotes";
+import AdminInvoices from "./pages/admin/Invoices";
+import AdminSettings from "./pages/admin/Settings";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -69,6 +74,11 @@ const App = () => (
             <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />
             <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
             <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+            <Route path="/admin/inquiries" element={<AdminProtectedRoute><AdminInquiries /></AdminProtectedRoute>} />
+            <Route path="/admin/customers" element={<AdminProtectedRoute><AdminCustomers /></AdminProtectedRoute>} />
+            <Route path="/admin/quotes" element={<AdminProtectedRoute><AdminQuotes /></AdminProtectedRoute>} />
+            <Route path="/admin/invoices" element={<AdminProtectedRoute><AdminInvoices /></AdminProtectedRoute>} />
+            <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
