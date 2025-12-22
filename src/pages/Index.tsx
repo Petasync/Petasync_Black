@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { Hero } from "@/components/sections/Hero";
+import { FeaturesShowcase } from "@/components/sections/FeaturesShowcase";
 import { Services } from "@/components/sections/Services";
 import { LeihPCHighlight } from "@/components/sections/LeihPCHighlight";
 import { WhyUs } from "@/components/sections/WhyUs";
@@ -39,8 +40,9 @@ const Index = () => {
       }} />
 
       <Hero />
-      <Services />
+      <FeaturesShowcase />
       <LeihPCHighlight />
+      <Services />
       <WhyUs />
       <LocalSEO />
       <CTASection />

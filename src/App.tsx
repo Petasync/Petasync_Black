@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { CookieBanner } from "@/components/CookieBanner";
 import Index from "./pages/Index";
 import Websites from "./pages/Websites";
 import Privatkunden from "./pages/Privatkunden";
@@ -13,6 +14,12 @@ import FAQ from "./pages/FAQ";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
 import NotFound from "./pages/NotFound";
+import PCReparatur from "./pages/services/PCReparatur";
+import LeihPC from "./pages/services/LeihPC";
+import ITSicherheit from "./pages/services/ITSicherheit";
+import Netzwerk from "./pages/services/Netzwerk";
+import ITBusiness from "./pages/services/ITBusiness";
+import Webdesign from "./pages/services/Webdesign";
 
 const queryClient = new QueryClient();
 
@@ -32,10 +39,17 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/impressum" element={<Impressum />} />
             <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/services/pc-reparatur" element={<PCReparatur />} />
+            <Route path="/services/leih-pc" element={<LeihPC />} />
+            <Route path="/services/it-sicherheit" element={<ITSicherheit />} />
+            <Route path="/services/netzwerk" element={<Netzwerk />} />
+            <Route path="/services/it-business" element={<ITBusiness />} />
+            <Route path="/services/webdesign" element={<Webdesign />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <CookieBanner />
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
