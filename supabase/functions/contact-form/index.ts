@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -269,35 +270,45 @@ function generateAdminNotificationEmail(data: ContactFormData): string {
 `;
 }
 
-// Send email via Resend
+// Send email via Hetzner SMTP
 async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-  const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendApiKey) {
-    console.error("RESEND_API_KEY not configured");
+  const smtpHost = Deno.env.get("SMTP_HOST");
+  const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "587");
+  const smtpUser = Deno.env.get("SMTP_USER");
+  const smtpPass = Deno.env.get("SMTP_PASS");
+  const smtpFrom = Deno.env.get("SMTP_FROM") || "noreply@petasync.de";
+
+  if (!smtpHost || !smtpUser || !smtpPass) {
+    console.error("SMTP configuration incomplete");
     return false;
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "Petasync <noreply@petasync.de>",
-      to: [to],
+  try {
+    const client = new SMTPClient({
+      connection: {
+        hostname: smtpHost,
+        port: smtpPort,
+        tls: true,
+        auth: {
+          username: smtpUser,
+          password: smtpPass,
+        },
+      },
+    });
+
+    await client.send({
+      from: `Petasync <${smtpFrom}>`,
+      to: to,
       subject: subject,
       html: html,
-    }),
-  });
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error("Failed to send email:", error);
+    await client.close();
+    return true;
+  } catch (error) {
+    console.error("SMTP error:", error);
     return false;
   }
-
-  return true;
 }
 
 serve(async (req) => {
