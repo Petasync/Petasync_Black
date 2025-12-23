@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useCallback } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, MessageCircle } from "lucide-react";
+import { Turnstile } from "@/components/Turnstile";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ export default function Kontakt() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: formRef, isRevealed: formRevealed } = useScrollReveal();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,10 +58,29 @@ export default function Kontakt() {
     customerType: "privat"
   });
 
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!turnstileToken) {
+      toast({
+        title: "Bot-Schutz erforderlich",
+        description: "Bitte bestätigen Sie, dass Sie kein Roboter sind.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
+    // TODO: Send form data to backend with turnstileToken for verification
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
@@ -75,6 +96,7 @@ export default function Kontakt() {
       message: "",
       customerType: "privat"
     });
+    setTurnstileToken(null);
     setIsSubmitting(false);
   };
 
@@ -262,11 +284,19 @@ export default function Kontakt() {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
+                {/* Cloudflare Turnstile Bot Protection */}
+                <div className="flex justify-center">
+                  <Turnstile
+                    onVerify={handleTurnstileVerify}
+                    onExpire={handleTurnstileExpire}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
                   className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !turnstileToken}
                 >
                   {isSubmitting ? (
                     "Wird gesendet..."
