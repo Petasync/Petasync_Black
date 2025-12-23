@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users } from "lucide-react";
+import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users, Cpu, Search } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -50,6 +50,22 @@ const services = [
     description: "Strategische IT-Beratung für nachhaltiges Unternehmenswachstum.",
     features: ["IT-Strategie", "Digitalisierung", "Prozessoptimierung", "Kostensenkung"],
     href: "/services/it-business"
+  },
+  {
+    icon: Cpu,
+    title: "PC Zusammenbau",
+    description: "Maßgeschneiderte Workstations und PCs für Ihr Unternehmen – leistungsstark und zuverlässig.",
+    features: ["Business-Konfiguration", "Volumen-Bestellung", "Windows Pro Setup", "Garantie"],
+    href: "/services/pc-reparatur",
+    price: "ab 79€"
+  },
+  {
+    icon: Search,
+    title: "Diagnose",
+    description: "Schnelle und gründliche Fehleranalyse Ihrer Unternehmens-Hardware.",
+    features: ["Hardware-Analyse", "Netzwerk-Check", "Performance-Test", "Bericht"],
+    href: "/services/pc-reparatur",
+    price: "Kostenlos bei Auftrag"
   }
 ];
 
@@ -173,7 +189,14 @@ export default function Geschaeftskunden() {
                   <service.icon className="w-6 h-6 text-foreground" />
                 </div>
                 
-                <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
+                  {service.price && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent font-medium">
+                      {service.price}
+                    </span>
+                  )}
+                </div>
                 <p className="text-muted-foreground text-sm mb-4">{service.description}</p>
                 
                 <div className="flex flex-wrap gap-2">

@@ -10,8 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
-import { supabase } from "@/integrations/supabase/client";
 import kontaktHero from "@/assets/kontakt-hero.png";
+
+// API URL for contact form - uses relative path for same-domain or full URL for production
+const CONTACT_API_URL = import.meta.env.PROD
+  ? "https://petasync.de/api/contact-email.php"
+  : "/api/contact-email.php";
 
 const contactInfo = [
   {
@@ -82,20 +86,25 @@ export default function Kontakt() {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("contact-form", {
-        body: {
+      const response = await fetch(CONTACT_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          phone: formData.phone || undefined,
+          phone: formData.phone || "",
           subject: formData.subject,
           message: formData.message,
           customerType: formData.customerType,
-          turnstileToken: turnstileToken,
-        },
+        }),
       });
 
-      if (error) {
-        throw new Error(error.message || "Fehler beim Senden der Nachricht");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Fehler beim Senden der Nachricht");
       }
 
       toast({
