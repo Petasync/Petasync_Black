@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { supabase } from "@/integrations/supabase/client";
 import kontaktHero from "@/assets/kontakt-hero.png";
 
 const contactInfo = [
@@ -80,24 +81,47 @@ export default function Kontakt() {
 
     setIsSubmitting(true);
 
-    // TODO: Send form data to backend with turnstileToken for verification
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const { data, error } = await supabase.functions.invoke("contact-form", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          subject: formData.subject,
+          message: formData.message,
+          customerType: formData.customerType,
+          turnstileToken: turnstileToken,
+        },
+      });
 
-    toast({
-      title: "Nachricht gesendet!",
-      description: "Wir melden uns schnellstmöglich bei Ihnen.",
-    });
+      if (error) {
+        throw new Error(error.message || "Fehler beim Senden der Nachricht");
+      }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      customerType: "privat"
-    });
-    setTurnstileToken(null);
-    setIsSubmitting(false);
+      toast({
+        title: "Nachricht gesendet!",
+        description: "Wir haben Ihnen eine Bestätigungs-E-Mail geschickt und melden uns schnellstmöglich bei Ihnen.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        customerType: "privat"
+      });
+      setTurnstileToken(null);
+    } catch (error) {
+      console.error("Contact form error:", error);
+      toast({
+        title: "Fehler",
+        description: error instanceof Error ? error.message : "Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
