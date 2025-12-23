@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useCallback } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, MessageCircle } from "lucide-react";
+import { Turnstile } from "@/components/Turnstile";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { supabase } from "@/integrations/supabase/client";
 import kontaktHero from "@/assets/kontakt-hero.png";
 
 const contactInfo = [
@@ -47,6 +49,7 @@ export default function Kontakt() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: formRef, isRevealed: formRevealed } = useScrollReveal();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,26 +59,69 @@ export default function Kontakt() {
     customerType: "privat"
   });
 
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!turnstileToken) {
+      toast({
+        title: "Bot-Schutz erforderlich",
+        description: "Bitte bestätigen Sie, dass Sie kein Roboter sind.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const { data, error } = await supabase.functions.invoke("contact-form", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          subject: formData.subject,
+          message: formData.message,
+          customerType: formData.customerType,
+          turnstileToken: turnstileToken,
+        },
+      });
 
-    toast({
-      title: "Nachricht gesendet!",
-      description: "Wir melden uns schnellstmöglich bei Ihnen.",
-    });
+      if (error) {
+        throw new Error(error.message || "Fehler beim Senden der Nachricht");
+      }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      customerType: "privat"
-    });
-    setIsSubmitting(false);
+      toast({
+        title: "Nachricht gesendet!",
+        description: "Wir haben Ihnen eine Bestätigungs-E-Mail geschickt und melden uns schnellstmöglich bei Ihnen.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        customerType: "privat"
+      });
+      setTurnstileToken(null);
+    } catch (error) {
+      console.error("Contact form error:", error);
+      toast({
+        title: "Fehler",
+        description: error instanceof Error ? error.message : "Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -262,11 +308,19 @@ export default function Kontakt() {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
+                {/* Cloudflare Turnstile Bot Protection */}
+                <div className="flex justify-center">
+                  <Turnstile
+                    onVerify={handleTurnstileVerify}
+                    onExpire={handleTurnstileExpire}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
                   className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !turnstileToken}
                 >
                   {isSubmitting ? (
                     "Wird gesendet..."
