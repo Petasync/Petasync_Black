@@ -2,15 +2,31 @@
 /**
  * Petasync Contact Form Email Handler
  *
- * Dieses Script auf deinem Hetzner-Server ablegen (z.B. https://petasync.de/api/contact-email.php)
- * Dann in Supabase Edge Function Secrets: API_EMAIL_URL = https://petasync.de/api/contact-email.php
- *                                         API_EMAIL_SECRET = [ein geheimes Passwort]
+ * Dieses Script verarbeitet Kontaktanfragen von der Website
+ * und sendet E-Mails an Admin und Kunde.
  */
 
+// Allowed origins for CORS
+$allowedOrigins = [
+    'https://petasync.de',
+    'https://www.petasync.de',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// Set CORS headers
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    header('Access-Control-Allow-Origin: https://petasync.de');
+}
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-API-Secret');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 
 // Handle preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -25,13 +41,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Verify API secret
-$apiSecret = $_SERVER['HTTP_X_API_SECRET'] ?? '';
-$expectedSecret = 'DEIN_GEHEIMES_PASSWORT_HIER_AENDERN'; // <-- Ändere das!
+// Validate origin/referer for security
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$isValidReferer = false;
+foreach ($allowedOrigins as $allowed) {
+    if (strpos($referer, $allowed) === 0) {
+        $isValidReferer = true;
+        break;
+    }
+}
 
-if ($apiSecret !== $expectedSecret) {
+// Also check origin header
+$isValidOrigin = in_array($origin, $allowedOrigins);
+
+// Allow if either origin or referer is valid (for better compatibility)
+if (!$isValidReferer && !$isValidOrigin && $origin !== '' && $referer !== '') {
     http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['error' => 'Unauthorized origin']);
     exit;
 }
 

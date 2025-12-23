@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone } from "lucide-react";
+import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone, Cpu, Search } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -43,6 +43,23 @@ const services = [
     description: "Einrichtung und Optimierung Ihres Heimnetzwerks für beste Verbindung.",
     features: ["Router-Setup", "WLAN-Optimierung", "Netzwerk-Sicherheit", "Smart Home Integration"],
     href: "/services/netzwerk"
+  },
+  {
+    icon: Cpu,
+    title: "PC Zusammenbau",
+    description: "Wir bauen Ihren Wunsch-PC nach Ihren Anforderungen zusammen – ob Gaming, Office oder Workstation.",
+    features: ["Individuelle Konfiguration", "Qualitäts-Komponenten", "Windows-Installation", "Garantie auf Arbeit"],
+    href: "/services/pc-reparatur",
+    price: "ab 79€"
+  },
+  {
+    icon: Search,
+    title: "Diagnose",
+    description: "Professionelle Fehleranalyse Ihres Computers – wir finden das Problem schnell und zuverlässig.",
+    features: ["Hardware-Check", "Software-Analyse", "Fehlerprotokoll", "Reparatur-Empfehlung"],
+    href: "/services/pc-reparatur",
+    highlight: true,
+    price: "Kostenlos bei Auftrag"
   },
   {
     icon: Laptop,
@@ -170,9 +187,14 @@ export default function Privatkunden() {
                     <service.icon className="w-7 h-7" />
                   </div>
                   
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-3 mb-3 flex-wrap">
                     <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{service.title}</h3>
-                    {service.highlight && (
+                    {service.price && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent font-medium">
+                        {service.price}
+                      </span>
+                    )}
+                    {service.highlight && !service.price && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
                         Inklusive
                       </span>
