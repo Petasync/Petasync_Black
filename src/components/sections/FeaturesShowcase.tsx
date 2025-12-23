@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Zap, Clock, Users, Star } from "lucide-react";
+import { ArrowRight, Zap, Clock, ThumbsUp, Star } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +17,10 @@ const features = [
     description: "die Woche"
   },
   {
-    icon: Users,
+    icon: ThumbsUp,
     label: "Zufrieden",
-    value: "500+",
-    description: "Kunden betreut"
+    value: "100%",
+    description: "Zufriedenheit"
   },
   {
     icon: Star,
