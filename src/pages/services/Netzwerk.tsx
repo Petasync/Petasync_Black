@@ -1,60 +1,103 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Wifi, ArrowRight, Phone, Router, Signal, Home, Settings } from "lucide-react";
+import { Wifi, ArrowRight, Phone, Router, Signal, Network, Settings, CheckCircle2, Cable, Lock, Zap } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 
+const packages = [
+  {
+    name: "WLAN-Setup",
+    price: "299€",
+    description: "Einmalig",
+    features: ["Professionelle Access Points", "Netzwerk-Planung", "Installation & Konfiguration", "WLAN-Optimierung", "Sicherheits-Setup"],
+    highlight: false
+  },
+  {
+    name: "Netzwerk-Infrastruktur",
+    price: "599€",
+    description: "Komplett-Setup",
+    features: ["Alles aus WLAN-Setup", "Strukturierte Verkabelung", "Switch-Konfiguration", "VLAN-Segmentierung", "Netzwerk-Dokumentation"],
+    highlight: true
+  },
+  {
+    name: "Enterprise-Netzwerk",
+    price: "ab 1.299€",
+    description: "Hochverfügbar",
+    features: ["Alles aus Infrastruktur", "Redundante Systeme", "VPN-Gateway", "Network Access Control", "24/7 Monitoring", "SLA-Garantie"],
+    highlight: false
+  }
+];
+
 const services = [
   {
     icon: Router,
-    title: "Router-Einrichtung",
-    description: "Professionelle Konfiguration Ihres Routers für optimale Leistung und Sicherheit.",
+    title: "Enterprise WLAN",
+    description: "Professionelle Access Points für zuverlässiges WLAN in Ihrem Unternehmen.",
+    price: "ab 299€"
+  },
+  {
+    icon: Cable,
+    title: "Strukturierte Verkabelung",
+    description: "Cat6/Cat7 Verkabelung nach Industriestandard.",
+    price: "ab 399€"
+  },
+  {
+    icon: Network,
+    title: "Netzwerk-Design",
+    description: "Professionelle Planung Ihrer Netzwerk-Infrastruktur.",
+    price: "ab 199€"
+  },
+  {
+    icon: Lock,
+    title: "VPN-Lösungen",
+    description: "Sichere Fernzugriffe für Ihre Mitarbeiter.",
+    price: "ab 299€"
   },
   {
     icon: Signal,
-    title: "WLAN-Optimierung",
-    description: "Analyse und Verbesserung der WLAN-Abdeckung in Ihrem Zuhause oder Büro.",
+    title: "VLAN-Segmentierung",
+    description: "Netzwerk-Trennung für mehr Sicherheit und Performance.",
+    price: "ab 249€"
   },
   {
-    icon: Home,
-    title: "Smart Home",
-    description: "Integration und Vernetzung Ihrer Smart-Home-Geräte.",
-  },
-  {
-    icon: Settings,
-    title: "Netzwerk-Sicherheit",
-    description: "Absicherung Ihres Netzwerks gegen unbefugten Zugriff.",
-  },
+    icon: Zap,
+    title: "Netzwerk-Optimierung",
+    description: "Performance-Analyse und Verbesserung bestehender Netze.",
+    price: "ab 199€"
+  }
 ];
 
-const problems = [
-  { problem: "Langsames WLAN", solution: "Kanaloptimierung & Mesh-Systeme" },
-  { problem: "Verbindungsabbrüche", solution: "Stabile Konfiguration & Hardware-Check" },
-  { problem: "Schlechte Reichweite", solution: "Repeater oder Mesh-System" },
-  { problem: "Unsicheres Netzwerk", solution: "WPA3 & Gastnetzwerk" },
+const benefits = [
+  "Professionelle Hardware von führenden Herstellern",
+  "Skalierbare Lösungen für Ihr Wachstum",
+  "Strukturierte Verkabelung nach Standard",
+  "Sichere VPN-Verbindungen für Remote Work",
+  "Netzwerk-Monitoring und Management",
+  "Dokumentation aller Komponenten"
 ];
 
 export default function Netzwerk() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+  const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
-  const { ref: problemsRef, isRevealed: problemsRevealed } = useScrollReveal();
+  const { ref: benefitsRef, isRevealed: benefitsRevealed } = useScrollReveal();
 
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-background" />
-        
+
         <Suspense fallback={null}>
-          <Floating3DScene variant="default" className="opacity-30" />
+          <Floating3DScene variant="minimal" className="opacity-30" />
         </Suspense>
-        
+
         <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
-        
-        <div 
+
+        <div
           ref={heroRef}
           className={cn(
             "container-tight relative z-10 py-32 transition-all duration-1000",
@@ -63,27 +106,27 @@ export default function Netzwerk() {
         >
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-3 mb-6">
-              <Link to="/privatkunden" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Privatkunden
+              <Link to="/geschaeftskunden" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Geschäftskunden
               </Link>
               <span className="text-muted-foreground">/</span>
-              <span className="text-sm text-foreground">Netzwerk</span>
+              <span className="text-sm text-foreground">Netzwerk & WLAN</span>
             </div>
-            
+
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
               Netzwerk &{" "}
               <span className="gradient-text">WLAN</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              Stabiles Internet in jedem Winkel. Router-Einrichtung, WLAN-Optimierung 
-              und Smart-Home-Integration.
+              Enterprise-Netzwerklösungen für Ihr Unternehmen. VPN, strukturierte Verkabelung
+              und professionelles WLAN.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Beratung anfragen
+                  Netzwerk planen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -98,69 +141,90 @@ export default function Netzwerk() {
         </div>
       </section>
 
-      {/* Services */}
+      {/* Packages */}
       <section className="section-padding relative">
-        <div 
-          ref={servicesRef}
-          className={cn(
-            "container-tight transition-all duration-1000",
-            servicesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          )}
-        >
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-            {services.map((service, index) => (
-              <div 
-                key={service.title}
-                className="group py-8 border-b border-white/5"
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-white/10 transition-colors">
-                    <service.icon className="w-6 h-6 text-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
-                    <p className="text-muted-foreground">{service.description}</p>
-                  </div>
+        <div className="absolute top-0 left-0 w-[500px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
+        <div ref={packagesRef} className={cn("container-tight relative transition-all duration-1000", packagesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10")}>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold gradient-text mb-4">Netzwerk-Pakete</h2>
+            <p className="text-muted-foreground">Professionelle Netzwerk-Lösungen für Ihr Unternehmen</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {packages.map((pkg, index) => (
+              <div key={pkg.name} className={cn("relative p-8 rounded-2xl border transition-all hover:scale-105", pkg.highlight ? "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/30" : "bg-white/5 border-white/10")} style={{ transitionDelay: `${index * 100}ms` }}>
+                {pkg.highlight && <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">Beliebt</div>}
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">{pkg.name}</h3>
+                  <div className="text-3xl font-bold gradient-text mb-2">{pkg.price}</div>
+                  <p className="text-sm text-muted-foreground">{pkg.description}</p>
                 </div>
+                <div className="space-y-3">
+                  {pkg.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Button className={cn("w-full mt-8 rounded-full", pkg.highlight ? "bg-primary hover:bg-primary/90" : "bg-white/10 hover:bg-white/20")} asChild>
+                  <Link to="/kontakt">Jetzt anfragen</Link>
+                </Button>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Problems & Solutions */}
+      {/* Services */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="divider-glow mb-16" />
-          
-          <div 
-            ref={problemsRef}
-            className={cn(
-              "transition-all duration-1000",
-              problemsRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            )}
-          >
+          <div ref={servicesRef} className={cn("transition-all duration-1000", servicesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10")}>
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold gradient-text mb-4">Typische Probleme – Unsere Lösungen</h2>
+              <h2 className="text-4xl font-bold gradient-text mb-4">Einzelleistungen</h2>
+              <p className="text-muted-foreground">Transparente Preise für alle Netzwerk-Services</p>
             </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              {problems.map((item, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-6 py-6 px-6 rounded-2xl bg-white/[0.02] border border-white/5"
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex-shrink-0 w-20 text-center">
-                    <Wifi className="w-8 h-8 text-primary mx-auto mb-2" />
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+              {services.map((service, index) => (
+                <div key={service.title} className="group py-8 border-b border-white/5 last:border-0" style={{ transitionDelay: `${index * 100}ms` }}>
+                  <div className="flex items-start gap-6">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                      <service.icon className="w-6 h-6 text-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
+                        <span className="text-sm text-primary font-medium whitespace-nowrap">{service.price}</span>
+                      </div>
+                      <p className="text-muted-foreground">{service.description}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-1">Problem</p>
-                    <p className="text-foreground font-medium mb-2">{item.problem}</p>
-                    <p className="text-sm text-muted-foreground mb-1">Lösung</p>
-                    <p className="text-primary">{item.solution}</p>
-                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="section-padding relative">
+        <div className="container-tight">
+          <div className="divider-glow mb-16" />
+          <div ref={benefitsRef} className={cn("grid lg:grid-cols-2 gap-16 lg:gap-24 items-center transition-all duration-1000", benefitsRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10")}>
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+                Warum unser{" "}<span className="gradient-text">Netzwerk-Service?</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Professionelle Netzwerk-Infrastruktur für zuverlässige Verbindungen und sichere Datenübertragung.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center gap-4 py-4 border-b border-white/5 last:border-0">
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -170,19 +234,26 @@ export default function Netzwerk() {
 
       {/* CTA */}
       <section className="section-padding relative">
-        <div className="container-tight text-center">
-          <h2 className="text-4xl font-bold gradient-text mb-6">
-            Stabiles WLAN für Ihr Zuhause
-          </h2>
-          <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto">
-            Wir analysieren und optimieren Ihr Netzwerk.
-          </p>
-          <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
-            <Link to="/kontakt">
-              Termin vereinbaren
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="container-tight">
+          <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
+            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+            <div className="relative text-center">
+              <Wifi className="w-12 h-12 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-foreground mb-4">Bereit für ein professionelles Netzwerk?</h2>
+              <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
+                Wir planen und implementieren Ihre Netzwerk-Infrastruktur – von WLAN bis VPN.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
+                  <Link to="/kontakt">Kostenlose Beratung<ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+                <Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white/5" asChild>
+                  <a href="tel:+491637117198"><Phone className="mr-2 h-4 w-4" />Jetzt anrufen</a>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>

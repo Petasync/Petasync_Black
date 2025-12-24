@@ -7,30 +7,61 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 
+const consultingPackages = [
+  {
+    name: "IT-Strategie Workshop",
+    price: "499€/Tag",
+    description: "Ganztägiger Workshop",
+    features: ["Ist-Analyse", "Zieldefinition", "Maßnahmenplanung", "Schriftliche Roadmap"]
+  },
+  {
+    name: "Digitalisierungs-Beratung",
+    price: "89€/h",
+    description: "Stundenweise Beratung",
+    features: ["Prozessanalyse", "Software-Auswahl", "Digitale Transformation", "Change Management"]
+  },
+  {
+    name: "Security-Audit",
+    price: "ab 799€",
+    description: "Sicherheitsanalyse",
+    features: ["Schwachstellen-Analyse", "Penetration-Test", "Sicherheits-Report", "Handlungsempfehlungen"]
+  },
+  {
+    name: "DSGVO-Beratung",
+    price: "ab 599€",
+    description: "Datenschutz-Compliance",
+    features: ["DSGVO-Check", "Dokumentation", "Prozesse anpassen", "Mitarbeiter-Schulung"]
+  }
+];
+
 const consultingAreas = [
   {
     icon: Target,
     title: "IT-Strategie",
     description: "Entwicklung einer IT-Roadmap, die Ihre Geschäftsziele unterstützt.",
-    features: ["Ist-Analyse", "Zieldefinition", "Maßnahmenplanung", "Umsetzungsbegleitung"]
+    features: ["Ist-Analyse", "Zieldefinition", "Maßnahmenplanung", "Umsetzungsbegleitung"],
+    price: "499€/Tag"
   },
   {
     icon: Workflow,
     title: "Digitalisierung",
     description: "Optimierung Ihrer Geschäftsprozesse durch moderne IT-Lösungen.",
-    features: ["Prozessanalyse", "Software-Auswahl", "Schnittstellen", "Change Management"]
+    features: ["Prozessanalyse", "Software-Auswahl", "Schnittstellen", "Change Management"],
+    price: "89€/h"
   },
   {
     icon: Coins,
     title: "Kostensenkung",
     description: "Identifikation von Einsparpotenzialen in Ihrer IT-Landschaft.",
-    features: ["Lizenzoptimierung", "Cloud-Migration", "Konsolidierung", "Outsourcing-Analyse"]
+    features: ["Lizenzoptimierung", "Cloud-Migration", "Konsolidierung", "Outsourcing-Analyse"],
+    price: "89€/h"
   },
   {
     icon: BarChart3,
     title: "IT-Audit",
     description: "Umfassende Analyse Ihrer IT-Infrastruktur mit konkreten Handlungsempfehlungen.",
-    features: ["Sicherheitscheck", "Performance-Analyse", "Dokumentation", "Priorisierung"]
+    features: ["Sicherheitscheck", "Performance-Analyse", "Dokumentation", "Priorisierung"],
+    price: "ab 799€"
   }
 ];
 
