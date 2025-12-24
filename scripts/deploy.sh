@@ -47,17 +47,21 @@ fi
 # 3. Upload to Hetzner
 echo -e "${YELLOW}[2/3]${NC} Uploading to Hetzner..."
 
-lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<EOF
-set ftp:ssl-allow no
+lftp -u "$FTP_USER,$FTP_PASS" "ftps://$FTP_HOST" <<EOF
+set ftp:ssl-allow yes
+set ftp:ssl-force yes
+set ftp:ssl-protect-data yes
+set ssl:verify-certificate no
 set net:timeout 30
-set net:max-retries 3
+set net:max-retries 5
 set net:reconnect-interval-base 5
+set ftp:passive-mode on
 
 # Upload dist folder
-mirror -R --verbose --delete-first dist/ ./
+mirror -R --verbose --parallel=2 dist/ ./
 
 # Upload api folder
-mirror -R --verbose api/ ./api/
+mirror -R --verbose --parallel=2 api/ ./api/
 
 bye
 EOF
