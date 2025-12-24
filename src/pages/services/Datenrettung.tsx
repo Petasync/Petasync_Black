@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Database, ArrowRight, CheckCircle2, Phone, HardDrive, Smartphone, SdCard, Server } from "lucide-react";
+import { Database, ArrowRight, CheckCircle2, Phone, HardDrive, Smartphone, Usb, Server } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -14,7 +14,7 @@ const dataRecoveryTypes = [
     description: "Rettung von Daten defekter interner und externer Festplatten.",
   },
   {
-    icon: SdCard,
+    icon: Usb,
     title: "USB-Sticks & SD-Karten",
     description: "Wiederherstellung von Daten von defekten Speicherkarten und USB-Sticks.",
   },
