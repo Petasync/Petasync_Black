@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,8 +15,6 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
-  const { resetPassword } = useAdminAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +27,26 @@ export default function ForgotPassword() {
     }
 
     setIsLoading(true);
-    const response = await resetPassword(email);
-    setIsLoading(false);
 
-    if (response.success) {
+    try {
+      // Sende Password-Reset E-Mail via Supabase
+      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+      const { error: supabaseError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/admin/magic-link`,
+      });
+
+      if (supabaseError) {
+        setError('Fehler beim Senden der E-Mail: ' + supabaseError.message);
+        setIsLoading(false);
+        return;
+      }
+
       setSuccess(true);
-    } else {
-      setError(response.error || 'Ein Fehler ist aufgetreten');
+    } catch (err) {
+      setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+      console.error('Password reset error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
