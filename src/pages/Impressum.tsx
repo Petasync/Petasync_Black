@@ -56,9 +56,9 @@ export default function Impressum() {
               <h2 className="text-xl font-bold mb-4 text-foreground">Angaben gemäß § 5 TMG</h2>
               <p className="text-muted-foreground leading-relaxed">
                 Petasync IT-Service<br />
-                [Ihr Name]<br />
-                [Straße und Hausnummer]<br />
-                91126 Dietenhofen
+                Phillip Scheiderer<br />
+                Neudorf 14<br />
+                90599 Dietenhofen
               </p>
             </div>
 
@@ -78,7 +78,7 @@ export default function Impressum() {
               <h2 className="text-xl font-bold mb-4 text-foreground">Umsatzsteuer-ID</h2>
               <p className="text-muted-foreground leading-relaxed">
                 Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-                [Ihre USt-IdNr. falls vorhanden]
+                DE49032654873
               </p>
             </div>
 

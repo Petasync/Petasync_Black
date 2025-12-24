@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone, Cpu, Search } from "lucide-react";
+import { Monitor, Wrench, HardDrive, Shield, Wifi, Laptop, ArrowRight, CheckCircle2, Phone, Cpu, Search, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -10,56 +10,69 @@ import privatkundenHero from "@/assets/privatkunden-hero.png";
 
 const services = [
   {
+    icon: Search,
+    title: "Diagnose",
+    description: "Professionelle Fehleranalyse Ihres Computers – wir finden das Problem schnell und zuverlässig.",
+    features: ["Hardware-Check", "Software-Analyse", "Fehlerprotokoll", "Kostenlos bei Reparatur"],
+    href: "/services/diagnose",
+    highlight: true,
+    price: "Kostenlos bei Auftrag"
+  },
+  {
+    icon: Sparkles,
+    title: "PC Reinigung",
+    description: "Professionelle Reinigung für bessere Leistung und längere Lebensdauer. Ihr PC wird wieder leise und kühl.",
+    features: ["Innen- & Außenreinigung", "Lüfter-Wartung", "Wärmeleitpaste erneuern", "Leistungsoptimierung"],
+    href: "/services/pc-reinigung",
+    price: "ab 25€"
+  },
+  {
     icon: Monitor,
     title: "PC & Laptop Reparatur",
     description: "Schnelle Diagnose und professionelle Reparatur aller gängigen Marken und Modelle.",
-    features: ["Hardware-Diagnose", "Display-Austausch", "Tastatur-Reparatur", "Akku-Wechsel"],
-    href: "/services/pc-reparatur"
+    features: ["Display-Austausch", "Tastatur-Reparatur", "Akku-Wechsel", "Mainboard-Reparatur"],
+    href: "/services/pc-reparatur",
+    price: "ab 29€"
   },
   {
     icon: HardDrive,
     title: "Datenrettung",
     description: "Professionelle Wiederherstellung Ihrer wertvollen Daten von defekten Speichermedien.",
     features: ["Festplatten-Recovery", "SSD-Datenrettung", "USB-Stick Rettung", "Backup-Lösungen"],
-    href: "/services/pc-reparatur"
+    href: "/services/datenrettung",
+    price: "ab 89€"
   },
   {
     icon: Shield,
-    title: "Virenentfernung & IT-Sicherheit",
+    title: "IT-Sicherheit & Virenentfernung",
     description: "Gründliche Entfernung von Schadsoftware und Einrichtung eines effektiven Schutzes.",
-    features: ["Malware-Entfernung", "Ransomware-Hilfe", "Sicherheits-Setup", "Präventions-Beratung"],
-    href: "/services/it-sicherheit"
+    features: ["Malware-Entfernung", "Ransomware-Hilfe", "Antivirus-Setup", "Firewall-Konfiguration"],
+    href: "/services/it-sicherheit",
+    price: "ab 45€"
   },
   {
     icon: Wrench,
     title: "PC-Aufrüstung",
     description: "Mehr Leistung für Ihren Computer durch gezielte Hardware-Upgrades.",
-    features: ["RAM-Erweiterung", "SSD-Upgrade", "Grafikkarten-Einbau", "Prozessor-Wechsel"],
-    href: "/services/pc-reparatur"
+    features: ["SSD-Upgrade", "RAM-Erweiterung", "Grafikkarten-Einbau", "CPU-Wechsel"],
+    href: "/services/pc-aufruestung",
+    price: "ab 25€"
   },
   {
     icon: Wifi,
     title: "Netzwerk & WLAN",
     description: "Einrichtung und Optimierung Ihres Heimnetzwerks für beste Verbindung.",
     features: ["Router-Setup", "WLAN-Optimierung", "Netzwerk-Sicherheit", "Smart Home Integration"],
-    href: "/services/netzwerk"
+    href: "/services/netzwerk",
+    price: "ab 45€"
   },
   {
     icon: Cpu,
     title: "PC Zusammenbau",
     description: "Wir bauen Ihren Wunsch-PC nach Ihren Anforderungen zusammen – ob Gaming, Office oder Workstation.",
-    features: ["Individuelle Konfiguration", "Qualitäts-Komponenten", "Windows-Installation", "Garantie auf Arbeit"],
-    href: "/services/pc-reparatur",
-    price: "ab 79€"
-  },
-  {
-    icon: Search,
-    title: "Diagnose",
-    description: "Professionelle Fehleranalyse Ihres Computers – wir finden das Problem schnell und zuverlässig.",
-    features: ["Hardware-Check", "Software-Analyse", "Fehlerprotokoll", "Reparatur-Empfehlung"],
-    href: "/services/pc-reparatur",
-    highlight: true,
-    price: "Kostenlos bei Auftrag"
+    features: ["Individuelle Konfiguration", "Qualitäts-Komponenten", "Windows-Installation", "12 Monate Garantie"],
+    href: "/services/pc-zusammenbau",
+    price: "ab 69€"
   },
   {
     icon: Laptop,
@@ -67,7 +80,8 @@ const services = [
     description: "Während Ihr Gerät repariert wird, arbeiten Sie einfach mit unserem Leihgerät weiter.",
     features: ["Kostenloser Leih-PC", "Datenübertragung", "Schnelle Verfügbarkeit", "Keine Ausfallzeit"],
     href: "/services/leih-pc",
-    highlight: true
+    highlight: true,
+    price: "Kostenlos"
   }
 ];
 
