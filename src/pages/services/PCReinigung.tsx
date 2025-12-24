@@ -1,104 +1,99 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Monitor, ArrowRight, CheckCircle2, Phone, Wrench, HardDrive, Cpu, Battery, Laptop } from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2, Phone, Wind, Droplets, Gauge, Fan } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 
-const services = [
+const cleaningServices = [
   {
-    icon: Monitor,
-    title: "Display-Reparatur",
-    description: "Gesprungene oder defekte Displays werden schnell und professionell ausgetauscht.",
-    price: "ab 59€ + Ersatzteil"
+    icon: Wind,
+    title: "Staubentfernung",
+    description: "Gründliche Entfernung von Staub und Schmutz aus allen Komponenten und Lüftern.",
   },
   {
-    icon: HardDrive,
-    title: "Festplatten-Probleme",
-    description: "Defekte Festplatten oder SSDs werden repariert oder durch neue ersetzt.",
-    price: "ab 45€ + Hardware"
+    icon: Fan,
+    title: "Lüfterreinigung",
+    description: "Reinigung und Wartung aller Lüfter für optimale Kühlleistung.",
   },
   {
-    icon: Cpu,
-    title: "Überhitzung & Lüfter",
-    description: "Reinigung und Wartung der Lüftung für optimale Kühlung.",
-    price: "45€"
+    icon: Droplets,
+    title: "Wärmeleitpaste",
+    description: "Erneuerung der Wärmeleitpaste zwischen CPU/GPU und Kühler.",
   },
   {
-    icon: Battery,
-    title: "Akku-Wechsel",
-    description: "Schwache Laptop-Akkus werden durch hochwertige Ersatzakkus ausgetauscht.",
-    price: "ab 35€ + Akku"
-  },
-  {
-    icon: Wrench,
-    title: "Mainboard-Reparatur",
-    description: "Reparatur von Mainboard-Defekten und Lötstellen.",
-    price: "ab 89€"
-  },
-  {
-    icon: Laptop,
-    title: "Tastatur-Reparatur",
-    description: "Defekte Tastaturen bei Laptops professionell austauschen.",
-    price: "ab 49€ + Ersatzteil"
+    icon: Gauge,
+    title: "Leistungsoptimierung",
+    description: "Nach der Reinigung läuft Ihr PC kühler, leiser und schneller.",
   },
 ];
 
 const packages = [
   {
-    name: "Basis-Wartung",
-    price: "29€",
-    description: "Grundlegende Pflege",
+    name: "Basis-Reinigung",
+    price: "25€",
+    description: "Grundreinigung außen",
     features: [
-      "PC-Reinigung innen & außen",
-      "Wärmeleitpaste erneuern",
-      "Windows-Updates",
-      "Funktionstest"
+      "Außenreinigung Gehäuse",
+      "Staubentfernung zugängliche Bereiche",
+      "Bildschirm & Tastatur reinigen",
+      "Schneller Service"
     ],
     highlight: false
   },
   {
-    name: "Premium-Wartung",
-    price: "49€",
-    description: "Umfassende Wartung",
+    name: "Premium-Reinigung",
+    price: "45€",
+    description: "Komplettreinigung innen & außen",
     features: [
       "Alles aus Basis",
-      "Virencheck & Entfernung",
-      "Treiber-Updates",
-      "Festplatten-Check",
-      "Leistungsoptimierung",
-      "3 Monate Support"
+      "Gehäuse öffnen & innen reinigen",
+      "Alle Lüfter gründlich reinigen",
+      "Wärmeleitpaste erneuern",
+      "Kabelmanagement optimieren",
+      "Leistungstest nach Reinigung"
     ],
     highlight: true
   },
   {
-    name: "Neustart-Paket",
-    price: "59€",
-    description: "Windows-Neuinstallation",
+    name: "Wartungs-Paket",
+    price: "69€",
+    description: "Reinigung + Optimierung",
     features: [
-      "Windows komplett neu installieren",
-      "Alle Treiber installieren",
-      "Windows-Updates",
-      "Antivirus einrichten",
-      "Datensicherung vorher"
+      "Alles aus Premium",
+      "Windows-Updates installieren",
+      "Treiber aktualisieren",
+      "Festplatten-Check",
+      "Autostart optimieren",
+      "Systemleistung verbessern"
     ],
     highlight: false
   }
 ];
 
-const process = [
-  { step: "1", title: "Kontakt", description: "Anrufen oder online anfragen" },
-  { step: "2", title: "Diagnose", description: "Kostenlose Fehleranalyse" },
-  { step: "3", title: "Angebot", description: "Transparenter Festpreis" },
-  { step: "4", title: "Reparatur", description: "Schnelle Bearbeitung" },
+const benefits = [
+  "Leiserer PC-Betrieb",
+  "Bessere Kühlleistung",
+  "Längere Hardware-Lebensdauer",
+  "Höhere Leistung",
+  "Weniger Überhitzung",
+  "Saubere Optik"
 ];
 
-export default function PCReparatur() {
+const process = [
+  { step: "1", title: "Termin", description: "Online oder telefonisch buchen" },
+  { step: "2", title: "Reinigung", description: "Professionelle Säuberung" },
+  { step: "3", title: "Test", description: "Funktions- und Leistungstest" },
+  { step: "4", title: "Fertig", description: "Ihr PC wie neu" },
+];
+
+export default function PCReinigung() {
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
+  const { ref: benefitsRef, isRevealed: benefitsRevealed } = useScrollReveal();
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal();
 
   return (
@@ -126,23 +121,22 @@ export default function PCReparatur() {
                 Privatkunden
               </Link>
               <span className="text-muted-foreground">/</span>
-              <span className="text-sm text-foreground">PC-Reparatur</span>
+              <span className="text-sm text-foreground">PC-Reinigung</span>
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
-              PC & Laptop{" "}
-              <span className="gradient-text">Reparatur</span>
+              PC{" "}
+              <span className="gradient-text">Reinigung</span>
             </h1>
 
             <p className="text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              Schnelle und professionelle Reparatur aller gängigen Marken.
-              Hardware-Defekte, Software-Probleme – wir helfen.
+              Professionelle Reinigung für bessere Leistung und längere Lebensdauer. Ihr PC wird wieder leise, kühl und schnell.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Reparatur anfragen
+                  Termin vereinbaren
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -169,8 +163,8 @@ export default function PCReparatur() {
           )}
         >
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold gradient-text mb-4">Wartungs-Pakete</h2>
-            <p className="text-muted-foreground">Festpreise für regelmäßige Wartung</p>
+            <h2 className="text-4xl font-bold gradient-text mb-4">Unsere Reinigungs-Pakete</h2>
+            <p className="text-muted-foreground">Wählen Sie das passende Paket für Ihren PC</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -221,13 +215,13 @@ export default function PCReparatur() {
 
           <div className="mt-12 text-center">
             <p className="text-muted-foreground text-sm">
-              Individuelle Reparaturen: <span className="text-primary font-semibold">30€/Stunde</span> + Material
+              Oder individuell nach Aufwand: <span className="text-primary font-semibold">30€/Stunde</span>
             </p>
           </div>
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* What we do */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="divider-glow mb-16" />
@@ -240,12 +234,12 @@ export default function PCReparatur() {
             )}
           >
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold gradient-text mb-4">Häufige Reparaturen</h2>
-              <p className="text-muted-foreground">Transparente Festpreise für Standard-Reparaturen</p>
+              <h2 className="text-4xl font-bold gradient-text mb-4">Was wir tun</h2>
+              <p className="text-muted-foreground">Professionelle Reinigung in allen Details</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-              {services.map((service, index) => (
+              {cleaningServices.map((service, index) => (
                 <div
                   key={service.title}
                   className="group py-8 border-b border-white/5 last:border-0"
@@ -255,14 +249,50 @@ export default function PCReparatur() {
                     <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                       <service.icon className="w-6 h-6 text-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-4 mb-2">
-                        <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
-                        <span className="text-sm text-primary font-medium whitespace-nowrap">{service.price}</span>
-                      </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
                       <p className="text-muted-foreground">{service.description}</p>
                     </div>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="section-padding relative">
+        <div className="container-tight">
+          <div className="divider-glow mb-16" />
+
+          <div
+            ref={benefitsRef}
+            className={cn(
+              "grid lg:grid-cols-2 gap-16 lg:gap-24 items-center transition-all duration-1000",
+              benefitsRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+                Warum PC-Reinigung{" "}
+                <span className="gradient-text">wichtig ist</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Staub und Schmutz sammeln sich im Laufe der Zeit in jedem Computer an.
+                Das führt zu Überhitzung, Leistungseinbußen und kann die Lebensdauer
+                Ihrer Hardware drastisch verkürzen.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {benefits.map((benefit, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 py-4 border-b border-white/5 last:border-0"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -284,7 +314,7 @@ export default function PCReparatur() {
           >
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold gradient-text mb-4">So funktioniert's</h2>
-              <p className="text-muted-foreground">In 4 einfachen Schritten zu Ihrem reparierten Gerät</p>
+              <p className="text-muted-foreground">Einfach und schnell</p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -300,7 +330,7 @@ export default function PCReparatur() {
         </div>
       </section>
 
-      {/* Leih-PC CTA */}
+      {/* CTA */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
@@ -308,19 +338,26 @@ export default function PCReparatur() {
             <div className="absolute inset-0 border border-white/10 rounded-3xl" />
 
             <div className="relative text-center">
-              <Wrench className="w-12 h-12 text-primary mx-auto mb-6" />
+              <Sparkles className="w-12 h-12 text-primary mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Leih-PC inklusive
+                Bereit für einen sauberen PC?
               </h2>
               <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-                Während der Reparatur arbeiten Sie einfach mit unserem Leihgerät weiter. Kostenlos bei jeder Reparatur.
+                Vereinbaren Sie jetzt einen Termin und genießen Sie wieder volle Leistung.
               </p>
-              <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
-                <Link to="/services/leih-pc">
-                  Mehr erfahren
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
+                  <Link to="/kontakt">
+                    Termin vereinbaren
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="rounded-full border-white/20 hover:bg-white/5" asChild>
+                  <a href="https://wa.me/491637117198" target="_blank" rel="noopener noreferrer">
+                    WhatsApp schreiben
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

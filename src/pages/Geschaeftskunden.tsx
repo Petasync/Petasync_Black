@@ -10,62 +10,69 @@ import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
 
 const services = [
   {
+    icon: Headphones,
+    title: "IT-Support & Helpdesk",
+    description: "Zuverlässiger Support für Ihr Unternehmen – vor Ort oder remote.",
+    features: ["Support-Flatrates", "Remote 50€/h", "Vor-Ort 75€/h"],
+    href: "/services/it-support",
+    price: "ab 99€/Monat",
+    highlight: true
+  },
+  {
+    icon: Server,
+    title: "Managed Services",
+    description: "Komplette IT-Betreuung als monatliche Flatrate. Rundum sorglos.",
+    features: ["PC-Verwaltung", "Server-Monitoring", "Proaktive Wartung"],
+    href: "/services/it-infrastruktur",
+    price: "ab 35€/User/Monat"
+  },
+  {
     icon: Server,
     title: "IT-Infrastruktur",
-    description: "Planung, Einrichtung und Wartung Ihrer gesamten IT-Infrastruktur.",
-    features: ["Server-Management", "Netzwerk-Setup", "Cloud-Lösungen", "Backup-Systeme"],
-    href: "/services/it-business"
+    description: "Server, Netzwerk und Cloud-Lösungen für Ihr Unternehmen.",
+    features: ["Server-Setup", "Netzwerk", "Cloud-Migration"],
+    href: "/services/it-infrastruktur",
+    price: "ab 299€"
   },
   {
     icon: Shield,
     title: "IT-Sicherheit",
     description: "Umfassender Schutz für Ihre Unternehmensdaten und Systeme.",
-    features: ["Firewall-Konfiguration", "Endpoint-Security", "Sicherheits-Audits", "Mitarbeiter-Schulung"],
-    href: "/services/it-sicherheit"
-  },
-  {
-    icon: Headphones,
-    title: "IT-Support",
-    description: "Zuverlässiger Support für Ihr Unternehmen – vor Ort oder remote.",
-    features: ["Helpdesk-Service", "Remote-Support", "Vor-Ort-Service", "Wartungsverträge"],
-    href: "/services/it-business"
+    features: ["Firewall-Setup", "Security-Audit", "Endpoint-Protection"],
+    href: "/services/it-sicherheit",
+    price: "ab 299€"
   },
   {
     icon: Globe,
-    title: "Webdesign & Hosting",
-    description: "Professionelle Websites und zuverlässiges Hosting für Ihr Unternehmen.",
-    features: ["Responsive Websites", "SEO-Optimierung", "Managed Hosting", "E-Mail-Lösungen"],
-    href: "/websites"
+    title: "Cloud-Services",
+    description: "Office 365, Cloud-Server und Hybrid-Cloud-Lösungen.",
+    features: ["Office 365", "Cloud-Server", "Backup"],
+    href: "/services/it-infrastruktur",
+    price: "ab 49€/User"
   },
   {
     icon: Laptop,
-    title: "Hardware-Service",
-    description: "Beschaffung, Einrichtung und Reparatur von Geschäfts-Hardware.",
-    features: ["PC-Beschaffung", "Laptop-Reparatur", "Drucker-Service", "Leih-PC Service"],
-    href: "/services/pc-reparatur"
+    title: "Netzwerk & WLAN",
+    description: "Enterprise-Netzwerke, VPN und strukturierte Verkabelung.",
+    features: ["WLAN-Setup", "VPN-Lösungen", "Verkabelung"],
+    href: "/services/netzwerk",
+    price: "ab 299€"
   },
   {
     icon: Users,
-    title: "Beratung & Planung",
-    description: "Strategische IT-Beratung für nachhaltiges Unternehmenswachstum.",
-    features: ["IT-Strategie", "Digitalisierung", "Prozessoptimierung", "Kostensenkung"],
-    href: "/services/it-business"
+    title: "IT-Beratung",
+    description: "Strategische IT-Beratung für Digitalisierung und Optimierung.",
+    features: ["IT-Strategie", "Digitalisierung", "DSGVO"],
+    href: "/services/beratung",
+    price: "89€/h"
   },
   {
     icon: Cpu,
-    title: "PC Zusammenbau",
-    description: "Maßgeschneiderte Workstations und PCs für Ihr Unternehmen – leistungsstark und zuverlässig.",
-    features: ["Business-Konfiguration", "Volumen-Bestellung", "Windows Pro Setup", "Garantie"],
-    href: "/services/pc-reparatur",
-    price: "ab 79€"
-  },
-  {
-    icon: Search,
-    title: "Diagnose",
-    description: "Schnelle und gründliche Fehleranalyse Ihrer Unternehmens-Hardware.",
-    features: ["Hardware-Analyse", "Netzwerk-Check", "Performance-Test", "Bericht"],
-    href: "/services/pc-reparatur",
-    price: "Kostenlos bei Auftrag"
+    title: "Hardware & Workstations",
+    description: "Business-PCs, Laptops und Workstations inkl. Setup.",
+    features: ["Volumen-Rabatte", "Windows Pro", "Installation"],
+    href: "/services/pc-zusammenbau",
+    price: "ab 69€"
   }
 ];
 

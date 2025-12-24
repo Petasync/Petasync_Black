@@ -24,6 +24,11 @@ import Webdesign from "./pages/services/Webdesign";
 import ITInfrastruktur from "./pages/services/ITInfrastruktur";
 import ITSupport from "./pages/services/ITSupport";
 import Beratung from "./pages/services/Beratung";
+import Diagnose from "./pages/services/Diagnose";
+import PCReinigung from "./pages/services/PCReinigung";
+import Datenrettung from "./pages/services/Datenrettung";
+import PCAufruestung from "./pages/services/PCAufruestung";
+import PCZusammenbau from "./pages/services/PCZusammenbau";
 import WebsiteTemplate from "./pages/websites/Template";
 import WebsiteStarter from "./pages/websites/Starter";
 import WebsiteBusiness from "./pages/websites/Business";
@@ -65,10 +70,15 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/impressum" element={<Impressum />} />
             <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/services/diagnose" element={<Diagnose />} />
+            <Route path="/services/pc-reinigung" element={<PCReinigung />} />
             <Route path="/services/pc-reparatur" element={<PCReparatur />} />
-            <Route path="/services/leih-pc" element={<LeihPC />} />
+            <Route path="/services/datenrettung" element={<Datenrettung />} />
             <Route path="/services/it-sicherheit" element={<ITSicherheit />} />
+            <Route path="/services/pc-aufruestung" element={<PCAufruestung />} />
             <Route path="/services/netzwerk" element={<Netzwerk />} />
+            <Route path="/services/pc-zusammenbau" element={<PCZusammenbau />} />
+            <Route path="/services/leih-pc" element={<LeihPC />} />
             <Route path="/services/it-business" element={<ITBusiness />} />
             <Route path="/services/webdesign" element={<Webdesign />} />
             <Route path="/services/it-infrastruktur" element={<ITInfrastruktur />} />
