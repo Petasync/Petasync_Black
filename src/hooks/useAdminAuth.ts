@@ -99,7 +99,6 @@ export function useAdminAuth() {
 
   // Login function
   const login = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
-    setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -161,6 +160,14 @@ export function useAdminAuth() {
 
       // No 2FA required, complete login
       await resetFailedAttempts(data.user.id);
+
+      // Set session and admin state
+      setSession(data.session);
+      setUser(data.user);
+      setIsAdmin(true);
+      setRequires2FA(false);
+      setLoading(false); // Important: Set loading to false so AdminProtectedRoute knows we're ready
+
       adminStore.setSession({
         userId: data.user.id,
         email: data.user.email || '',
@@ -168,19 +175,17 @@ export function useAdminAuth() {
         trustedDevice: rememberMe,
         lastActivity: Date.now(),
       });
-      setIsAdmin(true);
-      
+
       toast({
         title: "Erfolgreich angemeldet",
         description: "Willkommen im Admin-Bereich!",
       });
-      
+
       return { success: true, requires2FA: false };
     } catch (err) {
       console.error('Login error:', err);
-      return { success: false, error: "Ein unerwarteter Fehler ist aufgetreten" };
-    } finally {
       setLoading(false);
+      return { success: false, error: "Ein unerwarteter Fehler ist aufgetreten" };
     }
   }, [adminStore, checkAdminRole, checkLockout, check2FAStatus, resetFailedAttempts]);
 
@@ -302,34 +307,52 @@ export function useAdminAuth() {
 
   // Initialize auth state
   useEffect(() => {
+    let mounted = true;
+
+    const initAuth = async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+
+      if (currentSession?.user) {
+        const hasAdmin = await checkAdminRole(currentSession.user.id);
+        if (mounted) {
+          setIsAdmin(hasAdmin);
+          setLoading(false);
+        }
+      } else {
+        if (mounted) {
+          setIsAdmin(false);
+          setLoading(false);
+        }
+      }
+    };
+
+    initAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        if (!mounted) return;
+
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
-        
+
         if (currentSession?.user) {
-          // Use setTimeout to avoid potential deadlock
-          setTimeout(async () => {
-            const hasAdmin = await checkAdminRole(currentSession.user.id);
-            setIsAdmin(hasAdmin);
-          }, 0);
+          const hasAdmin = await checkAdminRole(currentSession.user.id);
+          if (mounted) setIsAdmin(hasAdmin);
         } else {
-          setIsAdmin(false);
+          if (mounted) setIsAdmin(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      if (currentSession?.user) {
-        checkAdminRole(currentSession.user.id).then(setIsAdmin);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [checkAdminRole]);
 
   // Check session timeout
