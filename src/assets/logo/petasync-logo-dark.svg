@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 100" fill="none">
+  <!-- P Icon -->
+  <path d="M15 10 L15 90 L28 90 L28 62 L45 62 C65 62 78 50 78 36 C78 22 65 10 45 10 L15 10 Z" fill="#0a0a0a"/>
+  <path d="M28 22 L42 22 C55 22 63 27 63 36 C63 45 55 50 42 50 L28 50 L28 22 Z" fill="white"/>
+  <path d="M33 36 C38 30 48 30 53 36 C48 42 38 42 33 36 Z" fill="#0a0a0a"/>
+  
+  <!-- PETASYNC Text -->
+  <text x="95" y="62" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="36" font-weight="600" fill="#0a0a0a" letter-spacing="-0.5">PETASYNC</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none">
+  <!-- P Icon centered -->
+  <path d="M60 10 L60 90 L78 90 L78 58 L100 58 C125 58 142 44 142 28 C142 12 125 0 100 0 L60 0 Z" fill="#0a0a0a" transform="translate(0, 10)"/>
+  <path d="M78 15 L95 15 C112 15 122 22 122 30 C122 38 112 45 95 45 L78 45 L78 15 Z" fill="white" transform="translate(0, 10)"/>
+  <path d="M84 30 C90 23 102 23 108 30 C102 37 90 37 84 30 Z" fill="#0a0a0a" transform="translate(0, 10)"/>
+  
+  <!-- PETASYNC Text -->
+  <text x="100" y="125" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="600" fill="#0a0a0a" text-anchor="middle" letter-spacing="-0.5">PETASYNC</text>
+  
+  <!-- Slogan -->
+  <text x="100" y="150" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="rgba(10,10,10,0.6)" text-anchor="middle" letter-spacing="0.3">Perfekte Synchronisation Ihrer Digitalen Welt</text>
+</svg>
