@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" fill="#000000" rx="80"/>
+  <g transform="translate(100, 90)" fill="#FFFFFF">
+    <!-- Top curved section -->
+    <path d="M 20 20 L 200 20 C 250 20 270 55 270 105 C 270 145 250 155 200 155 L 80 155 C 50 155 50 125 50 90 L 50 50 C 50 20 20 20 20 20 Z"/>
+
+    <!-- Middle curved section -->
+    <path d="M 20 175 L 200 175 C 250 175 270 200 270 235 C 270 280 250 290 200 290 L 80 290 C 50 290 50 260 50 225 L 50 205 C 50 175 20 175 20 175 Z"/>
+
+    <!-- Bottom curved section -->
+    <path d="M 20 310 L 140 310 C 165 310 175 325 175 355 C 175 395 165 405 140 405 L 80 405 C 50 405 50 375 50 340 L 50 330 C 50 310 20 310 20 310 Z"/>
+
+    <!-- Center circle for sync effect -->
+    <circle cx="205" cy="235" r="45" fill="#FFFFFF" fill-opacity="0.25"/>
+  </g>
+</svg>

@@ -4,6 +4,7 @@ import { Menu, X, Phone, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { Logo } from "@/components/ui/Logo";
 
 const navItems = [
   { name: "Start", href: "/" },
@@ -49,13 +50,13 @@ export function Header() {
       <div className="container-tight">
         <nav className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 rounded-lg bg-foreground flex items-center justify-center overflow-hidden">
-              <span className="text-background font-bold text-lg relative z-10">P</span>
-            </div>
-            <span className="font-semibold text-lg text-foreground">
-              Petasync
-            </span>
+          <Link to="/" className="group">
+            <Logo
+              variant="horizontal"
+              className="transition-opacity hover:opacity-80"
+              iconClassName="w-7 h-auto"
+              textClassName="text-lg"
+            />
           </Link>
 
           {/* Desktop Navigation */}
