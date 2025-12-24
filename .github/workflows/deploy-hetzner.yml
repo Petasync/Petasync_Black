@@ -36,18 +36,20 @@ jobs:
           VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
           VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
 
-      - name: Deploy to Hetzner via SFTP
+      - name: Deploy to Hetzner via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
           port: 21
           local-dir: ./dist/
-          server-dir: ./ # ⚠️ WICHTIG: Anpassen an dein Hetzner Root-Verzeichnis!
-          # Typische Werte: ./ oder /public_html/ oder /html/
+          server-dir: ./
           dangerous-clean-slate: false
+          timeout: 300000
+          log-level: verbose
+          security: loose
           exclude: |
             **/.git*
             **/.git*/**
@@ -61,11 +63,14 @@ jobs:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
           port: 21
           local-dir: ./api/
-          server-dir: ./api/ # ⚠️ Anpassen falls API in Unterordner liegt
+          server-dir: ./api/
           dangerous-clean-slate: false
+          timeout: 300000
+          log-level: verbose
+          security: loose
           exclude: |
             **/.git*
             **/node_modules/**
