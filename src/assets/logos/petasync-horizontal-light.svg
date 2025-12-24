@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" fill="none">
+  <!-- P Icon -->
+  <g transform="translate(20, 20)">
+    <!-- Top piece -->
+    <path d="M 0 0 L 80 0 C 105 0 110 15 110 35 C 110 52 105 55 80 55 L 25 55 C 15 55 15 45 15 30 L 15 15 C 15 0 0 0 0 0 Z" fill="#000000"/>
+
+    <!-- Middle piece -->
+    <path d="M 0 62 L 80 62 C 105 62 110 73 110 87 C 110 108 105 112 80 112 L 25 112 C 15 112 15 98 15 83 L 15 77 C 15 62 0 62 0 62 Z" fill="#000000"/>
+
+    <!-- Bottom piece -->
+    <path d="M 0 119 L 55 119 C 66 119 70 126 70 140 C 70 157 66 161 55 161 L 25 161 C 15 161 15 147 15 132 L 15 129 C 15 119 0 119 0 119 Z" fill="#000000"/>
+
+    <!-- Sync circle -->
+    <circle cx="85" cy="87" r="17" fill="#000000" fill-opacity="0.15"/>
+  </g>
+
+  <!-- PETASYNC Text -->
+  <text x="180" y="130" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="900" fill="#000000" letter-spacing="-2">PETASYNC</text>
+</svg>
