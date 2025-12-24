@@ -278,8 +278,9 @@ export function useAdminAuth() {
 
   // Password reset
   const resetPassword = useCallback(async (email: string) => {
+    const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/admin/reset-password`,
+      redirectTo: `${siteUrl}/admin/magic-link`,
     });
     
     if (error) {

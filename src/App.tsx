@@ -45,6 +45,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminAppointments from "./pages/admin/Appointments";
 import AdminWebsiteProjects from "./pages/admin/WebsiteProjects";
 import AdminSetup2FA from "./pages/admin/Setup2FA";
+import AdminMagicLinkHandler from "./pages/admin/MagicLinkHandler";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />
             <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+            <Route path="/admin/magic-link" element={<AdminMagicLinkHandler />} />
             <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/inquiries" element={<AdminProtectedRoute><AdminInquiries /></AdminProtectedRoute>} />
             <Route path="/admin/customers" element={<AdminProtectedRoute><AdminCustomers /></AdminProtectedRoute>} />
