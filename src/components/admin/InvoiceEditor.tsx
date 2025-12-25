@@ -7,10 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, FileDown, Save, QrCode } from 'lucide-react';
+import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateInvoicePDF, downloadPDF, generateEPCQRCode } from '@/lib/pdf-generator';
 import { EPCQRCode } from './EPCQRCode';
+import { GoogleReviewQRCode } from './GoogleReviewQRCode';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Invoice = Tables<'invoices'>;
@@ -42,6 +43,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<InvoiceItemForm[]>([]);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showGoogleReviewQR, setShowGoogleReviewQR] = useState(false);
   const [formData, setFormData] = useState<{
     customer_id: string;
     invoice_number: string;
@@ -51,6 +53,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: number;
     notes: string;
     payment_terms: string;
+    payment_method: string;
     status: 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
   }>({
     customer_id: '',
@@ -61,6 +64,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: 0,
     notes: '',
     payment_terms: '',
+    payment_method: '',
     status: 'entwurf',
   });
 
@@ -104,6 +108,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: Number(inv.discount_percent) || 0,
       notes: inv.notes || '',
       payment_terms: inv.payment_terms || '',
+      payment_method: inv.payment_method || '',
       status: inv.status || 'entwurf',
     });
 
@@ -137,6 +142,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: 0,
       notes: '',
       payment_terms: '',
+      payment_method: '',
       status: 'entwurf',
     });
     setItems([{
@@ -227,6 +233,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
+      payment_method: formData.payment_method || null,
       status: formData.status,
     };
 
@@ -285,7 +292,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const handleDownloadPDF = async () => {
     const customer = customers.find(c => c.id === formData.customer_id) || null;
     const { subtotal, discountAmount, total } = calculateTotals();
-    
+
     const invoiceForPDF: Invoice = {
       id: invoice?.id || '',
       invoice_number: formData.invoice_number,
@@ -298,7 +305,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
-      payment_method: null,
+      payment_method: formData.payment_method || null,
       status: formData.status,
       customer_id: formData.customer_id || null,
       quote_id: null,
@@ -540,7 +547,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
               </div>
             </div>
 
-            {/* Notes */}
+            {/* Notes & Payment */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Anmerkungen</Label>
@@ -556,8 +563,30 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
                   value={formData.payment_terms}
                   onChange={(e) => setFormData({ ...formData, payment_terms: e.target.value })}
                   rows={3}
+                  placeholder="z.B. Zahlbar innerhalb 14 Tagen ohne Abzug"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Zahlungsmethode</Label>
+              <Select
+                value={formData.payment_method}
+                onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Zahlungsmethode wählen (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uberweisung">Überweisung</SelectItem>
+                  <SelectItem value="paypal">PayPal</SelectItem>
+                  <SelectItem value="rechnung">Auf Rechnung</SelectItem>
+                  <SelectItem value="bar">Bar</SelectItem>
+                  <SelectItem value="kreditkarte">Kreditkarte</SelectItem>
+                  <SelectItem value="sepa">SEPA-Lastschrift</SelectItem>
+                  <SelectItem value="vorkasse">Vorkasse</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Actions */}
@@ -570,6 +599,10 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
                 <Button variant="outline" onClick={() => setShowQRCode(true)}>
                   <QrCode className="h-4 w-4 mr-2" />
                   EPC QR
+                </Button>
+                <Button variant="outline" onClick={() => setShowGoogleReviewQR(true)}>
+                  <Star className="h-4 w-4 mr-2" />
+                  Review QR
                 </Button>
               </div>
               <div className="flex gap-2">
@@ -591,6 +624,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
         onOpenChange={setShowQRCode}
         invoiceNumber={formData.invoice_number}
         amount={total}
+      />
+
+      <GoogleReviewQRCode
+        open={showGoogleReviewQR}
+        onOpenChange={setShowGoogleReviewQR}
       />
     </>
   );
