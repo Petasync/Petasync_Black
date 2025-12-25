@@ -1,3 +1,5 @@
+import QRCode from 'qrcode';
+import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Quote = Tables<'quotes'>;
@@ -44,6 +46,19 @@ const formatCurrency = (amount: number | null): string => {
 const formatDate = (date: string | null): string => {
   if (!date) return '';
   return new Intl.DateTimeFormat('de-DE').format(new Date(date));
+};
+
+const getPaymentMethodLabel = (method: string | null): string => {
+  const labels: Record<string, string> = {
+    uberweisung: 'Überweisung',
+    paypal: 'PayPal',
+    rechnung: 'Auf Rechnung',
+    bar: 'Bar',
+    kreditkarte: 'Kreditkarte',
+    sepa: 'SEPA-Lastschrift',
+    vorkasse: 'Vorkasse',
+  };
+  return method ? labels[method] || method : 'Überweisung';
 };
 
 export const generateQuotePDF = async (
@@ -204,6 +219,26 @@ export const generateInvoicePDF = async (
   items: InvoiceItem[],
   companyInfo: CompanyInfo = defaultCompanyInfo
 ): Promise<Blob> => {
+  // Fetch Google Review QR code URL from settings
+  let googleReviewQR = '';
+  try {
+    const { data } = await supabase
+      .from('admin_settings')
+      .select('value')
+      .eq('key', 'google_review_url')
+      .single();
+
+    if (data && data.value && (data.value as { url: string }).url) {
+      const url = (data.value as { url: string }).url;
+      googleReviewQR = await QRCode.toDataURL(url, {
+        width: 150,
+        margin: 1,
+      });
+    }
+  } catch (error) {
+    console.log('No Google Review URL configured');
+  }
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -232,13 +267,16 @@ export const generateInvoicePDF = async (
         .totals table { width: 100%; }
         .totals td { padding: 5px 0; }
         .totals .total { font-weight: bold; font-size: 12pt; border-top: 2px solid #333; }
-        .payment-info { margin-top: 30px; padding: 15px; background: #e8f4fd; border-radius: 5px; }
+        .payment-info { margin-top: 30px; padding: 15px; background: #e8f4fd; border-radius: 5px; display: flex; justify-content: space-between; align-items: flex-start; }
         .payment-info h4 { margin-bottom: 10px; color: #0066cc; }
+        .payment-details { flex: 1; }
+        .qr-section { text-align: center; padding-left: 20px; }
+        .qr-section img { max-width: 150px; border-radius: 5px; }
+        .qr-section p { margin-top: 10px; font-size: 9pt; color: #666; }
         .notes { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 5px; }
         .notes h4 { margin-bottom: 10px; }
         .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 8pt; color: #666; }
         .footer-columns { display: flex; justify-content: space-between; }
-        .qr-placeholder { width: 100px; height: 100px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #999; }
       </style>
     </head>
     <body>
@@ -269,6 +307,7 @@ export const generateInvoicePDF = async (
               <tr><td class="label">Rechnungsdatum:</td><td>${formatDate(invoice.invoice_date)}</td></tr>
               ${invoice.delivery_date ? `<tr><td class="label">Lieferdatum:</td><td>${formatDate(invoice.delivery_date)}</td></tr>` : ''}
               ${invoice.due_date ? `<tr><td class="label">Fällig am:</td><td>${formatDate(invoice.due_date)}</td></tr>` : ''}
+              ${invoice.payment_method ? `<tr><td class="label">Zahlungsart:</td><td>${getPaymentMethodLabel(invoice.payment_method)}</td></tr>` : ''}
             </table>
           </div>
         </div>
@@ -307,23 +346,43 @@ export const generateInvoicePDF = async (
         </div>
 
         <div class="payment-info">
-          <h4>Zahlungsinformationen</h4>
-          <p>
-            Bitte überweisen Sie den Betrag von <strong>${formatCurrency(invoice.total)}</strong> 
-            ${invoice.due_date ? `bis zum <strong>${formatDate(invoice.due_date)}</strong>` : ''} auf folgendes Konto:
-          </p>
-          <p style="margin-top: 10px;">
-            <strong>${companyInfo.bankName}</strong><br>
-            IBAN: ${companyInfo.iban}<br>
-            BIC: ${companyInfo.bic}<br>
-            Verwendungszweck: ${invoice.invoice_number}
-          </p>
+          <div class="payment-details">
+            <h4>Zahlungsinformationen</h4>
+            <p>
+              Bitte überweisen Sie den Betrag von <strong>${formatCurrency(invoice.total)}</strong>
+              ${invoice.due_date ? `bis zum <strong>${formatDate(invoice.due_date)}</strong>` : ''} auf folgendes Konto:
+            </p>
+            <p style="margin-top: 10px;">
+              <strong>${companyInfo.bankName}</strong><br>
+              IBAN: ${companyInfo.iban}<br>
+              BIC: ${companyInfo.bic}<br>
+              Verwendungszweck: ${invoice.invoice_number}
+            </p>
+            ${invoice.payment_method ? `
+              <p style="margin-top: 10px;">
+                <strong>Bevorzugte Zahlungsart:</strong> ${getPaymentMethodLabel(invoice.payment_method)}
+              </p>
+            ` : ''}
+          </div>
+          ${googleReviewQR ? `
+            <div class="qr-section">
+              <img src="${googleReviewQR}" alt="Google Bewertung QR-Code">
+              <p><strong>⭐ Zufrieden?</strong><br>Scannen Sie den QR-Code<br>für eine Google-Bewertung!</p>
+            </div>
+          ` : ''}
         </div>
 
         ${invoice.notes ? `
           <div class="notes">
             <h4>Anmerkungen</h4>
             <p>${invoice.notes}</p>
+          </div>
+        ` : ''}
+
+        ${invoice.payment_terms ? `
+          <div class="notes">
+            <h4>Zahlungsbedingungen</h4>
+            <p>${invoice.payment_terms}</p>
           </div>
         ` : ''}
 
