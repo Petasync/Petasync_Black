@@ -339,7 +339,7 @@ export const generateInvoicePDF = async (
         <div class="totals">
           <table>
             <tr><td>Zwischensumme:</td><td class="number">${formatCurrency(invoice.subtotal)}</td></tr>
-            ${invoice.discount_percent ? `<tr><td>Rabatt (${invoice.discount_percent}%):</td><td class="number">-${formatCurrency(invoice.discount_amount)}</td></tr>` : ''}
+            ${invoice.discount_percent ? `<tr><td>Rabatt ${(invoice.discount_type === 'euro' ? `(${formatCurrency(invoice.discount_percent)})` : `(${invoice.discount_percent}%)`)}:</td><td class="number">-${formatCurrency(invoice.discount_amount)}</td></tr>` : ''}
             <tr class="total"><td>Rechnungsbetrag:</td><td class="number">${formatCurrency(invoice.total)}</td></tr>
           </table>
         </div>
