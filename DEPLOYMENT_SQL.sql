@@ -34,7 +34,8 @@ CREATE POLICY "Admins can manage jobs" ON public.jobs
         )
     );
 
--- Trigger für updated_at
+-- Trigger für updated_at (erst löschen falls vorhanden)
+DROP TRIGGER IF EXISTS update_jobs_updated_at ON public.jobs;
 CREATE TRIGGER update_jobs_updated_at
     BEFORE UPDATE ON public.jobs
     FOR EACH ROW
