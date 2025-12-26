@@ -19,11 +19,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Search, Plus, Edit, Loader2, FileText } from 'lucide-react';
+import { Search, Plus, Edit, Loader2, FileText, MoreVertical, FileCheck, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { QuoteEditor } from '@/components/admin/QuoteEditor';
 import type { Tables } from '@/integrations/supabase/types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 type QuoteStatus = 'entwurf' | 'versendet' | 'angenommen' | 'abgelehnt' | 'rechnung_erstellt';
 
@@ -125,6 +131,126 @@ export default function AdminQuotes() {
     if (!quote.customers) return 'Kein Kunde';
     if (quote.customers.company_name) return quote.customers.company_name;
     return `${quote.customers.first_name || ''} ${quote.customers.last_name}`.trim();
+  };
+
+  const convertToInvoice = async (quote: Quote) => {
+    if (!confirm(`Angebot ${quote.quote_number} in Rechnung umwandeln?`)) return;
+
+    try {
+      // Get quote items
+      const { data: quoteItems, error: itemsError } = await supabase
+        .from('quote_items')
+        .select('*')
+        .eq('quote_id', quote.id);
+
+      if (itemsError) throw itemsError;
+
+      // Get next invoice number
+      const { data: settings } = await supabase
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'number_sequences')
+        .single();
+
+      const numbers = settings?.value as any;
+      const invoiceNumber = `${numbers?.invoice_prefix || 'RE'}-${new Date().getFullYear()}-${String(numbers?.invoice_counter || 1).padStart(4, '0')}${numbers?.invoice_suffix || ''}`;
+
+      // Create invoice
+      const { data: newInvoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert({
+          invoice_number: invoiceNumber,
+          customer_id: quote.customer_id,
+          invoice_date: new Date().toISOString().split('T')[0],
+          due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          status: 'offen',
+          subtotal: quote.total,
+          tax_rate: 19,
+          tax_amount: quote.total * 0.19,
+          total: quote.total * 1.19,
+          notes: `Erstellt aus Angebot ${quote.quote_number}`,
+          payment_methods: 'Überweisung'
+        })
+        .select()
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      // Copy quote items to invoice items
+      if (quoteItems && quoteItems.length > 0) {
+        const invoiceItems = quoteItems.map(item => ({
+          invoice_id: newInvoice.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total: item.total,
+          unit: item.unit
+        }));
+
+        const { error: itemsInsertError } = await supabase
+          .from('invoice_items')
+          .insert(invoiceItems);
+
+        if (itemsInsertError) throw itemsInsertError;
+      }
+
+      // Update invoice counter
+      await supabase
+        .from('admin_settings')
+        .update({
+          value: {
+            ...numbers,
+            invoice_counter: (numbers?.invoice_counter || 1) + 1
+          }
+        })
+        .eq('key', 'number_sequences');
+
+      // Update quote status
+      await updateStatus(quote.id, 'rechnung_erstellt');
+
+      toast.success(`Rechnung ${invoiceNumber} erfolgreich erstellt`);
+      fetchQuotes();
+    } catch (error: any) {
+      console.error('Error converting to invoice:', error);
+      toast.error(error.message || 'Fehler beim Erstellen der Rechnung');
+    }
+  };
+
+  const convertToJob = async (quote: Quote) => {
+    if (!confirm(`Auftrag aus Angebot ${quote.quote_number} erstellen?`)) return;
+
+    try {
+      // Get quote items for description
+      const { data: quoteItems } = await supabase
+        .from('quote_items')
+        .select('*')
+        .eq('quote_id', quote.id);
+
+      const description = quoteItems?.map(item =>
+        `${item.description} (${item.quantity} ${item.unit || 'Stk.'})`
+      ).join('\n') || '';
+
+      // Create job
+      const { error: jobError } = await supabase
+        .from('jobs')
+        .insert({
+          customer_id: quote.customer_id,
+          title: `Auftrag aus Angebot ${quote.quote_number}`,
+          description,
+          status: 'offen',
+          priority: 'normal',
+          notes: `Erstellt aus Angebot ${quote.quote_number}\nGesamtwert: ${new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}`,
+          start_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (jobError) throw jobError;
+
+      toast.success('Auftrag erfolgreich erstellt');
+      fetchQuotes();
+    } catch (error: any) {
+      console.error('Error converting to job:', error);
+      toast.error(error.message || 'Fehler beim Erstellen des Auftrags');
+    }
   };
 
   return (
@@ -229,9 +355,27 @@ export default function AdminQuotes() {
                       {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => openEditor(quote)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditor(quote)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Bearbeiten
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => convertToInvoice(quote)}>
+                            <FileCheck className="h-4 w-4 mr-2" />
+                            In Rechnung umwandeln
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => convertToJob(quote)}>
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            Als Auftrag erstellen
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

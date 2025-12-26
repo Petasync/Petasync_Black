@@ -135,9 +135,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild>
-                  <Link to="/admin/settings/account">
+                  <Link to="/admin/settings">
                     <Settings className="mr-2 h-4 w-4" />
-                    Account-Einstellungen
+                    Einstellungen
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

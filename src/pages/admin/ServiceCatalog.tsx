@@ -23,8 +23,8 @@ export default function AdminServiceCatalog() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    default_unit: 'Stk.',
-    default_unit_price: '0',
+    unit: 'Stk.',
+    default_price: '0',
     category: 'Dienstleistung',
     is_active: true,
     sort_order: 100,
@@ -54,8 +54,8 @@ export default function AdminServiceCatalog() {
     setFormData({
       name: service.name,
       description: service.description || '',
-      default_unit: service.default_unit || 'Stk.',
-      default_unit_price: service.default_unit_price?.toString() || '0',
+      unit: service.unit || 'Stk.',
+      default_price: service.default_price?.toString() || '0',
       category: service.category || 'Dienstleistung',
       is_active: service.is_active ?? true,
       sort_order: service.sort_order || 100,
@@ -68,8 +68,8 @@ export default function AdminServiceCatalog() {
     setFormData({
       name: '',
       description: '',
-      default_unit: 'Stk.',
-      default_unit_price: '0',
+      unit: 'Stk.',
+      default_price: '0',
       category: 'Dienstleistung',
       is_active: true,
       sort_order: 100,
@@ -86,8 +86,8 @@ export default function AdminServiceCatalog() {
     const serviceData = {
       name: formData.name.trim(),
       description: formData.description.trim() || null,
-      default_unit: formData.default_unit,
-      default_unit_price: parseFloat(formData.default_unit_price) || 0,
+      unit: formData.unit,
+      default_price: parseFloat(formData.default_price) || 0,
       category: formData.category,
       is_active: formData.is_active,
       sort_order: formData.sort_order,
@@ -220,11 +220,11 @@ export default function AdminServiceCatalog() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Einheit:</span>{' '}
-                      <span className="font-medium">{service.default_unit || 'Stk.'}</span>
+                      <span className="font-medium">{service.unit || 'Stk.'}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Preis:</span>{' '}
-                      <span className="font-medium">{formatCurrency(service.default_unit_price)}</span>
+                      <span className="font-medium">{formatCurrency(service.default_price)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -286,8 +286,8 @@ export default function AdminServiceCatalog() {
                 <div>
                   <Label htmlFor="unit">Einheit</Label>
                   <Select
-                    value={formData.default_unit}
-                    onValueChange={(value) => setFormData({ ...formData, default_unit: value })}
+                    value={formData.unit}
+                    onValueChange={(value) => setFormData({ ...formData, unit: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -310,8 +310,8 @@ export default function AdminServiceCatalog() {
                     id="price"
                     type="number"
                     step="0.01"
-                    value={formData.default_unit_price}
-                    onChange={(e) => setFormData({ ...formData, default_unit_price: e.target.value })}
+                    value={formData.default_price}
+                    onChange={(e) => setFormData({ ...formData, default_price: e.target.value })}
                   />
                 </div>
 
