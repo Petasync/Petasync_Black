@@ -5,6 +5,8 @@
 
 -- 1. JOBS TABELLE (Auftrags-Dokumentation)
 -- =====================================================
+-- Hinweis: Tabelle wird NICHT gelöscht, nur IF NOT EXISTS verwendet
+-- um vorhandene Daten zu schützen
 CREATE TABLE IF NOT EXISTS public.jobs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
@@ -34,7 +36,8 @@ CREATE POLICY "Admins can manage jobs" ON public.jobs
         )
     );
 
--- Trigger für updated_at
+-- Trigger für updated_at (erst löschen falls vorhanden)
+DROP TRIGGER IF EXISTS update_jobs_updated_at ON public.jobs;
 CREATE TRIGGER update_jobs_updated_at
     BEFORE UPDATE ON public.jobs
     FOR EACH ROW
