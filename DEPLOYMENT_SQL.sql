@@ -5,6 +5,8 @@
 
 -- 1. JOBS TABELLE (Auftrags-Dokumentation)
 -- =====================================================
+-- Hinweis: Tabelle wird NICHT gelöscht, nur IF NOT EXISTS verwendet
+-- um vorhandene Daten zu schützen
 CREATE TABLE IF NOT EXISTS public.jobs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
