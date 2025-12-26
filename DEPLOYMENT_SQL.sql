@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS public.jobs (
 -- RLS für Jobs Tabelle aktivieren
 ALTER TABLE public.jobs ENABLE ROW LEVEL SECURITY;
 
--- Policy: Admins können alles mit Jobs machen
+-- Policy: Admins können alles mit Jobs machen (erst löschen falls vorhanden)
+DROP POLICY IF EXISTS "Admins can manage jobs" ON public.jobs;
 CREATE POLICY "Admins can manage jobs" ON public.jobs
     FOR ALL
     USING (
@@ -56,21 +57,25 @@ CREATE INDEX IF NOT EXISTS idx_jobs_created_at ON public.jobs(created_at DESC);
 -- 4. Danach SCHRITT 2 ausführen (die SQL Statements unten)
 
 -- SCHRITT 2: RLS Policies für invoices bucket (SQL Editor)
+DROP POLICY IF EXISTS "Authenticated users can upload invoices" ON storage.objects;
 CREATE POLICY "Authenticated users can upload invoices"
 ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'invoices');
 
+DROP POLICY IF EXISTS "Authenticated users can read invoices" ON storage.objects;
 CREATE POLICY "Authenticated users can read invoices"
 ON storage.objects FOR SELECT
 TO authenticated
 USING (bucket_id = 'invoices');
 
+DROP POLICY IF EXISTS "Authenticated users can update invoices" ON storage.objects;
 CREATE POLICY "Authenticated users can update invoices"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (bucket_id = 'invoices');
 
+DROP POLICY IF EXISTS "Authenticated users can delete invoices" ON storage.objects;
 CREATE POLICY "Authenticated users can delete invoices"
 ON storage.objects FOR DELETE
 TO authenticated
@@ -84,21 +89,25 @@ ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS pdf_url TEXT;
 -- =====================================================
 -- Diese Policies sind erforderlich, damit Logo-Upload funktioniert
 
+DROP POLICY IF EXISTS "Allow authenticated uploads to branding" ON storage.objects;
 CREATE POLICY "Allow authenticated uploads to branding"
 ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'branding');
 
+DROP POLICY IF EXISTS "Allow public read access to branding" ON storage.objects;
 CREATE POLICY "Allow public read access to branding"
 ON storage.objects FOR SELECT
 TO public
 USING (bucket_id = 'branding');
 
+DROP POLICY IF EXISTS "Allow authenticated updates to branding" ON storage.objects;
 CREATE POLICY "Allow authenticated updates to branding"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (bucket_id = 'branding');
 
+DROP POLICY IF EXISTS "Allow authenticated deletes from branding" ON storage.objects;
 CREATE POLICY "Allow authenticated deletes from branding"
 ON storage.objects FOR DELETE
 TO authenticated
