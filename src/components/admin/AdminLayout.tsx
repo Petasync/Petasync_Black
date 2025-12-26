@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Shield,
   Package,
+  Briefcase,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ const navigation = [
   { name: 'Angebote', href: '/admin/quotes', icon: FileText },
   { name: 'Rechnungen', href: '/admin/invoices', icon: Receipt },
   { name: 'Dienstleistungen', href: '/admin/services', icon: Package },
+  { name: 'Aufträge', href: '/admin/jobs', icon: Briefcase },
   { name: 'Website-Projekte', href: '/admin/website-projects', icon: Globe },
   { name: 'User-Verwaltung', href: '/admin/users', icon: Shield },
   { name: 'Einstellungen', href: '/admin/settings', icon: Settings },

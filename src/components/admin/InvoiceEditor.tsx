@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateInvoicePDF, downloadPDF, generateEPCQRCode, loadCompanyInfo } from '@/lib/pdf-generator';
@@ -53,7 +54,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: number;
     notes: string;
     payment_terms: string;
-    payment_method: string;
+    payment_methods: string[];
     status: 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
   }>({
     customer_id: '',
@@ -64,7 +65,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: 0,
     notes: '',
     payment_terms: '',
-    payment_method: 'Überweisung',
+    payment_methods: ['Überweisung'],
     status: 'entwurf',
   });
 
@@ -99,6 +100,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   };
 
   const loadInvoice = async (inv: Invoice) => {
+    // Convert comma-separated payment_method to array
+    const paymentMethods = inv.payment_method
+      ? inv.payment_method.split(',').map(m => m.trim()).filter(Boolean)
+      : ['Überweisung'];
+
     setFormData({
       customer_id: inv.customer_id || '',
       invoice_number: inv.invoice_number,
@@ -108,7 +114,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: Number(inv.discount_percent) || 0,
       notes: inv.notes || '',
       payment_terms: inv.payment_terms || '',
-      payment_method: inv.payment_method || 'Überweisung',
+      payment_methods: paymentMethods,
       status: inv.status || 'entwurf',
     });
 
@@ -142,7 +148,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: 0,
       notes: '',
       payment_terms: '',
-      payment_method: 'Überweisung',
+      payment_methods: ['Überweisung'],
       status: 'entwurf',
     });
     setItems([{
@@ -233,7 +239,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
-      payment_method: formData.payment_method || null,
+      payment_method: formData.payment_methods.join(', '),
       status: formData.status,
     };
 
@@ -425,26 +431,34 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
               </div>
             </div>
 
-            {/* Payment Method */}
+            {/* Payment Methods (Multiple Selection) */}
             <div className="space-y-2">
-              <Label>Zahlungsmethode</Label>
-              <Select
-                value={formData.payment_method}
-                onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Überweisung">Überweisung</SelectItem>
-                  <SelectItem value="PayPal">PayPal</SelectItem>
-                  <SelectItem value="Bar">Bar</SelectItem>
-                  <SelectItem value="Kreditkarte">Kreditkarte</SelectItem>
-                  <SelectItem value="EC-Karte">EC-Karte</SelectItem>
-                  <SelectItem value="Rechnung">Rechnung</SelectItem>
-                  <SelectItem value="Vorkasse">Vorkasse</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Zahlungsmethoden (mehrfach wählbar)</Label>
+              <div className="space-y-2 p-4 border rounded-lg">
+                {['Überweisung', 'PayPal', 'Bar', 'Kreditkarte', 'EC-Karte', 'Rechnung', 'Vorkasse'].map((method) => (
+                  <div key={method} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`payment-${method}`}
+                      checked={formData.payment_methods.includes(method)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({ ...formData, payment_methods: [...formData.payment_methods, method] });
+                        } else {
+                          setFormData({ ...formData, payment_methods: formData.payment_methods.filter(m => m !== method) });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`payment-${method}`} className="text-sm font-normal cursor-pointer">
+                      {method}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {formData.payment_methods.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Ausgewählt: {formData.payment_methods.join(', ')}
+                </p>
+              )}
             </div>
 
             {/* Items */}
