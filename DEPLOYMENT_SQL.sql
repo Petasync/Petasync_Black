@@ -84,8 +84,9 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'invoices');
 
--- SCHRITT 3: pdf_url Feld zur invoices Tabelle hinzufügen
+-- SCHRITT 3: pdf_url und payment_methods Felder zur invoices Tabelle hinzufügen
 ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS pdf_url TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_methods TEXT DEFAULT 'Überweisung';
 
 
 -- 3. BRANDING STORAGE BUCKET RLS POLICIES (WICHTIG!)
