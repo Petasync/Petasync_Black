@@ -357,6 +357,29 @@ export const generateInvoicePDF = async (
           </div>
         ` : ''}
 
+        <!-- QR Codes Section -->
+        <div style="display: flex; gap: 20px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+          <!-- EPC QR Code (GiroCode für Banking) -->
+          <div style="flex: 1; text-align: center;">
+            <h4 style="margin-bottom: 10px; font-size: 11pt;">Zahlung per QR-Code</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateEPCQRCode(invoice, companyInfo))}"
+                 alt="EPC QR Code"
+                 style="width: 150px; height: 150px; margin: 0 auto;"/>
+            <p style="font-size: 8pt; color: #666; margin-top: 5px;">Scannen zum Bezahlen</p>
+          </div>
+
+          <!-- Google Review QR Code (falls vorhanden) -->
+          ${companyInfo.googleReviewUrl ? `
+          <div style="flex: 1; text-align: center;">
+            <h4 style="margin-bottom: 10px; font-size: 11pt;">Bewerten Sie uns!</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(companyInfo.googleReviewUrl)}"
+                 alt="Google Review QR Code"
+                 style="width: 150px; height: 150px; margin: 0 auto;"/>
+            <p style="font-size: 8pt; color: #666; margin-top: 5px;">Google Bewertung</p>
+          </div>
+          ` : ''}
+        </div>
+
         <div class="footer">
           <div class="footer-columns">
             <div>
