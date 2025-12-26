@@ -7,10 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, FileDown, Save, QrCode } from 'lucide-react';
+import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateInvoicePDF, downloadPDF, generateEPCQRCode } from '@/lib/pdf-generator';
 import { EPCQRCode } from './EPCQRCode';
+import { GoogleReviewQRCode } from './GoogleReviewQRCode';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Invoice = Tables<'invoices'>;
@@ -42,6 +43,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<InvoiceItemForm[]>([]);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showGoogleReviewQR, setShowGoogleReviewQR] = useState(false);
   const [formData, setFormData] = useState<{
     customer_id: string;
     invoice_number: string;
@@ -51,6 +53,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: number;
     notes: string;
     payment_terms: string;
+    payment_method: string;
     status: 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
   }>({
     customer_id: '',
@@ -61,6 +64,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: 0,
     notes: '',
     payment_terms: '',
+    payment_method: 'Überweisung',
     status: 'entwurf',
   });
 
@@ -104,6 +108,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: Number(inv.discount_percent) || 0,
       notes: inv.notes || '',
       payment_terms: inv.payment_terms || '',
+      payment_method: inv.payment_method || 'Überweisung',
       status: inv.status || 'entwurf',
     });
 
@@ -137,6 +142,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: 0,
       notes: '',
       payment_terms: '',
+      payment_method: 'Überweisung',
       status: 'entwurf',
     });
     setItems([{
@@ -227,6 +233,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
+      payment_method: formData.payment_method || null,
       status: formData.status,
     };
 
@@ -415,6 +422,28 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
               </div>
             </div>
 
+            {/* Payment Method */}
+            <div className="space-y-2">
+              <Label>Zahlungsmethode</Label>
+              <Select
+                value={formData.payment_method}
+                onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Überweisung">Überweisung</SelectItem>
+                  <SelectItem value="PayPal">PayPal</SelectItem>
+                  <SelectItem value="Bar">Bar</SelectItem>
+                  <SelectItem value="Kreditkarte">Kreditkarte</SelectItem>
+                  <SelectItem value="EC-Karte">EC-Karte</SelectItem>
+                  <SelectItem value="Rechnung">Rechnung</SelectItem>
+                  <SelectItem value="Vorkasse">Vorkasse</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Items */}
             <Card>
               <CardHeader className="pb-3">
@@ -571,6 +600,10 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
                   <QrCode className="h-4 w-4 mr-2" />
                   EPC QR
                 </Button>
+                <Button variant="outline" onClick={() => setShowGoogleReviewQR(true)}>
+                  <Star className="h-4 w-4 mr-2" />
+                  Google QR
+                </Button>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -591,6 +624,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
         onOpenChange={setShowQRCode}
         invoiceNumber={formData.invoice_number}
         amount={total}
+      />
+
+      <GoogleReviewQRCode
+        open={showGoogleReviewQR}
+        onOpenChange={setShowGoogleReviewQR}
       />
     </>
   );

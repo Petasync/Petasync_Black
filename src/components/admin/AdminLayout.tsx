@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  Shield,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -36,7 +37,8 @@ const navigation = [
   { name: 'Kunden', href: '/admin/customers', icon: Users },
   { name: 'Angebote', href: '/admin/quotes', icon: FileText },
   { name: 'Rechnungen', href: '/admin/invoices', icon: Receipt },
-  { name: 'Website-Projekte', href: '/admin/projects', icon: Globe },
+  { name: 'Website-Projekte', href: '/admin/website-projects', icon: Globe },
+  { name: 'User-Verwaltung', href: '/admin/users', icon: Shield },
   { name: 'Einstellungen', href: '/admin/settings', icon: Settings },
 ];
 
