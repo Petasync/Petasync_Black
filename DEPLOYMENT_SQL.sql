@@ -45,40 +45,39 @@ CREATE INDEX IF NOT EXISTS idx_jobs_status ON public.jobs(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_created_at ON public.jobs(created_at DESC);
 
 
--- 2. PDF STORAGE BUCKET (Optional - für automatische PDF-Speicherung)
+-- 2. PDF STORAGE BUCKET (für automatische PDF-Speicherung)
 -- =====================================================
--- Hinweis: Dieser Teil ist optional und wird für Feature "Rechnungen auf Server speichern" benötigt
 
--- Storage Bucket für Invoice PDFs erstellen
+-- SCHRITT 1: Storage Bucket erstellen (über Supabase UI)
 -- WICHTIG: Dies muss über die Supabase UI erstellt werden:
 -- 1. Gehe zu Storage → Create new bucket
 -- 2. Name: "invoices"
 -- 3. Public: false (privat)
--- 4. Danach die folgenden RLS Policies in SQL Editor ausführen:
+-- 4. Danach SCHRITT 2 ausführen (die SQL Statements unten)
 
--- RLS Policies für invoices bucket (nur wenn Bucket existiert!)
--- CREATE POLICY "Authenticated users can upload invoices"
--- ON storage.objects FOR INSERT
--- TO authenticated
--- WITH CHECK (bucket_id = 'invoices');
+-- SCHRITT 2: RLS Policies für invoices bucket (SQL Editor)
+CREATE POLICY "Authenticated users can upload invoices"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'invoices');
 
--- CREATE POLICY "Authenticated users can read invoices"
--- ON storage.objects FOR SELECT
--- TO authenticated
--- USING (bucket_id = 'invoices');
+CREATE POLICY "Authenticated users can read invoices"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (bucket_id = 'invoices');
 
--- CREATE POLICY "Authenticated users can update invoices"
--- ON storage.objects FOR UPDATE
--- TO authenticated
--- USING (bucket_id = 'invoices');
+CREATE POLICY "Authenticated users can update invoices"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'invoices');
 
--- CREATE POLICY "Authenticated users can delete invoices"
--- ON storage.objects FOR DELETE
--- TO authenticated
--- USING (bucket_id = 'invoices');
+CREATE POLICY "Authenticated users can delete invoices"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'invoices');
 
--- Optionales Feld zur invoices Tabelle hinzufügen (für PDF URL)
--- ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS pdf_url TEXT;
+-- SCHRITT 3: pdf_url Feld zur invoices Tabelle hinzufügen
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS pdf_url TEXT;
 
 
 -- 3. BRANDING STORAGE BUCKET RLS POLICIES (WICHTIG!)

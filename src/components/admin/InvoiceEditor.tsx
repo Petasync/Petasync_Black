@@ -213,6 +213,90 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     return { subtotal, discountAmount, total };
   };
 
+  const uploadInvoicePDF = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      // Get customer and recalculate totals
+      const customer = customers.find(c => c.id === formData.customer_id) || null;
+      const { subtotal, discountAmount, total } = calculateTotals();
+      const companyInfo = await loadCompanyInfo();
+
+      // Create invoice object for PDF
+      const invoiceForPDF: Invoice = {
+        id: invoiceId,
+        invoice_number: invoiceNumber,
+        invoice_date: formData.invoice_date,
+        delivery_date: formData.delivery_date || null,
+        due_date: formData.due_date || null,
+        discount_percent: formData.discount_percent,
+        discount_amount: discountAmount,
+        subtotal,
+        total,
+        notes: formData.notes || null,
+        payment_terms: formData.payment_terms || null,
+        payment_method: null,
+        status: formData.status,
+        customer_id: formData.customer_id || null,
+        quote_id: null,
+        sent_at: null,
+        paid_at: null,
+        paid_amount: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
+        id: item.id || '',
+        invoice_id: invoiceId,
+        position: index + 1,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        unit_price: item.unit_price,
+        discount_percent: item.discount_percent,
+        total: item.total,
+        service_id: item.service_id || null,
+        created_at: new Date().toISOString(),
+      }));
+
+      // Generate PDF blob
+      const pdfBlob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
+
+      // Convert HTML blob to actual file for upload
+      const htmlText = await pdfBlob.text();
+      const file = new File([htmlText], `${invoiceNumber}.html`, { type: 'text/html' });
+
+      // Upload to Supabase Storage
+      const filePath = `${invoiceId}/${invoiceNumber}.html`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('invoices')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('invoices')
+        .getPublicUrl(filePath);
+
+      // Update invoice with PDF URL
+      if (urlData.publicUrl) {
+        await supabase
+          .from('invoices')
+          .update({ pdf_url: urlData.publicUrl })
+          .eq('id', invoiceId);
+      }
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      throw error;
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.invoice_number) {
       toast.error('Rechnungsnummer erforderlich');
@@ -283,6 +367,14 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
 
       const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert);
       if (itemsError) throw itemsError;
+
+      // Generate and upload PDF to storage
+      try {
+        await uploadInvoicePDF(invoiceId, formData.invoice_number);
+      } catch (pdfError) {
+        console.error('PDF upload error:', pdfError);
+        // Continue even if PDF upload fails
+      }
 
       toast.success(invoice ? 'Rechnung aktualisiert' : 'Rechnung erstellt');
       onSave();
