@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, FileDown, Printer, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateQuotePDF, downloadPDF, printPDF } from '@/lib/pdf-generator';
+import { generateQuotePDF, downloadPDF, printPDF, loadCompanyInfo } from '@/lib/pdf-generator';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Quote = Tables<'quotes'>;
@@ -281,7 +281,10 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
   const handleDownloadPDF = async () => {
     const customer = customers.find(c => c.id === formData.customer_id) || null;
     const { subtotal, discountAmount, total } = calculateTotals();
-    
+
+    // Load company info from settings
+    const companyInfo = await loadCompanyInfo();
+
     const quoteForPDF: Quote = {
       id: quote?.id || '',
       quote_number: formData.quote_number,
@@ -316,7 +319,7 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
       created_at: new Date().toISOString(),
     }));
 
-    const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF);
+    const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF, companyInfo);
     downloadPDF(blob, `Angebot_${formData.quote_number}.html`);
     toast.success('PDF heruntergeladen');
   };

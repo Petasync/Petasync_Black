@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateInvoicePDF, downloadPDF, generateEPCQRCode } from '@/lib/pdf-generator';
+import { generateInvoicePDF, downloadPDF, generateEPCQRCode, loadCompanyInfo } from '@/lib/pdf-generator';
 import { EPCQRCode } from './EPCQRCode';
 import { GoogleReviewQRCode } from './GoogleReviewQRCode';
 import type { Tables } from '@/integrations/supabase/types';
@@ -292,7 +292,10 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const handleDownloadPDF = async () => {
     const customer = customers.find(c => c.id === formData.customer_id) || null;
     const { subtotal, discountAmount, total } = calculateTotals();
-    
+
+    // Load company info from settings
+    const companyInfo = await loadCompanyInfo();
+
     const invoiceForPDF: Invoice = {
       id: invoice?.id || '',
       invoice_number: formData.invoice_number,
@@ -330,7 +333,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       created_at: new Date().toISOString(),
     }));
 
-    const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF);
+    const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
     downloadPDF(blob, `Rechnung_${formData.invoice_number}.html`);
     toast.success('PDF heruntergeladen');
   };

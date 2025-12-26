@@ -55,6 +55,15 @@ interface BrandingSettings {
   logo_variant: 'black-white' | 'beige-black' | 'violet-white';
 }
 
+interface PaymentMethodsSettings {
+  paypal_link: string;
+  paypal_enabled: boolean;
+  cash_enabled: boolean;
+  card_enabled: boolean;
+  sepa_enabled: boolean;
+  other_methods: string;
+}
+
 export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -79,6 +88,14 @@ export default function AdminSettings() {
     google_review_url: '',
     logo_variant: 'black-white'
   });
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodsSettings>({
+    paypal_link: '',
+    paypal_enabled: false,
+    cash_enabled: true,
+    card_enabled: false,
+    sepa_enabled: true,
+    other_methods: ''
+  });
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
@@ -99,6 +116,7 @@ export default function AdminSettings() {
         if (setting.key === 'number_sequences') setNumbers(setting.value as unknown as NumberSettings);
         if (setting.key === 'notifications') setNotifications(setting.value as unknown as NotificationSettings);
         if (setting.key === 'branding') setBranding(setting.value as unknown as BrandingSettings);
+        if (setting.key === 'payment_methods') setPaymentMethods(setting.value as unknown as PaymentMethodsSettings);
       });
     }
     setLoading(false);
@@ -216,6 +234,7 @@ export default function AdminSettings() {
             <TabsTrigger value="company">Firmendaten</TabsTrigger>
             <TabsTrigger value="numbers">Nummernkreise</TabsTrigger>
             <TabsTrigger value="branding">Branding</TabsTrigger>
+            <TabsTrigger value="payment_methods">Zahlungsmethoden</TabsTrigger>
             <TabsTrigger value="notifications">Benachrichtigungen</TabsTrigger>
           </TabsList>
 
@@ -553,6 +572,108 @@ export default function AdminSettings() {
                 </div>
 
                 <Button onClick={() => saveSettings('branding', branding)} disabled={saving}>
+                  {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  <Save className="h-4 w-4 mr-2" />
+                  Speichern
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Payment Methods */}
+          <TabsContent value="payment_methods">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Receipt className="h-5 w-5" />
+                  Zahlungsmethoden
+                </CardTitle>
+                <CardDescription>
+                  Verfügbare Zahlungsmethoden und Links konfigurieren
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  {/* PayPal */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={paymentMethods.paypal_enabled}
+                          onCheckedChange={(c) => setPaymentMethods({ ...paymentMethods, paypal_enabled: c })}
+                        />
+                        <Label>PayPal aktivieren</Label>
+                      </div>
+                    </div>
+                    {paymentMethods.paypal_enabled && (
+                      <div>
+                        <Label>PayPal.me Link</Label>
+                        <Input
+                          value={paymentMethods.paypal_link}
+                          onChange={(e) => setPaymentMethods({ ...paymentMethods, paypal_link: e.target.value })}
+                          placeholder="paypal.me/petasync"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          z.B. paypal.me/petasync oder vollständige URL
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SEPA / Überweisung */}
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={paymentMethods.sepa_enabled}
+                        onCheckedChange={(c) => setPaymentMethods({ ...paymentMethods, sepa_enabled: c })}
+                      />
+                      <div>
+                        <Label>SEPA / Überweisung aktivieren</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Verwendet die Bankdaten aus den Firmendaten
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bar */}
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={paymentMethods.cash_enabled}
+                        onCheckedChange={(c) => setPaymentMethods({ ...paymentMethods, cash_enabled: c })}
+                      />
+                      <Label>Barzahlung aktivieren</Label>
+                    </div>
+                  </div>
+
+                  {/* Kreditkarte */}
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={paymentMethods.card_enabled}
+                        onCheckedChange={(c) => setPaymentMethods({ ...paymentMethods, card_enabled: c })}
+                      />
+                      <Label>Kartenzahlung aktivieren</Label>
+                    </div>
+                  </div>
+
+                  {/* Andere Methoden */}
+                  <div className="space-y-2">
+                    <Label>Weitere Zahlungsmethoden (optional)</Label>
+                    <Textarea
+                      value={paymentMethods.other_methods}
+                      onChange={(e) => setPaymentMethods({ ...paymentMethods, other_methods: e.target.value })}
+                      placeholder="z.B. Bitcoin, Kryptowährungen, Ratenzahlung etc."
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Weitere Zahlungsmethoden, die auf Rechnungen angezeigt werden sollen
+                    </p>
+                  </div>
+                </div>
+
+                <Button onClick={() => saveSettings('payment_methods', paymentMethods)} disabled={saving}>
                   {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   <Save className="h-4 w-4 mr-2" />
                   Speichern

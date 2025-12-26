@@ -1,4 +1,5 @@
 import type { Tables } from '@/integrations/supabase/types';
+import { supabase } from '@/integrations/supabase/client';
 
 type Quote = Tables<'quotes'>;
 type Invoice = Tables<'invoices'>;
@@ -32,6 +33,35 @@ const defaultCompanyInfo: CompanyInfo = {
   bankName: 'Musterbank',
   iban: 'DE12 3456 7890 1234 5678 90',
   bic: 'ABCDEFGH',
+};
+
+// Load company info from admin settings
+export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
+  const { data, error } = await supabase
+    .from('admin_settings')
+    .select('value')
+    .eq('key', 'company')
+    .single();
+
+  if (error || !data) {
+    console.warn('Could not load company settings, using defaults');
+    return defaultCompanyInfo;
+  }
+
+  const company = data.value as any;
+  return {
+    name: company.name || defaultCompanyInfo.name,
+    street: company.street || defaultCompanyInfo.street,
+    zip: company.zip || defaultCompanyInfo.zip,
+    city: company.city || defaultCompanyInfo.city,
+    phone: company.phone || defaultCompanyInfo.phone,
+    email: company.email || defaultCompanyInfo.email,
+    website: company.website || defaultCompanyInfo.website,
+    taxId: company.tax_number || defaultCompanyInfo.taxId,
+    bankName: company.bank_name || defaultCompanyInfo.bankName,
+    iban: company.iban || defaultCompanyInfo.iban,
+    bic: company.bic || defaultCompanyInfo.bic,
+  };
 };
 
 const formatCurrency = (amount: number | null): string => {
