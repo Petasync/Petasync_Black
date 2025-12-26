@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateInvoicePDF, downloadPDF, generateEPCQRCode } from '@/lib/pdf-generator';
+import { generateInvoicePDF, downloadPDF, generateEPCQRCode, loadCompanyInfo } from '@/lib/pdf-generator';
 import { EPCQRCode } from './EPCQRCode';
 import { GoogleReviewQRCode } from './GoogleReviewQRCode';
 import type { Tables } from '@/integrations/supabase/types';
@@ -53,7 +54,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: number;
     notes: string;
     payment_terms: string;
-    payment_method: string;
+    payment_methods: string[];
     status: 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
   }>({
     customer_id: '',
@@ -64,7 +65,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     discount_percent: 0,
     notes: '',
     payment_terms: '',
-    payment_method: 'Überweisung',
+    payment_methods: ['Überweisung'],
     status: 'entwurf',
   });
 
@@ -99,6 +100,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   };
 
   const loadInvoice = async (inv: Invoice) => {
+    // Convert comma-separated payment_method to array
+    const paymentMethods = inv.payment_method
+      ? inv.payment_method.split(',').map(m => m.trim()).filter(Boolean)
+      : ['Überweisung'];
+
     setFormData({
       customer_id: inv.customer_id || '',
       invoice_number: inv.invoice_number,
@@ -108,7 +114,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: Number(inv.discount_percent) || 0,
       notes: inv.notes || '',
       payment_terms: inv.payment_terms || '',
-      payment_method: inv.payment_method || 'Überweisung',
+      payment_methods: paymentMethods,
       status: inv.status || 'entwurf',
     });
 
@@ -142,7 +148,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: 0,
       notes: '',
       payment_terms: '',
-      payment_method: 'Überweisung',
+      payment_methods: ['Überweisung'],
       status: 'entwurf',
     });
     setItems([{
@@ -207,6 +213,90 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     return { subtotal, discountAmount, total };
   };
 
+  const uploadInvoicePDF = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      // Get customer and recalculate totals
+      const customer = customers.find(c => c.id === formData.customer_id) || null;
+      const { subtotal, discountAmount, total } = calculateTotals();
+      const companyInfo = await loadCompanyInfo();
+
+      // Create invoice object for PDF
+      const invoiceForPDF: Invoice = {
+        id: invoiceId,
+        invoice_number: invoiceNumber,
+        invoice_date: formData.invoice_date,
+        delivery_date: formData.delivery_date || null,
+        due_date: formData.due_date || null,
+        discount_percent: formData.discount_percent,
+        discount_amount: discountAmount,
+        subtotal,
+        total,
+        notes: formData.notes || null,
+        payment_terms: formData.payment_terms || null,
+        payment_method: null,
+        status: formData.status,
+        customer_id: formData.customer_id || null,
+        quote_id: null,
+        sent_at: null,
+        paid_at: null,
+        paid_amount: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
+        id: item.id || '',
+        invoice_id: invoiceId,
+        position: index + 1,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        unit_price: item.unit_price,
+        discount_percent: item.discount_percent,
+        total: item.total,
+        service_id: item.service_id || null,
+        created_at: new Date().toISOString(),
+      }));
+
+      // Generate PDF blob
+      const pdfBlob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
+
+      // Convert HTML blob to actual file for upload
+      const htmlText = await pdfBlob.text();
+      const file = new File([htmlText], `${invoiceNumber}.html`, { type: 'text/html' });
+
+      // Upload to Supabase Storage
+      const filePath = `${invoiceId}/${invoiceNumber}.html`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('invoices')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('invoices')
+        .getPublicUrl(filePath);
+
+      // Update invoice with PDF URL
+      if (urlData.publicUrl) {
+        await supabase
+          .from('invoices')
+          .update({ pdf_url: urlData.publicUrl })
+          .eq('id', invoiceId);
+      }
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      throw error;
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.invoice_number) {
       toast.error('Rechnungsnummer erforderlich');
@@ -233,7 +323,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
-      payment_method: formData.payment_method || null,
+      payment_method: formData.payment_methods.join(', '),
       status: formData.status,
     };
 
@@ -278,6 +368,14 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert);
       if (itemsError) throw itemsError;
 
+      // Generate and upload PDF to storage
+      try {
+        await uploadInvoicePDF(invoiceId, formData.invoice_number);
+      } catch (pdfError) {
+        console.error('PDF upload error:', pdfError);
+        // Continue even if PDF upload fails
+      }
+
       toast.success(invoice ? 'Rechnung aktualisiert' : 'Rechnung erstellt');
       onSave();
       onOpenChange(false);
@@ -292,7 +390,10 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const handleDownloadPDF = async () => {
     const customer = customers.find(c => c.id === formData.customer_id) || null;
     const { subtotal, discountAmount, total } = calculateTotals();
-    
+
+    // Load company info from settings
+    const companyInfo = await loadCompanyInfo();
+
     const invoiceForPDF: Invoice = {
       id: invoice?.id || '',
       invoice_number: formData.invoice_number,
@@ -330,7 +431,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       created_at: new Date().toISOString(),
     }));
 
-    const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF);
+    const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
     downloadPDF(blob, `Rechnung_${formData.invoice_number}.html`);
     toast.success('PDF heruntergeladen');
   };
@@ -422,26 +523,34 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
               </div>
             </div>
 
-            {/* Payment Method */}
+            {/* Payment Methods (Multiple Selection) */}
             <div className="space-y-2">
-              <Label>Zahlungsmethode</Label>
-              <Select
-                value={formData.payment_method}
-                onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Überweisung">Überweisung</SelectItem>
-                  <SelectItem value="PayPal">PayPal</SelectItem>
-                  <SelectItem value="Bar">Bar</SelectItem>
-                  <SelectItem value="Kreditkarte">Kreditkarte</SelectItem>
-                  <SelectItem value="EC-Karte">EC-Karte</SelectItem>
-                  <SelectItem value="Rechnung">Rechnung</SelectItem>
-                  <SelectItem value="Vorkasse">Vorkasse</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Zahlungsmethoden (mehrfach wählbar)</Label>
+              <div className="space-y-2 p-4 border rounded-lg">
+                {['Überweisung', 'PayPal', 'Bar', 'Kreditkarte', 'EC-Karte', 'Rechnung', 'Vorkasse'].map((method) => (
+                  <div key={method} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`payment-${method}`}
+                      checked={formData.payment_methods.includes(method)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({ ...formData, payment_methods: [...formData.payment_methods, method] });
+                        } else {
+                          setFormData({ ...formData, payment_methods: formData.payment_methods.filter(m => m !== method) });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`payment-${method}`} className="text-sm font-normal cursor-pointer">
+                      {method}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {formData.payment_methods.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Ausgewählt: {formData.payment_methods.join(', ')}
+                </p>
+              )}
             </div>
 
             {/* Items */}

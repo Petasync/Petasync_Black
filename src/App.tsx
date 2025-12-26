@@ -47,6 +47,8 @@ import AdminWebsiteProjects from "./pages/admin/WebsiteProjects";
 import AdminSetup2FA from "./pages/admin/Setup2FA";
 import AdminMagicLinkHandler from "./pages/admin/MagicLinkHandler";
 import AdminUserManagement from "./pages/admin/UserManagement";
+import AdminServiceCatalog from "./pages/admin/ServiceCatalog";
+import AdminJobs from "./pages/admin/Jobs";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -100,6 +102,8 @@ const App = () => (
             <Route path="/admin/appointments" element={<AdminProtectedRoute><AdminAppointments /></AdminProtectedRoute>} />
             <Route path="/admin/website-projects" element={<AdminProtectedRoute><AdminWebsiteProjects /></AdminProtectedRoute>} />
             <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
+            <Route path="/admin/services" element={<AdminProtectedRoute><AdminServiceCatalog /></AdminProtectedRoute>} />
+            <Route path="/admin/jobs" element={<AdminProtectedRoute><AdminJobs /></AdminProtectedRoute>} />
             <Route path="/admin/2fa-setup" element={<AdminProtectedRoute><AdminSetup2FA /></AdminProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
