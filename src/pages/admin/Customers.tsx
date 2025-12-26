@@ -29,7 +29,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Search, Plus, Edit, Trash2, Loader2, User, Building2 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Loader2, User, Building2, Eye, FileText, Receipt, Briefcase } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 type CustomerType = 'privat' | 'business' | 'website';
 
@@ -73,6 +75,12 @@ export default function AdminCustomers() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Partial<Customer> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
+  const [customerQuotes, setCustomerQuotes] = useState<any[]>([]);
+  const [customerInvoices, setCustomerInvoices] = useState<any[]>([]);
+  const [customerJobs, setCustomerJobs] = useState<any[]>([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -101,6 +109,38 @@ export default function AdminCustomers() {
   const openEdit = (customer: Customer) => {
     setEditingCustomer(customer);
     setDialogOpen(true);
+  };
+
+  const openView = async (customer: Customer) => {
+    setViewingCustomer(customer);
+    setViewDialogOpen(true);
+    setLoadingDetails(true);
+
+    // Fetch related quotes
+    const { data: quotes } = await supabase
+      .from('quotes')
+      .select('*')
+      .eq('customer_id', customer.id)
+      .order('created_at', { ascending: false });
+    setCustomerQuotes(quotes || []);
+
+    // Fetch related invoices
+    const { data: invoices } = await supabase
+      .from('invoices')
+      .select('*')
+      .eq('customer_id', customer.id)
+      .order('created_at', { ascending: false });
+    setCustomerInvoices(invoices || []);
+
+    // Fetch related jobs
+    const { data: jobs } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('customer_id', customer.id)
+      .order('created_at', { ascending: false });
+    setCustomerJobs(jobs || []);
+
+    setLoadingDetails(false);
   };
 
   const saveCustomer = async () => {
@@ -276,10 +316,13 @@ export default function AdminCustomers() {
                       {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(customer.total_revenue)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(customer)}>
+                      <Button variant="ghost" size="sm" onClick={() => openView(customer)} title="Ansehen">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(customer)} title="Bearbeiten">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => deleteCustomer(customer.id)}>
+                      <Button variant="ghost" size="sm" onClick={() => deleteCustomer(customer.id)} title="Löschen">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </TableCell>
@@ -404,6 +447,207 @@ export default function AdminCustomers() {
                 {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 Speichern
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Customer Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Kundendetails</DialogTitle>
+            </DialogHeader>
+            {viewingCustomer && (
+              <Tabs defaultValue="info" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="info">Info</TabsTrigger>
+                  <TabsTrigger value="quotes">Angebote ({customerQuotes.length})</TabsTrigger>
+                  <TabsTrigger value="invoices">Rechnungen ({customerInvoices.length})</TabsTrigger>
+                  <TabsTrigger value="jobs">Aufträge ({customerJobs.length})</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="info" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        {viewingCustomer.company_name ? (
+                          <Building2 className="h-5 w-5" />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
+                        {viewingCustomer.first_name} {viewingCustomer.last_name}
+                      </CardTitle>
+                      {viewingCustomer.company_name && (
+                        <CardDescription>{viewingCustomer.company_name}</CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Kundennummer</p>
+                          <p>{viewingCustomer.customer_number || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Kundentyp</p>
+                          <Badge variant="outline">
+                            {viewingCustomer.customer_type === 'privat' ? 'Privat' :
+                             viewingCustomer.customer_type === 'business' ? 'Business' : 'Website'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">E-Mail</p>
+                          <p>{viewingCustomer.email || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Telefon</p>
+                          <p>{viewingCustomer.phone || '-'}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Adresse</p>
+                        <p>
+                          {viewingCustomer.street && `${viewingCustomer.street}, `}
+                          {viewingCustomer.zip} {viewingCustomer.city || '-'}
+                        </p>
+                      </div>
+                      {viewingCustomer.notes && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Notizen</p>
+                          <p className="text-sm whitespace-pre-wrap">{viewingCustomer.notes}</p>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Gesamtumsatz</p>
+                          <p className="text-lg font-semibold">
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(viewingCustomer.total_revenue)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Anfragen</p>
+                          <p className="text-lg font-semibold">{viewingCustomer.inquiry_count}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="quotes" className="space-y-4">
+                  {loadingDetails ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : customerQuotes.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-8 text-center text-muted-foreground">
+                        Keine Angebote vorhanden
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    customerQuotes.map((quote) => (
+                      <Card key={quote.id}>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              {quote.quote_number}
+                            </CardTitle>
+                            <Badge>{quote.status}</Badge>
+                          </div>
+                          <CardDescription>
+                            Datum: {new Date(quote.quote_date).toLocaleDateString('de-DE')}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-lg font-semibold">
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </TabsContent>
+
+                <TabsContent value="invoices" className="space-y-4">
+                  {loadingDetails ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : customerInvoices.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-8 text-center text-muted-foreground">
+                        Keine Rechnungen vorhanden
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    customerInvoices.map((invoice) => (
+                      <Card key={invoice.id}>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2">
+                              <Receipt className="h-4 w-4" />
+                              {invoice.invoice_number}
+                            </CardTitle>
+                            <Badge>{invoice.status}</Badge>
+                          </div>
+                          <CardDescription>
+                            Datum: {new Date(invoice.invoice_date).toLocaleDateString('de-DE')}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-lg font-semibold">
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.total)}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </TabsContent>
+
+                <TabsContent value="jobs" className="space-y-4">
+                  {loadingDetails ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : customerJobs.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-8 text-center text-muted-foreground">
+                        Keine Aufträge vorhanden
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    customerJobs.map((job) => (
+                      <Card key={job.id}>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2">
+                              <Briefcase className="h-4 w-4" />
+                              {job.title}
+                            </CardTitle>
+                            <Badge>{job.status}</Badge>
+                          </div>
+                          {job.description && (
+                            <CardDescription>{job.description}</CardDescription>
+                          )}
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span>Priorität: {job.priority}</span>
+                            {job.start_date && (
+                              <span>Start: {new Date(job.start_date).toLocaleDateString('de-DE')}</span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </TabsContent>
+              </Tabs>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Schließen</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

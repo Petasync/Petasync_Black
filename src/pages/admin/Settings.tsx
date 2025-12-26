@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Building2, Hash, FileText, Mail, Bell, Save, Palette, Upload, X } from 'lucide-react';
+import { Loader2, Building2, Hash, FileText, Mail, Bell, Save, Palette, Upload, X, Receipt } from 'lucide-react';
 
 interface CompanySettings {
   name: string;
