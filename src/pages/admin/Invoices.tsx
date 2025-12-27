@@ -19,10 +19,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Search, Plus, Edit, Loader2, Receipt, AlertCircle } from 'lucide-react';
+import { Search, Plus, Edit, Loader2, Receipt, AlertCircle, Download } from 'lucide-react';
 import { format, isPast, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { InvoiceEditor } from '@/components/admin/InvoiceEditor';
+import { generateInvoicePDF, downloadPDF, loadCompanyInfo } from '@/lib/pdf-generator';
 import type { Tables } from '@/integrations/supabase/types';
 
 type InvoiceStatus = 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
@@ -137,6 +138,48 @@ export default function AdminInvoices() {
     if (!invoice.customers) return 'Kein Kunde';
     if (invoice.customers.company_name) return invoice.customers.company_name;
     return `${invoice.customers.first_name || ''} ${invoice.customers.last_name}`.trim();
+  };
+
+  const handleDownloadPDF = async (invoice: Invoice) => {
+    try {
+      toast.info('PDF wird generiert...');
+
+      // Fetch full invoice data with items
+      const { data: fullInvoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('id', invoice.id)
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      const { data: items, error: itemsError } = await supabase
+        .from('invoice_items')
+        .select('*')
+        .eq('invoice_id', invoice.id)
+        .order('position');
+
+      if (itemsError) throw itemsError;
+
+      const { data: customer, error: customerError } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', invoice.customer_id!)
+        .single();
+
+      if (customerError && invoice.customer_id) throw customerError;
+
+      // Load company info
+      const companyInfo = await loadCompanyInfo();
+
+      // Generate PDF
+      const blob = await generateInvoicePDF(fullInvoice, customer, items || [], companyInfo);
+      downloadPDF(blob, `Rechnung_${invoice.invoice_number}.pdf`);
+      toast.success('PDF heruntergeladen');
+    } catch (error: any) {
+      console.error('Error downloading PDF:', error);
+      toast.error('Fehler beim Herunterladen der PDF');
+    }
   };
 
   const unpaidTotal = invoices
@@ -265,7 +308,15 @@ export default function AdminInvoices() {
                       {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.total)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => openEditor(invoice)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownloadPDF(invoice)}
+                        title="PDF herunterladen"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEditor(invoice)} title="Bearbeiten">
                         <Edit className="h-4 w-4" />
                       </Button>
                     </TableCell>
