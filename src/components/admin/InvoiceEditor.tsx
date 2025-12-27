@@ -52,6 +52,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     delivery_date: string;
     due_date: string;
     discount_percent: number;
+    discount_type: 'percent' | 'euro';
     notes: string;
     payment_terms: string;
     payment_methods: string[];
@@ -63,6 +64,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     delivery_date: '',
     due_date: '',
     discount_percent: 0,
+    discount_type: 'percent',
     notes: '',
     payment_terms: '',
     payment_methods: ['Überweisung'],
@@ -112,6 +114,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       delivery_date: inv.delivery_date || '',
       due_date: inv.due_date || '',
       discount_percent: Number(inv.discount_percent) || 0,
+      discount_type: (inv.discount_type as 'percent' | 'euro') || 'percent',
       notes: inv.notes || '',
       payment_terms: inv.payment_terms || '',
       payment_methods: paymentMethods,
@@ -146,6 +149,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       delivery_date: '',
       due_date: '',
       discount_percent: 0,
+      discount_type: 'percent',
       notes: '',
       payment_terms: '',
       payment_methods: ['Überweisung'],
@@ -208,7 +212,9 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
 
   const calculateTotals = () => {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const discountAmount = subtotal * (formData.discount_percent / 100);
+    const discountAmount = formData.discount_type === 'percent'
+      ? subtotal * (formData.discount_percent / 100)
+      : formData.discount_percent; // When type is 'euro', discount_percent field holds the euro amount
     const total = subtotal - discountAmount;
     return { subtotal, discountAmount, total };
   };
@@ -221,19 +227,21 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       const companyInfo = await loadCompanyInfo();
 
       // Create invoice object for PDF
-      const invoiceForPDF: Invoice = {
+      const invoiceForPDF: any = {
         id: invoiceId,
         invoice_number: invoiceNumber,
         invoice_date: formData.invoice_date,
         delivery_date: formData.delivery_date || null,
         due_date: formData.due_date || null,
         discount_percent: formData.discount_percent,
+        discount_type: formData.discount_type,
         discount_amount: discountAmount,
         subtotal,
         total,
         notes: formData.notes || null,
         payment_terms: formData.payment_terms || null,
         payment_method: null,
+        payment_methods: formData.payment_methods.join(', '),
         status: formData.status,
         customer_id: formData.customer_id || null,
         quote_id: null,
@@ -318,6 +326,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       delivery_date: formData.delivery_date || null,
       due_date: formData.due_date || null,
       discount_percent: formData.discount_percent,
+      discount_type: formData.discount_type,
       discount_amount: discountAmount,
       subtotal,
       total,
@@ -394,19 +403,21 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     // Load company info from settings
     const companyInfo = await loadCompanyInfo();
 
-    const invoiceForPDF: Invoice = {
+    const invoiceForPDF: any = {
       id: invoice?.id || '',
       invoice_number: formData.invoice_number,
       invoice_date: formData.invoice_date,
       delivery_date: formData.delivery_date || null,
       due_date: formData.due_date || null,
       discount_percent: formData.discount_percent,
+      discount_type: formData.discount_type,
       discount_amount: discountAmount,
       subtotal,
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
       payment_method: null,
+      payment_methods: formData.payment_methods.join(', '),
       status: formData.status,
       customer_id: formData.customer_id || null,
       quote_id: null,
@@ -664,11 +675,22 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
                     type="number"
                     value={formData.discount_percent}
                     onChange={(e) => setFormData({ ...formData, discount_percent: parseFloat(e.target.value) || 0 })}
-                    className="w-16 h-8 text-sm"
+                    className="w-20 h-8 text-sm"
                     min="0"
-                    max="100"
+                    step="0.01"
                   />
-                  <span className="text-sm">%</span>
+                  <Select
+                    value={formData.discount_type}
+                    onValueChange={(value: 'percent' | 'euro') => setFormData({ ...formData, discount_type: value })}
+                  >
+                    <SelectTrigger className="w-16 h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percent">%</SelectItem>
+                      <SelectItem value="euro">€</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <span className="ml-auto text-sm">-{discountAmount.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">

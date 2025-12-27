@@ -19,6 +19,8 @@ interface CompanyInfo {
   bankName?: string;
   iban?: string;
   bic?: string;
+  logoUrl?: string;
+  googleReviewUrl?: string;
 }
 
 const defaultCompanyInfo: CompanyInfo = {
@@ -37,30 +39,34 @@ const defaultCompanyInfo: CompanyInfo = {
 
 // Load company info from admin settings
 export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
+  // Load both company and branding settings
   const { data, error } = await supabase
     .from('admin_settings')
-    .select('value')
-    .eq('key', 'company')
-    .single();
+    .select('key, value')
+    .in('key', ['company', 'branding']);
 
   if (error || !data) {
-    console.warn('Could not load company settings, using defaults');
+    console.warn('Could not load settings, using defaults');
     return defaultCompanyInfo;
   }
 
-  const company = data.value as any;
+  const companyData = data.find(s => s.key === 'company')?.value as any;
+  const brandingData = data.find(s => s.key === 'branding')?.value as any;
+
   return {
-    name: company.name || defaultCompanyInfo.name,
-    street: company.street || defaultCompanyInfo.street,
-    zip: company.zip || defaultCompanyInfo.zip,
-    city: company.city || defaultCompanyInfo.city,
-    phone: company.phone || defaultCompanyInfo.phone,
-    email: company.email || defaultCompanyInfo.email,
-    website: company.website || defaultCompanyInfo.website,
-    taxId: company.tax_number || defaultCompanyInfo.taxId,
-    bankName: company.bank_name || defaultCompanyInfo.bankName,
-    iban: company.iban || defaultCompanyInfo.iban,
-    bic: company.bic || defaultCompanyInfo.bic,
+    name: companyData?.name || defaultCompanyInfo.name,
+    street: companyData?.street || defaultCompanyInfo.street,
+    zip: companyData?.zip || defaultCompanyInfo.zip,
+    city: companyData?.city || defaultCompanyInfo.city,
+    phone: companyData?.phone || defaultCompanyInfo.phone,
+    email: companyData?.email || defaultCompanyInfo.email,
+    website: companyData?.website || defaultCompanyInfo.website,
+    taxId: companyData?.tax_number || defaultCompanyInfo.taxId,
+    bankName: companyData?.bank_name || defaultCompanyInfo.bankName,
+    iban: companyData?.iban || defaultCompanyInfo.iban,
+    bic: companyData?.bic || defaultCompanyInfo.bic,
+    logoUrl: brandingData?.logo_url,
+    googleReviewUrl: brandingData?.google_review_url,
   };
 };
 
@@ -91,8 +97,9 @@ export const generateQuotePDF = async (
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #333; }
         .container { max-width: 210mm; margin: 0 auto; padding: 20mm; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; }
         .logo { font-size: 24pt; font-weight: bold; color: #0066cc; }
+        .logo img { max-height: 80px; max-width: 250px; object-fit: contain; }
         .company-info { text-align: right; font-size: 9pt; color: #666; }
         .addresses { display: flex; justify-content: space-between; margin-bottom: 40px; }
         .sender-line { font-size: 7pt; color: #999; margin-bottom: 5px; }
@@ -120,7 +127,7 @@ export const generateQuotePDF = async (
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">${companyInfo.name}</div>
+          <div class="logo">${companyInfo.logoUrl ? `<img src="${companyInfo.logoUrl}" alt="Logo" />` : companyInfo.name}</div>
           <div class="company-info">
             ${companyInfo.street}<br>
             ${companyInfo.zip} ${companyInfo.city}<br>
@@ -243,8 +250,9 @@ export const generateInvoicePDF = async (
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #333; }
         .container { max-width: 210mm; margin: 0 auto; padding: 20mm; }
-        .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-start; }
         .logo { font-size: 24pt; font-weight: bold; color: #0066cc; }
+        .logo img { max-height: 80px; max-width: 250px; object-fit: contain; }
         .company-info { text-align: right; font-size: 9pt; color: #666; }
         .addresses { display: flex; justify-content: space-between; margin-bottom: 40px; }
         .sender-line { font-size: 7pt; color: #999; margin-bottom: 5px; }
@@ -274,7 +282,7 @@ export const generateInvoicePDF = async (
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">${companyInfo.name}</div>
+          <div class="logo">${companyInfo.logoUrl ? `<img src="${companyInfo.logoUrl}" alt="Logo" />` : companyInfo.name}</div>
           <div class="company-info">
             ${companyInfo.street}<br>
             ${companyInfo.zip} ${companyInfo.city}<br>
@@ -331,7 +339,7 @@ export const generateInvoicePDF = async (
         <div class="totals">
           <table>
             <tr><td>Zwischensumme:</td><td class="number">${formatCurrency(invoice.subtotal)}</td></tr>
-            ${invoice.discount_percent ? `<tr><td>Rabatt (${invoice.discount_percent}%):</td><td class="number">-${formatCurrency(invoice.discount_amount)}</td></tr>` : ''}
+            ${invoice.discount_percent ? `<tr><td>Rabatt ${(invoice.discount_type === 'euro' ? `(${formatCurrency(invoice.discount_percent)})` : `(${invoice.discount_percent}%)`)}:</td><td class="number">-${formatCurrency(invoice.discount_amount)}</td></tr>` : ''}
             <tr class="total"><td>Rechnungsbetrag:</td><td class="number">${formatCurrency(invoice.total)}</td></tr>
           </table>
         </div>
@@ -339,15 +347,19 @@ export const generateInvoicePDF = async (
         <div class="payment-info">
           <h4>Zahlungsinformationen</h4>
           <p>
-            Bitte überweisen Sie den Betrag von <strong>${formatCurrency(invoice.total)}</strong> 
-            ${invoice.due_date ? `bis zum <strong>${formatDate(invoice.due_date)}</strong>` : ''} auf folgendes Konto:
+            Bitte zahlen Sie den Betrag von <strong>${formatCurrency(invoice.total)}</strong>
+            ${invoice.due_date ? `bis zum <strong>${formatDate(invoice.due_date)}</strong>` : ''}.
           </p>
+          <p style="margin-top: 10px;"><strong>Akzeptierte Zahlungsmethoden:</strong> ${invoice.payment_methods || 'Überweisung'}</p>
+          ${(invoice.payment_methods || '').includes('Überweisung') || (invoice.payment_methods || '').includes('SEPA') ? `
           <p style="margin-top: 10px;">
-            <strong>${companyInfo.bankName}</strong><br>
+            <strong>Bankverbindung:</strong><br>
+            ${companyInfo.bankName}<br>
             IBAN: ${companyInfo.iban}<br>
             BIC: ${companyInfo.bic}<br>
             Verwendungszweck: ${invoice.invoice_number}
           </p>
+          ` : ''}
         </div>
 
         ${invoice.notes ? `

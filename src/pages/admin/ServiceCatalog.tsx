@@ -151,9 +151,9 @@ export default function AdminServiceCatalog() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Dienstleistungskatalog</h1>
+            <h1 className="text-3xl font-bold">Dienstleistungen & Artikel</h1>
             <p className="text-muted-foreground mt-2">
-              Verwalten Sie vorgefertigte Dienstleistungen und Artikel
+              Verwalten Sie vorgefertigte Dienstleistungen und Artikel für Angebote und Rechnungen
             </p>
           </div>
           <Button onClick={handleCreate}>
@@ -215,7 +215,7 @@ export default function AdminServiceCatalog() {
                 <CardContent>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Kategorie:</span>{' '}
+                      <span className="text-muted-foreground">Typ:</span>{' '}
                       <span className="font-medium">{service.category || 'Keine'}</span>
                     </div>
                     <div>
@@ -264,7 +264,7 @@ export default function AdminServiceCatalog() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="category">Kategorie</Label>
+                  <Label htmlFor="category">Typ</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -274,11 +274,7 @@ export default function AdminServiceCatalog() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Dienstleistung">Dienstleistung</SelectItem>
-                      <SelectItem value="Hardware">Hardware</SelectItem>
-                      <SelectItem value="Software">Software</SelectItem>
-                      <SelectItem value="Beratung">Beratung</SelectItem>
-                      <SelectItem value="Wartung">Wartung</SelectItem>
-                      <SelectItem value="Sonstiges">Sonstiges</SelectItem>
+                      <SelectItem value="Artikel">Artikel</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
