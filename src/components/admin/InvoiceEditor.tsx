@@ -269,12 +269,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       // Generate PDF blob
       const pdfBlob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
 
-      // Convert HTML blob to actual file for upload
-      const htmlText = await pdfBlob.text();
-      const file = new File([htmlText], `${invoiceNumber}.html`, { type: 'text/html' });
+      // Create PDF file for upload
+      const file = new File([pdfBlob], `${invoiceNumber}.pdf`, { type: 'application/pdf' });
 
       // Upload to Supabase Storage
-      const filePath = `${invoiceId}/${invoiceNumber}.html`;
+      const filePath = `${invoiceId}/${invoiceNumber}.pdf`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('invoices')
         .upload(filePath, file, {
@@ -443,7 +442,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     }));
 
     const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
-    downloadPDF(blob, `Rechnung_${formData.invoice_number}.html`);
+    downloadPDF(blob, `Rechnung_${formData.invoice_number}.pdf`);
     toast.success('PDF heruntergeladen');
   };
 
