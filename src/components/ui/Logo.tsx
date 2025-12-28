@@ -14,12 +14,13 @@ export function Logo({
   iconClassName,
   textClassName
 }: LogoProps) {
-  const { theme } = useTheme();
+  const { theme, systemTheme } = useTheme();
 
   // Logo version based on theme
   // Version 1: White (for dark backgrounds)
   // Version 2: Black (for light backgrounds)
-  const logoVersion = theme === "dark" ? "1" : "2";
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const logoVersion = currentTheme === "dark" ? "1" : "2";
   const logoPath = `/logos/SVG_ohne_hintergrund/${logoVersion}.svg`;
 
   const LogoImage = ({ className: imgClass }: { className?: string }) => (
