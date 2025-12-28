@@ -1,5 +1,7 @@
 import type { Tables } from '@/integrations/supabase/types';
 import { supabase } from '@/integrations/supabase/client';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type Quote = Tables<'quotes'>;
 type Invoice = Tables<'invoices'>;
@@ -21,6 +23,7 @@ interface CompanyInfo {
   bic?: string;
   logoUrl?: string;
   googleReviewUrl?: string;
+  paypalLink?: string;
 }
 
 const defaultCompanyInfo: CompanyInfo = {
@@ -39,11 +42,11 @@ const defaultCompanyInfo: CompanyInfo = {
 
 // Load company info from admin settings
 export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
-  // Load both company and branding settings
+  // Load company, branding, and payment settings
   const { data, error } = await supabase
     .from('admin_settings')
     .select('key, value')
-    .in('key', ['company', 'branding']);
+    .in('key', ['company', 'branding', 'payment_methods']);
 
   if (error || !data) {
     console.warn('Could not load settings, using defaults');
@@ -52,6 +55,7 @@ export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
 
   const companyData = data.find(s => s.key === 'company')?.value as any;
   const brandingData = data.find(s => s.key === 'branding')?.value as any;
+  const paymentData = data.find(s => s.key === 'payment_methods')?.value as any;
 
   return {
     name: companyData?.name || defaultCompanyInfo.name,
@@ -67,6 +71,7 @@ export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
     bic: companyData?.bic || defaultCompanyInfo.bic,
     logoUrl: brandingData?.logo_url,
     googleReviewUrl: brandingData?.google_review_url,
+    paypalLink: paymentData?.paypal_link,
   };
 };
 
@@ -232,7 +237,8 @@ export const generateQuotePDF = async (
     </html>
   `;
 
-  return new Blob([htmlContent], { type: 'text/html' });
+  // Convert HTML to PDF
+  return await htmlToPdfBlob(htmlContent);
 };
 
 export const generateInvoicePDF = async (
@@ -360,6 +366,12 @@ export const generateInvoicePDF = async (
             Verwendungszweck: ${invoice.invoice_number}
           </p>
           ` : ''}
+          ${(invoice.payment_methods || '').includes('PayPal') && companyInfo.paypalLink ? `
+          <p style="margin-top: 10px;">
+            <strong>PayPal:</strong><br>
+            ${companyInfo.paypalLink.startsWith('http') ? companyInfo.paypalLink : `https://paypal.me/${companyInfo.paypalLink}`}
+          </p>
+          ` : ''}
         </div>
 
         ${invoice.notes ? `
@@ -416,7 +428,8 @@ export const generateInvoicePDF = async (
     </html>
   `;
 
-  return new Blob([htmlContent], { type: 'text/html' });
+  // Convert HTML to PDF
+  return await htmlToPdfBlob(htmlContent);
 };
 
 export const generateEPCQRCode = (
@@ -440,6 +453,60 @@ export const generateEPCQRCode = (
   ].join('\n');
 
   return epcData;
+};
+
+// Convert HTML to PDF Blob using jsPDF
+export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
+  // Create a temporary div to render the HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.width = '210mm'; // A4 width
+  tempDiv.style.padding = '20mm';
+  tempDiv.style.background = 'white';
+  document.body.appendChild(tempDiv);
+
+  try {
+    // Convert to canvas
+    const canvas = await html2canvas(tempDiv, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+
+    // Create PDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // Add first page
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= 297; // A4 height in mm
+
+    // Add additional pages if needed
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+    }
+
+    // Convert to Blob
+    return pdf.output('blob');
+  } finally {
+    // Clean up
+    document.body.removeChild(tempDiv);
+  }
 };
 
 export const downloadPDF = (blob: Blob, filename: string) => {
