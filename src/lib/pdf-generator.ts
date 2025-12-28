@@ -382,9 +382,9 @@ export const generateInvoicePDF = async (
         ` : ''}
 
         <!-- QR Codes Section -->
-        <div style="display: flex; gap: 20px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+        <div style="display: flex; gap: 20px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px; page-break-inside: avoid; break-inside: avoid;">
           <!-- EPC QR Code (GiroCode für Banking) -->
-          <div style="flex: 1; text-align: center;">
+          <div style="flex: 1; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 10px; font-size: 11pt;">Zahlung per QR-Code</h4>
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateEPCQRCode(invoice, companyInfo))}"
                  alt="EPC QR Code"
@@ -394,7 +394,7 @@ export const generateInvoicePDF = async (
 
           <!-- Google Review QR Code (falls vorhanden) -->
           ${companyInfo.googleReviewUrl ? `
-          <div style="flex: 1; text-align: center;">
+          <div style="flex: 1; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 10px; font-size: 11pt;">Bewerten Sie uns!</h4>
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(companyInfo.googleReviewUrl)}"
                  alt="Google Review QR Code"
@@ -462,18 +462,37 @@ export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
   tempDiv.innerHTML = htmlContent;
   tempDiv.style.position = 'absolute';
   tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '0';
   tempDiv.style.width = '210mm'; // A4 width
   tempDiv.style.padding = '20mm';
   tempDiv.style.background = 'white';
+  tempDiv.style.zIndex = '-9999';
+  tempDiv.style.pointerEvents = 'none';
+  tempDiv.setAttribute('data-pdf-temp', 'true');
+
   document.body.appendChild(tempDiv);
 
   try {
+    // Wait for images to load
+    const images = tempDiv.querySelectorAll('img');
+    await Promise.all(
+      Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = () => resolve(null);
+          img.onerror = () => resolve(null);
+        });
+      })
+    );
+
     // Convert to canvas
     const canvas = await html2canvas(tempDiv, {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      windowWidth: tempDiv.scrollWidth,
+      windowHeight: tempDiv.scrollHeight,
     });
 
     // Create PDF
@@ -502,10 +521,17 @@ export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
     }
 
     // Convert to Blob
-    return pdf.output('blob');
+    const blob = pdf.output('blob');
+
+    return blob;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
   } finally {
-    // Clean up
-    document.body.removeChild(tempDiv);
+    // Clean up - ensure tempDiv is removed even if there's an error
+    if (tempDiv && tempDiv.parentNode) {
+      document.body.removeChild(tempDiv);
+    }
   }
 };
 

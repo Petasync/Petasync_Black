@@ -311,14 +311,14 @@ export default function AdminJobs() {
               <div>
                 <Label htmlFor="customer">Kunde</Label>
                 <Select
-                  value={formData.customer_id}
-                  onValueChange={(value) => setFormData({ ...formData, customer_id: value })}
+                  value={formData.customer_id || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, customer_id: value === 'none' ? null : value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Kunde auswählen (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Kein Kunde</SelectItem>
+                    <SelectItem value="none">Kein Kunde</SelectItem>
                     {customers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         {getCustomerName(customer)}
