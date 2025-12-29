@@ -55,10 +55,10 @@ import HandwerkerTemplate from "./pages/templates/HandwerkerExtended";
 import VersicherungTemplate from "./pages/templates/VersicherungExtended";
 import RestaurantTemplate from "./pages/templates/RestaurantExtended";
 import FitnessTemplate from "./pages/templates/FitnessExtended";
-import ImmobilienTemplate from "./pages/templates/Immobilien";
-import FotografTemplate from "./pages/templates/Fotograf";
-import FriseurTemplate from "./pages/templates/Friseur";
-import AutowerkstattTemplate from "./pages/templates/Autowerkstatt";
+import ImmobilienTemplate from "./pages/templates/ImmobilienExtended";
+import FotografTemplate from "./pages/templates/FotografExtended";
+import FriseurTemplate from "./pages/templates/FriseurExtended";
+import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
 
 const queryClient = new QueryClient();
 
