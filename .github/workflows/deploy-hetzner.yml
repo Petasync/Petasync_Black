@@ -28,26 +28,33 @@ jobs:
 
       - name: Prepare Deployment Files
         run: |
-          # Erstelle temporären Deployment-Ordner
+          # Erstelle temporären Deployment-Ordner mit korrekter Struktur
           mkdir -p deploy_temp
 
-          # Kopiere dist Inhalte in Root
+          # Kopiere dist Inhalte in Root (index.html, assets/, logos/, etc.)
           cp -r dist/* deploy_temp/
 
-          # Kopiere api Ordner
+          # Kopiere api Ordner (wird zu deploy_temp/api/)
           cp -r api deploy_temp/
 
-      - name: Deploy to Hetzner via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+          echo "📦 Deployment Struktur:"
+          ls -la deploy_temp/
+
+      - name: Deploy to Hetzner via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USERNAME }}
           password: ${{ secrets.HETZNER_PASSWORD }}
-          port: 22 # SFTP Standard-Port
-          local_path: './deploy_temp/*'
-          remote_path: '/'
-          sftp_only: true
-          delete_remote_files: false # Sicherheit: keine Löschung von anderen Dateien
+          protocol: ftps
+          port: 21
+          server-dir: /public_html/
+          local-dir: ./deploy_temp/
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
 
       - name: Deployment Summary
         run: |
