@@ -1,12 +1,13 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  Globe, 
-  Palette, 
-  Smartphone, 
-  Search, 
-  Zap, 
+import { motion } from "framer-motion";
+import {
+  Globe,
+  Palette,
+  Smartphone,
+  Search,
+  Zap,
   ArrowRight,
   Check,
   Code,
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import websitesHero from "@/assets/websites-hero.png";
+import { TEMPLATE_LIST } from "@/lib/constants/template-config";
 
 const webServices = [
   {
@@ -349,6 +351,108 @@ export default function Websites() {
                 <p className="text-sm text-muted-foreground">{step.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Template Showcase Section */}
+      <section className="section-padding relative bg-gradient-to-b from-background to-primary/5">
+        <div className="container-tight">
+          <div className="divider-glow mb-20" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
+              Template-Galerie
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-bold gradient-text mb-4">
+              Entdecken Sie unsere Branchen-Templates
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              8 einzigartige, vollständig gestaltete Website-Templates für verschiedene Branchen.
+              Jedes mit eigenem Design-Stil, 3D-Animationen und modernen Features.
+            </p>
+          </motion.div>
+
+          {/* Template Grid Preview (First 4) */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {TEMPLATE_LIST.slice(0, 4).map((template, index) => (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05, rotateY: 5 }}
+                className="group relative"
+              >
+                <Link to={`/templates/${template.id}`}>
+                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 hover:border-white/20 transition-all">
+                    {/* Color Preview */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-2 opacity-50"
+                      style={{
+                        background: `linear-gradient(to right, ${template.colors.primary}, ${template.colors.accent})`,
+                      }}
+                    />
+
+                    {/* Template Preview Placeholder */}
+                    <div
+                      className="aspect-[4/3] rounded-lg mb-4 relative overflow-hidden"
+                      style={{ backgroundColor: template.colors.background }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div
+                          className="text-6xl font-bold opacity-10"
+                          style={{ color: template.colors.primary }}
+                        >
+                          {template.name.charAt(0)}
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <span className="text-xs px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
+                          {template.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold mb-2">{template.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {template.description}
+                    </p>
+
+                    <Button
+                      size="sm"
+                      className="w-full rounded-full group-hover:bg-foreground group-hover:text-background transition-colors"
+                      variant="outline"
+                    >
+                      Live Demo
+                      <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* View All Templates CTA */}
+          <div className="text-center">
+            <Button
+              size="lg"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-full"
+              asChild
+            >
+              <Link to="/templates">
+                Alle 8 Templates ansehen
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
