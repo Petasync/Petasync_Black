@@ -50,6 +50,15 @@ import AdminUserManagement from "./pages/admin/UserManagement";
 import AdminServiceCatalog from "./pages/admin/ServiceCatalog";
 import AdminJobs from "./pages/admin/Jobs";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+import TemplatesShowcase from "./pages/TemplatesShowcase";
+import HandwerkerTemplate from "./pages/templates/Handwerker";
+import VersicherungTemplate from "./pages/templates/Versicherung";
+import RestaurantTemplate from "./pages/templates/Restaurant";
+import FitnessTemplate from "./pages/templates/Fitness";
+import ImmobilienTemplate from "./pages/templates/Immobilien";
+import FotografTemplate from "./pages/templates/Fotograf";
+import FriseurTemplate from "./pages/templates/Friseur";
+import AutowerkstattTemplate from "./pages/templates/Autowerkstatt";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +97,16 @@ const App = () => (
             <Route path="/services/it-infrastruktur" element={<ITInfrastruktur />} />
             <Route path="/services/it-support" element={<ITSupport />} />
             <Route path="/services/beratung" element={<Beratung />} />
+            {/* Template Showcase Routes */}
+            <Route path="/templates" element={<TemplatesShowcase />} />
+            <Route path="/templates/handwerker" element={<HandwerkerTemplate />} />
+            <Route path="/templates/versicherung" element={<VersicherungTemplate />} />
+            <Route path="/templates/restaurant" element={<RestaurantTemplate />} />
+            <Route path="/templates/fitness" element={<FitnessTemplate />} />
+            <Route path="/templates/immobilien" element={<ImmobilienTemplate />} />
+            <Route path="/templates/fotograf" element={<FotografTemplate />} />
+            <Route path="/templates/friseur" element={<FriseurTemplate />} />
+            <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />
