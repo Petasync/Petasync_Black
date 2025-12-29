@@ -26,18 +26,36 @@ GitHub Secrets speichern sensible Daten wie Passwörter **verschlüsselt** und s
 
 4. **Klicke auf "New repository secret"**
 
-5. **Erstelle folgende 3 Secrets:**
+5. **Erstelle folgende Secrets:**
+
+   ### 🌐 FTP-Zugangsdaten (3 Secrets):
 
    | Name | Beschreibung | Beispielwert |
    |------|--------------|--------------|
    | `HETZNER_HOST` | Server IP-Adresse | `78.46.179.7` |
-   | `HETZNER_USERNAME` | SFTP Benutzername | `petasy` |
-   | `HETZNER_PASSWORD` | SFTP Passwort | `dein-passwort-hier` |
+   | `HETZNER_USERNAME` | FTP Benutzername | `petasy` |
+   | `HETZNER_PASSWORD` | FTP Passwort | `dein-passwort-hier` |
+
+   ### 🔐 Umgebungsvariablen (.env) (7 Secrets):
+
+   | Name | Beschreibung | Wo finden? |
+   |------|--------------|------------|
+   | `VITE_SUPABASE_PROJECT_ID` | Supabase Projekt-ID | Supabase Dashboard |
+   | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase Anon Key | Supabase Dashboard → Settings → API |
+   | `VITE_SUPABASE_URL` | Supabase URL | z.B. `https://xyz.supabase.co` |
+   | `VITE_GOOGLE_ANALYTICS_ID` | Google Analytics ID | z.B. `G-XXXXXXXXXX` |
+   | `VITE_MICROSOFT_CLARITY_ID` | Microsoft Clarity ID | z.B. `abc123def456` |
+   | `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile Key | Cloudflare Dashboard |
+   | `VITE_SITE_URL` | Deine Website URL | `https://petasync.de` |
+
+   **Insgesamt: 10 Secrets**
 
    **Wichtig:** Für jeden Secret:
    - Name GENAU wie in der Tabelle eingeben (Groß-/Kleinschreibung beachten!)
-   - Wert eingeben
+   - Wert aus deiner lokalen `.env` Datei kopieren
    - "Add secret" klicken
+
+   **Tipp:** Öffne deine lokale `.env` Datei und kopiere die Werte von dort!
 
 ---
 
@@ -62,10 +80,11 @@ git push origin main
 1. ✅ Code wird ausgecheckt
 2. ✅ Node.js wird eingerichtet
 3. ✅ Dependencies werden installiert (`npm ci`)
-4. ✅ Projekt wird gebaut (`npm run build`)
-5. ✅ `dist/` und `api/` werden vorbereitet
-6. ✅ Upload zu Hetzner via SFTP
-7. ✅ Deployment Summary
+4. ✅ `.env` Datei wird aus Secrets erstellt
+5. ✅ Projekt wird gebaut (`npm run build`)
+6. ✅ `dist/` und `api/` werden vorbereitet
+7. ✅ Upload zu Hetzner via FTP
+8. ✅ Deployment Summary
 
 ⏱️ **Dauer:** ~2-3 Minuten
 
