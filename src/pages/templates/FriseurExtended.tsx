@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Scissors, Sparkles, Heart, Award, Clock, Star, Menu, X, Calendar, Phone, Mail, MapPin, Instagram, Facebook, Users, Palette, Droplets, Crown } from "lucide-react";
 import { useState, Suspense } from "react";
+import { ProductBottles } from "@/components/3d/ProductBottles";
 
 const theme = {
   primary: "#FF1493",
@@ -571,6 +572,55 @@ const FriseurExtended = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3D Product Showcase */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Premium <span style={{ color: theme.primary }}>Pflegeprodukte</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Wir verwenden ausschließlich hochwertige Markenprodukte für perfekte Ergebnisse
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <ProductBottles />
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
+            {[
+              { icon: Sparkles, title: "Olaplex", desc: "Schonende Behandlung für gesundes Haar" },
+              { icon: Heart, title: "Kérastase", desc: "Luxus-Pflege für jeden Haartyp" },
+              { icon: Crown, title: "L'Oréal Pro", desc: "Professionelle Color-Excellence" }
+            ].map((product, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + idx * 0.1 }}
+                className="text-center p-6 rounded-lg bg-gradient-to-br from-pink-50 to-purple-50"
+              >
+                <product.icon className="w-12 h-12 mx-auto mb-4" style={{ color: theme.primary }} />
+                <h3 className="text-xl font-bold mb-2">{product.title}</h3>
+                <p className="text-gray-600">{product.desc}</p>
               </motion.div>
             ))}
           </div>
