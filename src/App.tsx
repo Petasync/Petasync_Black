@@ -54,7 +54,7 @@ import TemplatesShowcase from "./pages/TemplatesShowcase";
 import HandwerkerTemplate from "./pages/templates/HandwerkerExtended";
 import VersicherungTemplate from "./pages/templates/VersicherungExtended";
 import RestaurantTemplate from "./pages/templates/RestaurantExtended";
-import FitnessTemplate from "./pages/templates/Fitness";
+import FitnessTemplate from "./pages/templates/FitnessExtended";
 import ImmobilienTemplate from "./pages/templates/Immobilien";
 import FotografTemplate from "./pages/templates/Fotograf";
 import FriseurTemplate from "./pages/templates/Friseur";
