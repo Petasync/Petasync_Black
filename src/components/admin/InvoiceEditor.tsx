@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, FileDown, Save, QrCode, Star } from 'lucide-react';
@@ -454,6 +454,9 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{invoice ? 'Rechnung bearbeiten' : 'Neue Rechnung'}</DialogTitle>
+            <DialogDescription>
+              {invoice ? 'Bearbeiten Sie die Rechnungsdetails und speichern Sie Ihre Änderungen.' : 'Erstellen Sie eine neue Rechnung für Ihren Kunden.'}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">
