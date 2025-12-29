@@ -2,6 +2,7 @@ import { useState, Suspense } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Box } from "@react-three/drei";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

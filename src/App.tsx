@@ -56,6 +56,9 @@ import VersicherungTemplate from "./pages/templates/VersicherungExtended";
 import RestaurantTemplate from "./pages/templates/RestaurantExtended";
 import FitnessTemplate from "./pages/templates/FitnessExtended";
 import ImmobilienTemplate from "./pages/templates/ImmobilienExtended";
+import ImmobilienObjekte from "./pages/templates/immobilien/Objekte";
+import ImmobilienGrundriss3D from "./pages/templates/immobilien/Grundriss3D";
+import ImmobilienTeam from "./pages/templates/immobilien/Team";
 import FotografTemplate from "./pages/templates/FotografExtended";
 import FriseurTemplate from "./pages/templates/FriseurExtended";
 import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
@@ -104,6 +107,9 @@ const App = () => (
             <Route path="/templates/restaurant" element={<RestaurantTemplate />} />
             <Route path="/templates/fitness" element={<FitnessTemplate />} />
             <Route path="/templates/immobilien" element={<ImmobilienTemplate />} />
+            <Route path="/templates/immobilien/objekte" element={<ImmobilienObjekte />} />
+            <Route path="/templates/immobilien/3d-rundgang" element={<ImmobilienGrundriss3D />} />
+            <Route path="/templates/immobilien/team" element={<ImmobilienTeam />} />
             <Route path="/templates/fotograf" element={<FotografTemplate />} />
             <Route path="/templates/friseur" element={<FriseurTemplate />} />
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
