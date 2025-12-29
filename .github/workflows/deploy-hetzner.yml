@@ -1,0 +1,56 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Manueller Trigger
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Prepare Deployment Files
+        run: |
+          # Erstelle temporären Deployment-Ordner
+          mkdir -p deploy_temp
+
+          # Kopiere dist Inhalte in Root
+          cp -r dist/* deploy_temp/
+
+          # Kopiere api Ordner
+          cp -r api deploy_temp/
+
+      - name: Deploy to Hetzner via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          password: ${{ secrets.HETZNER_PASSWORD }}
+          port: 22 # SFTP Standard-Port
+          local_path: './deploy_temp/*'
+          remote_path: '/'
+          sftp_only: true
+          delete_remote_files: false # Sicherheit: keine Löschung von anderen Dateien
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Deployment erfolgreich!"
+          echo "🌐 Website: https://petasync.de"
+          echo "📦 Deployed: Frontend (dist/) + API (api/)"
