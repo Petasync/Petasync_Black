@@ -1,5 +1,6 @@
 import { useState, useEffect, Suspense, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,12 +25,12 @@ const theme = {
 };
 
 const services = [
-  { icon: Zap, title: "Elektro-Installationen", desc: "Professionelle Elektroarbeiten für Neu- und Altbau", price: "ab 89€/h", image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop" },
-  { icon: Wrench, title: "Sanitär & Heizung", desc: "Rohrinstallation, Reparaturen und Wartung", price: "ab 79€/h", image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop" },
-  { icon: Hammer, title: "Schreiner-Arbeiten", desc: "Maßanfertigungen aus Holz für jeden Raum", price: "ab 75€/h", image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=600&h=400&fit=crop" },
-  { icon: Drill, title: "Maler-Arbeiten", desc: "Innen- und Außenanstriche in Top-Qualität", price: "ab 49€/h", image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&h=400&fit=crop" },
-  { icon: Home, title: "Renovierungen", desc: "Komplette Badsanierung bis Dachausbau", price: "auf Anfrage", image: "https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=600&h=400&fit=crop" },
-  { icon: Shield, title: "Wartung & Service", desc: "Regelmäßige Inspektionen für Ihre Immobilie", price: "ab 120€", image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=400&fit=crop" },
+  { icon: Zap, title: "Elektro-Installationen", desc: "Professionelle Elektroarbeiten für Neu- und Altbau", price: "ab 89€/h", image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&h=400&fit=crop", url: "/templates/handwerker/elektro-installationen" },
+  { icon: Wrench, title: "Sanitär & Heizung", desc: "Rohrinstallation, Reparaturen und Wartung", price: "ab 79€/h", image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&h=400&fit=crop", url: "/templates/handwerker/sanitaer-heizung" },
+  { icon: Hammer, title: "Schreiner-Arbeiten", desc: "Maßanfertigungen aus Holz für jeden Raum", price: "ab 75€/h", image: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=600&h=400&fit=crop", url: "/templates/handwerker/schreiner-arbeiten" },
+  { icon: Drill, title: "Maler-Arbeiten", desc: "Innen- und Außenanstriche in Top-Qualität", price: "ab 49€/h", image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&h=400&fit=crop", url: "/templates/handwerker/maler-arbeiten" },
+  { icon: Home, title: "Renovierungen", desc: "Komplette Badsanierung bis Dachausbau", price: "auf Anfrage", image: "https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=600&h=400&fit=crop", url: "/templates/handwerker/renovierungen" },
+  { icon: Shield, title: "Wartung & Service", desc: "Regelmäßige Inspektionen für Ihre Immobilie", price: "ab 120€", image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=400&fit=crop", url: "/templates/handwerker/wartung-service" },
 ];
 
 const projects = [
@@ -333,15 +334,17 @@ export default function HandwerkerTemplateExtended() {
                     <span className="text-lg font-bold" style={{ color: theme.primary }}>
                       {service.price}
                     </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="group/btn"
-                      style={{ color: theme.primary }}
-                    >
-                      Mehr erfahren
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link to={service.url}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="group/btn"
+                        style={{ color: theme.primary }}
+                      >
+                        Mehr erfahren
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </motion.div>

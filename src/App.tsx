@@ -69,6 +69,12 @@ import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrech
 import FitnessKursplan from "./pages/templates/fitness/Kursplan";
 import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
 import HandwerkerProjekte from "./pages/templates/handwerker/Projekte";
+import HandwerkerElektro from "./pages/templates/handwerker/ElektroInstallationen";
+import HandwerkerSanitaer from "./pages/templates/handwerker/SanitaerHeizung";
+import HandwerkerSchreiner from "./pages/templates/handwerker/SchreinerArbeiten";
+import HandwerkerMaler from "./pages/templates/handwerker/MalerArbeiten";
+import HandwerkerRenovierungen from "./pages/templates/handwerker/Renovierungen";
+import HandwerkerWartung from "./pages/templates/handwerker/WartungService";
 import VersicherungRechner from "./pages/templates/versicherung/Rechner";
 import VersicherungProdukte from "./pages/templates/versicherung/Produkte";
 import VersicherungBeratung from "./pages/templates/versicherung/Beratung";
@@ -130,6 +136,12 @@ const App = () => (
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
             <Route path="/templates/autowerkstatt/preisrechner" element={<AutowerkstattPreisrechner />} />
             <Route path="/templates/handwerker/projekte" element={<HandwerkerProjekte />} />
+            <Route path="/templates/handwerker/elektro-installationen" element={<HandwerkerElektro />} />
+            <Route path="/templates/handwerker/sanitaer-heizung" element={<HandwerkerSanitaer />} />
+            <Route path="/templates/handwerker/schreiner-arbeiten" element={<HandwerkerSchreiner />} />
+            <Route path="/templates/handwerker/maler-arbeiten" element={<HandwerkerMaler />} />
+            <Route path="/templates/handwerker/renovierungen" element={<HandwerkerRenovierungen />} />
+            <Route path="/templates/handwerker/wartung-service" element={<HandwerkerWartung />} />
             <Route path="/templates/versicherung/rechner" element={<VersicherungRechner />} />
             <Route path="/templates/versicherung/produkte" element={<VersicherungProdukte />} />
             <Route path="/templates/versicherung/beratung" element={<VersicherungBeratung />} />
