@@ -54,11 +54,24 @@ import TemplatesShowcase from "./pages/TemplatesShowcase";
 import HandwerkerTemplate from "./pages/templates/HandwerkerExtended";
 import VersicherungTemplate from "./pages/templates/VersicherungExtended";
 import RestaurantTemplate from "./pages/templates/RestaurantExtended";
+import RestaurantSpeisekarte from "./pages/templates/restaurant/Speisekarte";
 import FitnessTemplate from "./pages/templates/FitnessExtended";
 import ImmobilienTemplate from "./pages/templates/ImmobilienExtended";
+import ImmobilienObjekte from "./pages/templates/immobilien/Objekte";
+import ImmobilienGrundriss3D from "./pages/templates/immobilien/Grundriss3D";
+import ImmobilienTeam from "./pages/templates/immobilien/Team";
 import FotografTemplate from "./pages/templates/FotografExtended";
 import FriseurTemplate from "./pages/templates/FriseurExtended";
+import FriseurServices from "./pages/templates/friseur/Services";
+import FriseurOnlineBuchung from "./pages/templates/friseur/OnlineBuchung";
 import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
+import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrechner";
+import FitnessKursplan from "./pages/templates/fitness/Kursplan";
+import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
+import HandwerkerProjekte from "./pages/templates/handwerker/Projekte";
+import VersicherungRechner from "./pages/templates/versicherung/Rechner";
+import VersicherungProdukte from "./pages/templates/versicherung/Produkte";
+import VersicherungBeratung from "./pages/templates/versicherung/Beratung";
 
 const queryClient = new QueryClient();
 
@@ -102,11 +115,24 @@ const App = () => (
             <Route path="/templates/handwerker" element={<HandwerkerTemplate />} />
             <Route path="/templates/versicherung" element={<VersicherungTemplate />} />
             <Route path="/templates/restaurant" element={<RestaurantTemplate />} />
+            <Route path="/templates/restaurant/speisekarte" element={<RestaurantSpeisekarte />} />
             <Route path="/templates/fitness" element={<FitnessTemplate />} />
+            <Route path="/templates/fitness/kursplan" element={<FitnessKursplan />} />
             <Route path="/templates/immobilien" element={<ImmobilienTemplate />} />
+            <Route path="/templates/immobilien/objekte" element={<ImmobilienObjekte />} />
+            <Route path="/templates/immobilien/3d-rundgang" element={<ImmobilienGrundriss3D />} />
+            <Route path="/templates/immobilien/team" element={<ImmobilienTeam />} />
             <Route path="/templates/fotograf" element={<FotografTemplate />} />
+            <Route path="/templates/fotograf/portfolio" element={<FotografPortfolio />} />
             <Route path="/templates/friseur" element={<FriseurTemplate />} />
+            <Route path="/templates/friseur/services" element={<FriseurServices />} />
+            <Route path="/templates/friseur/buchung" element={<FriseurOnlineBuchung />} />
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
+            <Route path="/templates/autowerkstatt/preisrechner" element={<AutowerkstattPreisrechner />} />
+            <Route path="/templates/handwerker/projekte" element={<HandwerkerProjekte />} />
+            <Route path="/templates/versicherung/rechner" element={<VersicherungRechner />} />
+            <Route path="/templates/versicherung/produkte" element={<VersicherungProdukte />} />
+            <Route path="/templates/versicherung/beratung" element={<VersicherungBeratung />} />
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify-2fa" element={<AdminVerify2FA />} />

@@ -1,6 +1,7 @@
 import { useState, Suspense } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Box } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +12,6 @@ import {
   Facebook, Instagram, Youtube, ChevronRight, MessageCircle, Aperture, Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CameraModel, PolaroidFrame } from "@/components/3d/FotografModels";
 
 const theme = {
   primary: "#000000",
@@ -111,12 +111,14 @@ export default function FotografTemplateExtended() {
         </motion.div>
 
         <div className="absolute inset-0 opacity-10">
-          <Suspense fallback={null}>
-            <Canvas>
+          <Suspense fallback={<div />}>
+            <Canvas camera={{ position: [0, 0, 5] }}>
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} />
-              <CameraModel />
-              <PolaroidFrame />
+              <Box args={[1.5, 1, 2.5]} position={[0, 0, 0]} rotation={[0.2, 0.3, 0]}>
+                <meshStandardMaterial color="#FFD700" metalness={0.8} roughness={0.2} />
+              </Box>
+              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
             </Canvas>
           </Suspense>
         </div>

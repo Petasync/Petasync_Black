@@ -1,6 +1,8 @@
 import { useState, Suspense } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Box } from "@react-three/drei";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +14,7 @@ import {
   Facebook, Instagram, Linkedin, Youtube, Clock, Target, Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { HouseModel, FloatingPropertyCard } from "@/components/3d/ImmobilienModels";
+import { FloorPlanViewer } from "@/components/3d/FloorPlanViewer";
 
 const theme = {
   primary: "#2C3E50",
@@ -100,12 +102,14 @@ export default function ImmobilienTemplateExtended() {
         </motion.div>
 
         <div className="absolute inset-0 opacity-10">
-          <Suspense fallback={null}>
-            <Canvas>
+          <Suspense fallback={<div />}>
+            <Canvas camera={{ position: [0, 0, 5] }}>
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} />
-              <HouseModel />
-              <FloatingPropertyCard />
+              <Box args={[2, 1.5, 1.5]} position={[0, 0, 0]} rotation={[0.2, 0.4, 0]}>
+                <meshStandardMaterial color="#C9B037" metalness={0.7} roughness={0.3} />
+              </Box>
+              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.5} />
             </Canvas>
           </Suspense>
         </div>
@@ -239,6 +243,44 @@ export default function ImmobilienTemplateExtended() {
               <Building className="mr-2 h-5 w-5" />
               Alle 247 Objekte ansehen
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* 3D Floor Plan Viewer Section */}
+      <section className="py-20" style={{ backgroundColor: theme.secondary }}>
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="text-sm font-bold tracking-widest uppercase mb-4 block" style={{ color: theme.accent }}>
+              Innovation
+            </span>
+            <h2 className="text-4xl md:text-6xl font-light mb-4">
+              3D-<span className="font-bold" style={{ color: theme.accent }}>Grundriss-Viewer</span>
+            </h2>
+            <p className="text-lg opacity-80 max-w-2xl mx-auto">
+              Erleben Sie Ihre zukünftige Immobilie in 3D. Interaktiv, detailliert und jederzeit verfügbar.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <FloorPlanViewer />
+          </motion.div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-600">
+              <Maximize className="inline w-4 h-4 mr-2" />
+              Klicken und ziehen Sie, um den Grundriss zu drehen • Scrollen zum Zoomen
+            </p>
           </div>
         </div>
       </section>
