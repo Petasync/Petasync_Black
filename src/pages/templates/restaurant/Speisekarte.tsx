@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  UtensilsCrossed, ChevronRight, Leaf, Flame, Star, Wine, Coffee, IceCream
+  UtensilsCrossed, ChevronRight, Leaf, Flame, Star, Wine, Coffee, IceCream, Download
 } from "lucide-react";
 
 const theme = {
@@ -90,10 +90,24 @@ export default function RestaurantSpeisekarte() {
             <h1 className="text-4xl md:text-6xl font-serif mb-4">
               Unsere <span style={{ color: theme.accent }}>Speisekarte</span>
             </h1>
-            <p className="text-lg opacity-90">
+            <p className="text-lg opacity-90 mb-6">
               Genießen Sie französische Haute Cuisine mit regionalen Produkten
               und internationalem Flair
             </p>
+            <Button
+              variant="outline"
+              className="rounded-full border-2"
+              style={{ borderColor: theme.accent, color: theme.accent }}
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = 'data:application/pdf;base64,JVBERi0xLjMKJeLjz9MKMyAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDIgMCBSL01lZGlhQm94WzAgMCA2MTIgNzkyXS9Db250ZW50cyA0IDAgUj4+CmVuZG9iago0IDAgb2JqCjw8L0xlbmd0aCA0Nj4+CnN0cmVhbQpCVAovRjEgMjQgVGYKMTAwIDcwMCBUZAooTGEgQmVsbGUgw4lwb3F1ZSAtIFNwZWlzZWthcnRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCjEgMCBvYmoKPDwvVHlwZS9QYWdlcy9LaWRzWzMgMCBSXS9Db3VudCAxPj4KZW5kb2JqCjUgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFzZUZvbnQvSGVsdmV0aWNhPj4KZW5kb2JqCjIgMCBvYmoKPDwvVHlwZS9QYWdlcy9LaWRzWzMgMCBSXS9Db3VudCAxL1Jlc291cmNlczw8L1Byb2NTZXRbL1BERi9UZXh0XS9Gb250PDwvRjEgNSAwIFI+Pj4+Pj4KZW5kb2JqCjYgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDIgMCBSPj4KZW5kb2JqCnhyZWYKMCA3CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDI0MiAwMDAwMCBuIAowMDAwMDAwMzcyIDAwMDAwIG4gCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA4NyAwMDAwMCBuIAowMDAwMDAwMjk5IDAwMDAwIG4gCjAwMDAwMDA0NzggMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDcvUm9vdCA2IDAgUj4+CnN0YXJ0eHJlZgo1MjcKJSVFT0YK';
+                link.download = 'La_Belle_Epoque_Speisekarte.pdf';
+                link.click();
+              }}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Speisekarte als PDF
+            </Button>
           </motion.div>
         </div>
       </section>
