@@ -66,6 +66,12 @@ import FriseurServices from "./pages/templates/friseur/Services";
 import FriseurOnlineBuchung from "./pages/templates/friseur/OnlineBuchung";
 import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
 import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrechner";
+import AutowerkstattInspektion from "./pages/templates/autowerkstatt/Inspektion";
+import AutowerkstattMotor from "./pages/templates/autowerkstatt/Motor";
+import AutowerkstattBremsen from "./pages/templates/autowerkstatt/Bremsen";
+import AutowerkstattElektrik from "./pages/templates/autowerkstatt/Elektrik";
+import AutowerkstattKarosserie from "./pages/templates/autowerkstatt/Karosserie";
+import AutowerkstattTUV from "./pages/templates/autowerkstatt/TUV";
 import FitnessKursplan from "./pages/templates/fitness/Kursplan";
 import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
 import HandwerkerProjekte from "./pages/templates/handwerker/Projekte";
@@ -135,6 +141,12 @@ const App = () => (
             <Route path="/templates/friseur/buchung" element={<FriseurOnlineBuchung />} />
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
             <Route path="/templates/autowerkstatt/preisrechner" element={<AutowerkstattPreisrechner />} />
+            <Route path="/templates/autowerkstatt/inspektion" element={<AutowerkstattInspektion />} />
+            <Route path="/templates/autowerkstatt/motor" element={<AutowerkstattMotor />} />
+            <Route path="/templates/autowerkstatt/bremsen" element={<AutowerkstattBremsen />} />
+            <Route path="/templates/autowerkstatt/elektrik" element={<AutowerkstattElektrik />} />
+            <Route path="/templates/autowerkstatt/karosserie" element={<AutowerkstattKarosserie />} />
+            <Route path="/templates/autowerkstatt/tuv" element={<AutowerkstattTUV />} />
             <Route path="/templates/handwerker/projekte" element={<HandwerkerProjekte />} />
             <Route path="/templates/handwerker/elektro-installationen" element={<HandwerkerElektro />} />
             <Route path="/templates/handwerker/sanitaer-heizung" element={<HandwerkerSanitaer />} />

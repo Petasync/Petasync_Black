@@ -87,7 +87,7 @@ export function TemplatesPromo() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
             >
-              <Link to={template.url}>
+              <a href={template.url} target="_blank" rel="noopener noreferrer">
                 <div className="group relative overflow-hidden rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10">
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
@@ -121,7 +121,7 @@ export function TemplatesPromo() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </div>
