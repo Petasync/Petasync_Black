@@ -1,4 +1,5 @@
 import { useState, Suspense } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { Button } from "@/components/ui/button";
@@ -120,10 +121,12 @@ export default function RestaurantTemplateExtended() {
             <a href="#events" className="text-sm font-medium hover:opacity-80 transition" style={{ color: theme.secondary }}>Events</a>
             <a href="#bewertungen" className="text-sm font-medium hover:opacity-80 transition" style={{ color: theme.secondary }}>Bewertungen</a>
             <a href="#kontakt" className="text-sm font-medium hover:opacity-80 transition" style={{ color: theme.secondary }}>Kontakt</a>
-            <Button className="rounded-full font-bold" style={{ backgroundColor: theme.primary, color: theme.text }}>
-              <Calendar className="mr-2 h-4 w-4" />
-              Jetzt Reservieren
-            </Button>
+            <Link to="/templates/restaurant/reservierung">
+              <Button className="rounded-full font-bold" style={{ backgroundColor: theme.primary, color: theme.text }}>
+                <Calendar className="mr-2 h-4 w-4" />
+                Jetzt Reservieren
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -154,9 +157,11 @@ export default function RestaurantTemplateExtended() {
                 {item}
               </a>
             ))}
-            <Button className="w-full rounded-full font-bold" style={{ backgroundColor: theme.primary }}>
-              Jetzt Reservieren
-            </Button>
+            <Link to="/templates/restaurant/reservierung" className="block">
+              <Button className="w-full rounded-full font-bold" style={{ backgroundColor: theme.primary }}>
+                Jetzt Reservieren
+              </Button>
+            </Link>
           </motion.div>
         )}
       </nav>
@@ -231,23 +236,27 @@ export default function RestaurantTemplateExtended() {
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center">
-              <Button
-                size="lg"
-                className="rounded-full font-bold text-lg px-8"
-                style={{ backgroundColor: theme.primary, color: theme.text }}
-              >
-                <Calendar className="mr-2 h-5 w-5" />
-                Tisch Reservieren
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full font-bold text-lg px-8 border-2"
-                style={{ borderColor: theme.secondary, color: theme.secondary }}
-              >
-                <Download className="mr-2 h-5 w-5" />
-                Menükarte (PDF)
-              </Button>
+              <Link to="/templates/restaurant/reservierung">
+                <Button
+                  size="lg"
+                  className="rounded-full font-bold text-lg px-8"
+                  style={{ backgroundColor: theme.primary, color: theme.text }}
+                >
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Tisch Reservieren
+                </Button>
+              </Link>
+              <Link to="/templates/restaurant/speisekarte">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full font-bold text-lg px-8 border-2"
+                  style={{ borderColor: theme.secondary, color: theme.secondary }}
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Menükarte (PDF)
+                </Button>
+              </Link>
             </div>
 
             {/* Info Badges */}
@@ -404,10 +413,12 @@ export default function RestaurantTemplateExtended() {
           </Tabs>
 
           <div className="text-center mt-12">
-            <Button size="lg" variant="outline" className="rounded-full font-bold" style={{ borderColor: theme.accent, color: theme.accent }}>
-              <Download className="mr-2 h-5 w-5" />
-              Komplette Karte herunterladen
-            </Button>
+            <Link to="/templates/restaurant/speisekarte">
+              <Button size="lg" variant="outline" className="rounded-full font-bold" style={{ borderColor: theme.accent, color: theme.accent }}>
+                <Download className="mr-2 h-5 w-5" />
+                Komplette Karte herunterladen
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -580,9 +591,11 @@ export default function RestaurantTemplateExtended() {
                     <span className="text-xl font-bold" style={{ color: theme.accent }}>
                       {event.price}
                     </span>
-                    <Button size="sm" variant="ghost" style={{ color: theme.accent }}>
-                      Details <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link to="/templates/restaurant/events">
+                      <Button size="sm" variant="ghost" style={{ color: theme.accent }}>
+                        Details <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </motion.div>

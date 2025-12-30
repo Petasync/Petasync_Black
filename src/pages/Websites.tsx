@@ -391,7 +391,7 @@ export default function Websites() {
                 whileHover={{ scale: 1.05, rotateY: 5 }}
                 className="group relative"
               >
-                <Link to={`/templates/${template.id}`}>
+                <a href={`/templates/${template.id}`} target="_blank" rel="noopener noreferrer">
                   <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 hover:border-white/20 transition-all">
                     {/* Color Preview */}
                     <div
@@ -436,7 +436,7 @@ export default function Websites() {
                       <ArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </div>
-                </Link>
+                </a>
               </motion.div>
             ))}
           </div>
