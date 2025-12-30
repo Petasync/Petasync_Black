@@ -379,9 +379,9 @@ export default function Websites() {
             </p>
           </motion.div>
 
-          {/* Template Grid Preview (First 4) */}
+          {/* Template Grid Preview (All 8 Templates) */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {TEMPLATE_LIST.slice(0, 4).map((template, index) => (
+            {TEMPLATE_LIST.map((template, index) => (
               <motion.div
                 key={template.id}
                 initial={{ opacity: 0, y: 30 }}
