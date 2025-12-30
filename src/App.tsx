@@ -55,15 +55,26 @@ import HandwerkerTemplate from "./pages/templates/HandwerkerExtended";
 import VersicherungTemplate from "./pages/templates/VersicherungExtended";
 import RestaurantTemplate from "./pages/templates/RestaurantExtended";
 import RestaurantSpeisekarte from "./pages/templates/restaurant/Speisekarte";
+import RestaurantVorspeisen from "./pages/templates/restaurant/Vorspeisen";
+import RestaurantHauptgerichte from "./pages/templates/restaurant/Hauptgerichte";
+import RestaurantDesserts from "./pages/templates/restaurant/Desserts";
 import FitnessTemplate from "./pages/templates/FitnessExtended";
+import FitnessKursplan from "./pages/templates/fitness/Kursplan";
+import FitnessYoga from "./pages/templates/fitness/Yoga";
+import FitnessHIIT from "./pages/templates/fitness/HIIT";
 import ImmobilienTemplate from "./pages/templates/ImmobilienExtended";
 import ImmobilienObjekte from "./pages/templates/immobilien/Objekte";
 import ImmobilienGrundriss3D from "./pages/templates/immobilien/Grundriss3D";
 import ImmobilienTeam from "./pages/templates/immobilien/Team";
 import FotografTemplate from "./pages/templates/FotografExtended";
+import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
+import FotografHochzeit from "./pages/templates/fotograf/Hochzeit";
+import FotografPortrait from "./pages/templates/fotograf/Portrait";
 import FriseurTemplate from "./pages/templates/FriseurExtended";
 import FriseurServices from "./pages/templates/friseur/Services";
 import FriseurOnlineBuchung from "./pages/templates/friseur/OnlineBuchung";
+import FriseurHaarschnitt from "./pages/templates/friseur/Haarschnitt";
+import FriseurColoration from "./pages/templates/friseur/Coloration";
 import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
 import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrechner";
 import AutowerkstattInspektion from "./pages/templates/autowerkstatt/Inspektion";
@@ -73,7 +84,11 @@ import AutowerkstattElektrik from "./pages/templates/autowerkstatt/Elektrik";
 import AutowerkstattKarosserie from "./pages/templates/autowerkstatt/Karosserie";
 import AutowerkstattTUV from "./pages/templates/autowerkstatt/TUV";
 import FitnessKursplan from "./pages/templates/fitness/Kursplan";
+import FitnessYoga from "./pages/templates/fitness/Yoga";
+import FitnessHIIT from "./pages/templates/fitness/HIIT";
 import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
+import FotografHochzeit from "./pages/templates/fotograf/Hochzeit";
+import FotografPortrait from "./pages/templates/fotograf/Portrait";
 import HandwerkerProjekte from "./pages/templates/handwerker/Projekte";
 import HandwerkerElektro from "./pages/templates/handwerker/ElektroInstallationen";
 import HandwerkerSanitaer from "./pages/templates/handwerker/SanitaerHeizung";
@@ -128,17 +143,26 @@ const App = () => (
             <Route path="/templates/versicherung" element={<VersicherungTemplate />} />
             <Route path="/templates/restaurant" element={<RestaurantTemplate />} />
             <Route path="/templates/restaurant/speisekarte" element={<RestaurantSpeisekarte />} />
+            <Route path="/templates/restaurant/vorspeisen" element={<RestaurantVorspeisen />} />
+            <Route path="/templates/restaurant/hauptgerichte" element={<RestaurantHauptgerichte />} />
+            <Route path="/templates/restaurant/desserts" element={<RestaurantDesserts />} />
             <Route path="/templates/fitness" element={<FitnessTemplate />} />
             <Route path="/templates/fitness/kursplan" element={<FitnessKursplan />} />
+            <Route path="/templates/fitness/yoga" element={<FitnessYoga />} />
+            <Route path="/templates/fitness/hiit" element={<FitnessHIIT />} />
             <Route path="/templates/immobilien" element={<ImmobilienTemplate />} />
             <Route path="/templates/immobilien/objekte" element={<ImmobilienObjekte />} />
             <Route path="/templates/immobilien/3d-rundgang" element={<ImmobilienGrundriss3D />} />
             <Route path="/templates/immobilien/team" element={<ImmobilienTeam />} />
             <Route path="/templates/fotograf" element={<FotografTemplate />} />
             <Route path="/templates/fotograf/portfolio" element={<FotografPortfolio />} />
+            <Route path="/templates/fotograf/hochzeit" element={<FotografHochzeit />} />
+            <Route path="/templates/fotograf/portrait" element={<FotografPortrait />} />
             <Route path="/templates/friseur" element={<FriseurTemplate />} />
             <Route path="/templates/friseur/services" element={<FriseurServices />} />
             <Route path="/templates/friseur/buchung" element={<FriseurOnlineBuchung />} />
+            <Route path="/templates/friseur/haarschnitt" element={<FriseurHaarschnitt />} />
+            <Route path="/templates/friseur/coloration" element={<FriseurColoration />} />
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
             <Route path="/templates/autowerkstatt/preisrechner" element={<AutowerkstattPreisrechner />} />
             <Route path="/templates/autowerkstatt/inspektion" element={<AutowerkstattInspektion />} />
