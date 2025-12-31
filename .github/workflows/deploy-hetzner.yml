@@ -43,6 +43,22 @@ jobs:
           EOF
           echo "✅ .env Datei erstellt"
 
+      - name: Verify Environment Variables
+        run: |
+          echo "🔍 Überprüfe Umgebungsvariablen..."
+          if [ -z "${{ secrets.VITE_SUPABASE_URL }}" ]; then
+            echo "❌ FEHLER: VITE_SUPABASE_URL ist leer!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}" ]; then
+            echo "❌ FEHLER: VITE_SUPABASE_PUBLISHABLE_KEY ist leer!"
+            exit 1
+          fi
+          echo "✅ VITE_SUPABASE_URL ist gesetzt"
+          echo "✅ VITE_SUPABASE_PUBLISHABLE_KEY ist gesetzt"
+          echo "📄 .env Datei Inhalt (ohne Secrets):"
+          grep -v "KEY\|PASSWORD" .env || echo "Keine sensitive Daten gefunden"
+
       - name: Build Project
         run: npm run build
 

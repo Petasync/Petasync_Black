@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import LogoIconDark from "@/assets/logos/petasync-icon-dark.svg";
+import LogoIconLight from "@/assets/logos/petasync-icon-light.svg";
+import LogoHorizontalDark from "@/assets/logos/petasync-horizontal-dark.svg";
+import LogoHorizontalLight from "@/assets/logos/petasync-horizontal-light.svg";
+import LogoFullDark from "@/assets/logos/petasync-full-dark.svg";
+import LogoFullLight from "@/assets/logos/petasync-full-light.svg";
 
 interface LogoProps {
   variant?: "full" | "icon" | "horizontal" | "wordmark";
@@ -17,23 +23,24 @@ export function Logo({
   const { theme, systemTheme } = useTheme();
 
   // Logo version based on theme
-  // Version 1: White (for dark backgrounds)
-  // Version 2: Black (for light backgrounds)
+  // Dark theme: White logo (for dark backgrounds)
+  // Light theme: Black logo (for light backgrounds)
   const currentTheme = theme === "system" ? systemTheme : theme;
-  const logoVersion = currentTheme === "dark" ? "1" : "2";
-  const logoPath = `/logos/SVG_ohne_hintergrund/${logoVersion}.svg`;
+  const isDark = currentTheme === "dark";
 
-  const LogoImage = ({ className: imgClass }: { className?: string }) => (
-    <img
-      src={logoPath}
-      alt="Petasync Logo"
-      className={cn("w-8 h-auto", imgClass)}
-    />
-  );
-
-  if (variant === "icon") {
-    return <LogoImage className={cn(className, iconClassName)} />;
-  }
+  // Select appropriate logo based on variant and theme
+  const getLogoSrc = () => {
+    switch (variant) {
+      case "icon":
+        return isDark ? LogoIconDark : LogoIconLight;
+      case "horizontal":
+        return isDark ? LogoHorizontalDark : LogoHorizontalLight;
+      case "full":
+        return isDark ? LogoFullDark : LogoFullLight;
+      default:
+        return isDark ? LogoHorizontalDark : LogoHorizontalLight;
+    }
+  };
 
   if (variant === "wordmark") {
     return (
@@ -43,24 +50,16 @@ export function Logo({
     );
   }
 
-  if (variant === "full") {
-    return (
-      <div className={cn("flex flex-col items-center gap-4", className)}>
-        <LogoImage className={iconClassName} />
-        <div className={cn("font-black text-3xl tracking-tight", textClassName)}>
-          PETASYNC
-        </div>
-      </div>
-    );
-  }
-
-  // horizontal (default)
+  // For icon, horizontal, and full variants - use the SVG directly
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      <LogoImage className={iconClassName} />
-      <div className={cn("font-black text-xl tracking-tight", textClassName)}>
-        PETASYNC
-      </div>
-    </div>
+    <img
+      src={getLogoSrc()}
+      alt="Petasync Logo"
+      className={cn(
+        variant === "icon" ? "w-8 h-auto" : "h-8 w-auto",
+        className,
+        iconClassName
+      )}
+    />
   );
 }

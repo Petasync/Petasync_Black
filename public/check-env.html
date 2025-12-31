@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variables Check - Petasync</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .check-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .check-item.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .check-item.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .icon {
+            font-size: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Petasync Environment Variables Check</h1>
+        <p>Diese Seite hilft Ihnen herauszufinden, welche Umgebungsvariablen beim Build fehlen.</p>
+
+        <div id="results"></div>
+
+        <button onclick="checkEnvironment()">Umgebung prüfen</button>
+
+        <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+            <strong>⚠️ Hinweis:</strong> Diese Datei ist nur für Debugging-Zwecke. Nach dem Test bitte löschen!
+        </div>
+    </div>
+
+    <script type="module">
+        window.checkEnvironment = function() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            const checks = [
+                {
+                    name: 'VITE_SUPABASE_URL',
+                    value: import.meta.env.VITE_SUPABASE_URL,
+                    required: true
+                },
+                {
+                    name: 'VITE_SUPABASE_PUBLISHABLE_KEY',
+                    value: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                    required: true,
+                    hideValue: true
+                },
+                {
+                    name: 'VITE_SUPABASE_PROJECT_ID',
+                    value: import.meta.env.VITE_SUPABASE_PROJECT_ID,
+                    required: true
+                },
+                {
+                    name: 'VITE_SITE_URL',
+                    value: import.meta.env.VITE_SITE_URL,
+                    required: false
+                }
+            ];
+
+            checks.forEach(check => {
+                const div = document.createElement('div');
+                const isSet = check.value && check.value !== 'undefined' && check.value !== 'your-project-id' && check.value !== 'your-publishable-key';
+
+                div.className = `check-item ${isSet ? 'success' : 'error'}`;
+
+                const icon = isSet ? '✅' : '❌';
+                const status = isSet ? 'Gesetzt' : 'FEHLT';
+                const value = check.hideValue
+                    ? (isSet ? '(verborgen)' : 'NICHT GESETZT')
+                    : (check.value || 'NICHT GESETZT');
+
+                div.innerHTML = `
+                    <span class="icon">${icon}</span>
+                    <div>
+                        <strong>${check.name}</strong>: ${status}
+                        ${!check.hideValue ? `<br><code>${value}</code>` : ''}
+                    </div>
+                `;
+
+                results.appendChild(div);
+            });
+
+            // Summary
+            const hasErrors = checks.some(c => c.required && (!c.value || c.value === 'undefined' || c.value.includes('your-')));
+
+            const summary = document.createElement('div');
+            summary.style.marginTop = '20px';
+            summary.style.padding = '15px';
+            summary.style.borderRadius = '5px';
+            summary.style.fontWeight = 'bold';
+
+            if (hasErrors) {
+                summary.style.background = '#f8d7da';
+                summary.style.color = '#721c24';
+                summary.innerHTML = '❌ FEHLER: Einige erforderliche Umgebungsvariablen fehlen oder haben Platzhalter-Werte!<br><br>Bitte überprüfen Sie die GitHub Secrets und stellen Sie sicher, dass echte Werte (keine Platzhalter wie "your-project-id") eingetragen sind.';
+            } else {
+                summary.style.background = '#d4edda';
+                summary.style.color = '#155724';
+                summary.innerHTML = '✅ Alle erforderlichen Umgebungsvariablen sind korrekt gesetzt!';
+            }
+
+            results.appendChild(summary);
+        };
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(() => window.checkEnvironment(), 500);
+        });
+    </script>
+</body>
+</html>
