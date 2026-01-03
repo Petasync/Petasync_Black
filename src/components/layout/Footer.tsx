@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 
 const serviceLinks = [
   { name: "PC Reparatur", href: "/privatkunden" },
@@ -46,11 +47,19 @@ export function Footer() {
               Professioneller IT-Service mit persönlicher Beratung.
             </p>
             <div className="space-y-3 text-sm">
-              <a href="tel:+491637117198" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="tel:+491637117198"
+                className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
+                onClick={trackPhoneClick}
+              >
                 <Phone className="w-4 h-4" />
                 <span>+49 163 711 7198</span>
               </a>
-              <a href="mailto:service@petasync.de" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="mailto:service@petasync.de"
+                className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
+                onClick={trackEmailClick}
+              >
                 <Mail className="w-4 h-4" />
                 <span>service@petasync.de</span>
               </a>

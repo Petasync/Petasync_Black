@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { CookieBanner } from "@/components/CookieBanner";
+import { initAnalytics } from "@/lib/analytics";
+import { usePageTracking } from "@/hooks/usePageTracking";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import Websites from "./pages/Websites";
 import Privatkunden from "./pages/Privatkunden";
@@ -107,15 +111,32 @@ import VersicherungBeratung from "./pages/templates/versicherung/Beratung";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
+/**
+ * Analytics wrapper component
+ * Initializes analytics and tracks page views + scroll depth
+ */
+const AnalyticsWrapper = ({ children }: { children: React.ReactNode }) => {
+  usePageTracking();
+  useScrollTracking();
+  return <>{children}</>;
+};
+
+const App = () => {
+  // Initialize analytics on app mount
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnalyticsWrapper>
+              <ScrollToTop />
+              <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/privatkunden" element={<Privatkunden />} />
             <Route path="/geschaeftskunden" element={<Geschaeftskunden />} />
@@ -211,11 +232,13 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieBanner />
+            </AnalyticsWrapper>
         </BrowserRouter>
-        <CookieBanner />
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
