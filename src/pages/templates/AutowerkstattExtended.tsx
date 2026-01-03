@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Box, MeshDistortMaterial } from "@react-three/drei";
@@ -45,7 +46,8 @@ const AutowerkstattExtended = () => {
       price: "ab 149€",
       duration: "2-3 Std",
       category: "wartung",
-      features: ["Ölwechsel", "Filterwechsel", "Bremsencheck", "Flüssigkeiten auffüllen"]
+      features: ["Ölwechsel", "Filterwechsel", "Bremsencheck", "Flüssigkeiten auffüllen"],
+      url: "/templates/autowerkstatt/inspektion"
     },
     {
       icon: Settings,
@@ -54,7 +56,8 @@ const AutowerkstattExtended = () => {
       price: "ab 299€",
       duration: "variabel",
       category: "reparatur",
-      features: ["Diagnose", "Reparatur", "Austausch", "Garantie"]
+      features: ["Diagnose", "Reparatur", "Austausch", "Garantie"],
+      url: "/templates/autowerkstatt/motor"
     },
     {
       icon: Shield,
@@ -63,7 +66,8 @@ const AutowerkstattExtended = () => {
       price: "ab 179€",
       duration: "2-4 Std",
       category: "reparatur",
-      features: ["Bremsscheiben", "Bremsbeläge", "Stoßdämpfer", "Spureinstellung"]
+      features: ["Bremsscheiben", "Bremsbeläge", "Stoßdämpfer", "Spureinstellung"],
+      url: "/templates/autowerkstatt/bremsen"
     },
     {
       icon: Zap,
@@ -72,7 +76,8 @@ const AutowerkstattExtended = () => {
       price: "ab 89€",
       duration: "1-3 Std",
       category: "elektronik",
-      features: ["Fehlerdiagnose", "Software-Update", "Batterietest", "Lichteinstellung"]
+      features: ["Fehlerdiagnose", "Software-Update", "Batterietest", "Lichteinstellung"],
+      url: "/templates/autowerkstatt/elektrik"
     },
     {
       icon: Car,
@@ -81,7 +86,8 @@ const AutowerkstattExtended = () => {
       price: "ab 399€",
       duration: "variabel",
       category: "karosserie",
-      features: ["Dellen entfernen", "Lackierung", "Politur", "Versicherungsabwicklung"]
+      features: ["Dellen entfernen", "Lackierung", "Politur", "Versicherungsabwicklung"],
+      url: "/templates/autowerkstatt/karosserie"
     },
     {
       icon: Gauge,
@@ -90,7 +96,8 @@ const AutowerkstattExtended = () => {
       price: "ab 119€",
       duration: "1-2 Std",
       category: "pruefung",
-      features: ["HU vorbereiten", "Abgasuntersuchung", "TÜV-Termin", "Mängelbeseitigung"]
+      features: ["HU vorbereiten", "Abgasuntersuchung", "TÜV-Termin", "Mängelbeseitigung"],
+      url: "/templates/autowerkstatt/tuv"
     },
     {
       icon: Cog,
@@ -509,13 +516,26 @@ const AutowerkstattExtended = () => {
                         </li>
                       ))}
                     </ul>
-                    <Button
-                      className="w-full"
-                      size="sm"
-                      style={{ backgroundColor: theme.primary }}
-                    >
-                      Anfragen
-                    </Button>
+                    {service.url && (
+                      <Link to={service.url}>
+                        <Button
+                          className="w-full"
+                          size="sm"
+                          style={{ backgroundColor: theme.primary }}
+                        >
+                          Mehr erfahren
+                        </Button>
+                      </Link>
+                    )}
+                    {!service.url && (
+                      <Button
+                        className="w-full"
+                        size="sm"
+                        style={{ backgroundColor: theme.primary }}
+                      >
+                        Anfragen
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>

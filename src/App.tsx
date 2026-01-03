@@ -58,6 +58,8 @@ import RestaurantSpeisekarte from "./pages/templates/restaurant/Speisekarte";
 import RestaurantVorspeisen from "./pages/templates/restaurant/Vorspeisen";
 import RestaurantHauptgerichte from "./pages/templates/restaurant/Hauptgerichte";
 import RestaurantDesserts from "./pages/templates/restaurant/Desserts";
+import RestaurantReservierung from "./pages/templates/restaurant/Reservierung";
+import RestaurantEvents from "./pages/templates/restaurant/Events";
 import FitnessTemplate from "./pages/templates/FitnessExtended";
 import FitnessKursplan from "./pages/templates/fitness/Kursplan";
 import FitnessYoga from "./pages/templates/fitness/Yoga";
@@ -75,6 +77,9 @@ import FriseurServices from "./pages/templates/friseur/Services";
 import FriseurOnlineBuchung from "./pages/templates/friseur/OnlineBuchung";
 import FriseurHaarschnitt from "./pages/templates/friseur/Haarschnitt";
 import FriseurColoration from "./pages/templates/friseur/Coloration";
+import FriseurPreise from "./pages/templates/friseur/Preise";
+import FriseurTeam from "./pages/templates/friseur/Team";
+import FriseurGalerie from "./pages/templates/friseur/Galerie";
 import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
 import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrechner";
 import AutowerkstattInspektion from "./pages/templates/autowerkstatt/Inspektion";
@@ -146,6 +151,8 @@ const App = () => (
             <Route path="/templates/restaurant/vorspeisen" element={<RestaurantVorspeisen />} />
             <Route path="/templates/restaurant/hauptgerichte" element={<RestaurantHauptgerichte />} />
             <Route path="/templates/restaurant/desserts" element={<RestaurantDesserts />} />
+            <Route path="/templates/restaurant/reservierung" element={<RestaurantReservierung />} />
+            <Route path="/templates/restaurant/events" element={<RestaurantEvents />} />
             <Route path="/templates/fitness" element={<FitnessTemplate />} />
             <Route path="/templates/fitness/kursplan" element={<FitnessKursplan />} />
             <Route path="/templates/fitness/yoga" element={<FitnessYoga />} />
@@ -163,6 +170,9 @@ const App = () => (
             <Route path="/templates/friseur/buchung" element={<FriseurOnlineBuchung />} />
             <Route path="/templates/friseur/haarschnitt" element={<FriseurHaarschnitt />} />
             <Route path="/templates/friseur/coloration" element={<FriseurColoration />} />
+            <Route path="/templates/friseur/preise" element={<FriseurPreise />} />
+            <Route path="/templates/friseur/team" element={<FriseurTeam />} />
+            <Route path="/templates/friseur/galerie" element={<FriseurGalerie />} />
             <Route path="/templates/autowerkstatt" element={<AutowerkstattTemplate />} />
             <Route path="/templates/autowerkstatt/preisrechner" element={<AutowerkstattPreisrechner />} />
             <Route path="/templates/autowerkstatt/inspektion" element={<AutowerkstattInspektion />} />
