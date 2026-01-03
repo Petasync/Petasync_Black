@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { Logo } from "@/components/ui/Logo";
+import { trackNavigationClick, trackCTAClick } from "@/lib/analytics";
 
 const navItems = [
   { name: "Start", href: "/" },
@@ -71,6 +72,7 @@ export function Header() {
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 )}
+                onClick={() => trackNavigationClick(item.name, item.href)}
               >
                 {item.name}
               </Link>
@@ -93,12 +95,12 @@ export function Header() {
               </Button>
             )}
             
-            <Button 
-              size="sm" 
-              asChild 
+            <Button
+              size="sm"
+              asChild
               className="bg-foreground text-background hover:bg-foreground/90 rounded-full gap-2"
             >
-              <Link to="/kontakt">
+              <Link to="/kontakt" onClick={() => trackCTAClick('Kontakt', 'Header Desktop')}>
                 <Phone className="w-3.5 h-3.5" />
                 <span>Kontakt</span>
               </Link>
@@ -146,13 +148,14 @@ export function Header() {
                       ? "text-foreground"
                       : "text-muted-foreground"
                   )}
+                  onClick={() => trackNavigationClick(item.name, item.href)}
                 >
                   {item.name}
                 </Link>
               ))}
               <div className="pt-6 space-y-3">
                 <Button className="w-full gap-2 bg-foreground text-background rounded-full" asChild>
-                  <Link to="/kontakt">
+                  <Link to="/kontakt" onClick={() => trackCTAClick('Jetzt anfragen', 'Header Mobile')}>
                     <Phone className="w-4 h-4" />
                     Jetzt anfragen
                   </Link>

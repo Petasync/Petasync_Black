@@ -11,6 +11,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import kontaktHero from "@/assets/kontakt-hero.png";
+import { trackContactFormSubmit, trackFormSubmission, trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 
 // API URL for contact form - uses relative path for same-domain or full URL for production
 const CONTACT_API_URL = import.meta.env.PROD
@@ -107,6 +108,10 @@ export default function Kontakt() {
         throw new Error(data.error || "Fehler beim Senden der Nachricht");
       }
 
+      // Track successful form submission
+      trackContactFormSubmit('contact');
+      trackFormSubmission('Contact Form', true);
+
       toast({
         title: "Nachricht gesendet!",
         description: "Wir haben Ihnen eine Bestätigungs-E-Mail geschickt und melden uns schnellstmöglich bei Ihnen.",
@@ -123,6 +128,10 @@ export default function Kontakt() {
       setTurnstileToken(null);
     } catch (error) {
       console.error("Contact form error:", error);
+
+      // Track form submission error
+      trackFormSubmission('Contact Form', false);
+
       toast({
         title: "Fehler",
         description: error instanceof Error ? error.message : "Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
@@ -196,9 +205,13 @@ export default function Kontakt() {
                 </div>
                 <h3 className="font-semibold text-foreground mb-1">{info.title}</h3>
                 {info.href ? (
-                  <a 
+                  <a
                     href={info.href}
                     className="text-primary hover:text-primary/80 font-medium block mb-1 transition-colors"
+                    onClick={() => {
+                      if (info.title === 'Telefon') trackPhoneClick();
+                      if (info.title === 'E-Mail') trackEmailClick();
+                    }}
                   >
                     {info.value}
                   </a>

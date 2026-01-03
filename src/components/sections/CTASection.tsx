@@ -3,6 +3,7 @@ import { ArrowRight, Phone, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { trackCTAClick } from "@/lib/analytics";
 
 export function CTASection() {
   const { ref, isRevealed } = useScrollReveal();
@@ -38,7 +39,7 @@ export function CTASection() {
               asChild
               className="h-14 px-8 text-base bg-foreground text-background hover:bg-foreground/90 rounded-full"
             >
-              <Link to="/kontakt">
+              <Link to="/kontakt" onClick={() => trackCTAClick('Jetzt Kontakt aufnehmen', 'CTA Section Primary')}>
                 <Phone className="w-4 h-4 mr-2" />
                 Jetzt Kontakt aufnehmen
               </Link>
@@ -49,7 +50,7 @@ export function CTASection() {
               asChild
               className="h-14 px-8 text-base text-muted-foreground hover:text-foreground hover:bg-transparent"
             >
-              <Link to="/privatkunden#leih-pc">
+              <Link to="/privatkunden#leih-pc" onClick={() => trackCTAClick('Leih-PC Service', 'CTA Section Secondary')}>
                 <Monitor className="w-4 h-4 mr-2" />
                 Leih-PC Service
               </Link>

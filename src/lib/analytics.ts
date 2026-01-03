@@ -6,10 +6,10 @@
  * - Microsoft Clarity
  */
 
-// Analytics IDs - Replace with your actual IDs
+// Analytics IDs
 export const ANALYTICS_CONFIG = {
-  GA4_MEASUREMENT_ID: 'G-XXXXXXXXXX', // TODO: Replace with your GA4 Measurement ID
-  CLARITY_PROJECT_ID: 'XXXXXXXXXX',   // TODO: Replace with your Clarity Project ID
+  GA4_MEASUREMENT_ID: 'G-69WXXP8WMT',
+  CLARITY_PROJECT_ID: 'uhkqz9yead',
 };
 
 // Google Analytics 4 Types
