@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Monitor, Wrench, Wifi, Building2, Globe, ArrowRight, Shield } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { trackServiceView } from "@/lib/analytics";
 
 const services = [
   {
@@ -88,6 +89,7 @@ export function Services() {
               key={service.title}
               to={service.href}
               className="group relative"
+              onClick={() => trackServiceView(service.title)}
             >
               {/* Subtle highlight glow for featured item */}
               {service.highlight && (

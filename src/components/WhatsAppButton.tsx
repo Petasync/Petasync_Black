@@ -1,9 +1,14 @@
 import { MessageCircle } from "lucide-react";
+import { trackWhatsAppClick } from "@/lib/analytics";
 
 export function WhatsAppButton() {
   const phoneNumber = "491637117198";
   const message = encodeURIComponent("Hallo Petasync, ich habe eine Frage zu Ihrem IT-Service.");
-  
+
+  const handleClick = () => {
+    trackWhatsAppClick();
+  };
+
   return (
     <a
       href={`https://wa.me/${phoneNumber}?text=${message}`}
@@ -11,6 +16,7 @@ export function WhatsAppButton() {
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 group"
       aria-label="WhatsApp kontaktieren"
+      onClick={handleClick}
     >
       <div className="relative">
         {/* Glow effect */}
