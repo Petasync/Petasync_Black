@@ -9,105 +9,118 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { initAnalytics } from "@/lib/analytics";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
-import { useEffect } from "react";
-import Index from "./pages/Index";
-import Websites from "./pages/Websites";
-import Privatkunden from "./pages/Privatkunden";
-import Geschaeftskunden from "./pages/Geschaeftskunden";
-import Kontakt from "./pages/Kontakt";
-import FAQ from "./pages/FAQ";
-import Impressum from "./pages/Impressum";
-import Datenschutz from "./pages/Datenschutz";
-import NotFound from "./pages/NotFound";
-import PCReparatur from "./pages/services/PCReparatur";
-import LeihPC from "./pages/services/LeihPC";
-import ITSicherheit from "./pages/services/ITSicherheit";
-import Netzwerk from "./pages/services/Netzwerk";
-import ITBusiness from "./pages/services/ITBusiness";
-import Webdesign from "./pages/services/Webdesign";
-import ITInfrastruktur from "./pages/services/ITInfrastruktur";
-import ITSupport from "./pages/services/ITSupport";
-import Beratung from "./pages/services/Beratung";
-import Diagnose from "./pages/services/Diagnose";
-import PCReinigung from "./pages/services/PCReinigung";
-import Datenrettung from "./pages/services/Datenrettung";
-import PCAufruestung from "./pages/services/PCAufruestung";
-import PCZusammenbau from "./pages/services/PCZusammenbau";
-import WebsiteTemplate from "./pages/websites/Template";
-import WebsiteStarter from "./pages/websites/Starter";
-import WebsiteBusiness from "./pages/websites/Business";
-import WebsiteEnterprise from "./pages/websites/Enterprise";
-import AdminLogin from "./pages/admin/Login";
-import AdminVerify2FA from "./pages/admin/Verify2FA";
-import AdminForgotPassword from "./pages/admin/ForgotPassword";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminInquiries from "./pages/admin/Inquiries";
-import AdminCustomers from "./pages/admin/Customers";
-import AdminQuotes from "./pages/admin/Quotes";
-import AdminInvoices from "./pages/admin/Invoices";
-import AdminSettings from "./pages/admin/Settings";
-import AdminAppointments from "./pages/admin/Appointments";
-import AdminWebsiteProjects from "./pages/admin/WebsiteProjects";
-import AdminSetup2FA from "./pages/admin/Setup2FA";
-import AdminMagicLinkHandler from "./pages/admin/MagicLinkHandler";
-import AdminUserManagement from "./pages/admin/UserManagement";
-import AdminServiceCatalog from "./pages/admin/ServiceCatalog";
-import AdminJobs from "./pages/admin/Jobs";
+import { useEffect, lazy, Suspense } from "react";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-import TemplatesShowcase from "./pages/TemplatesShowcase";
-import HandwerkerTemplate from "./pages/templates/HandwerkerExtended";
-import VersicherungTemplate from "./pages/templates/VersicherungExtended";
-import RestaurantTemplate from "./pages/templates/RestaurantExtended";
-import RestaurantSpeisekarte from "./pages/templates/restaurant/Speisekarte";
-import RestaurantVorspeisen from "./pages/templates/restaurant/Vorspeisen";
-import RestaurantHauptgerichte from "./pages/templates/restaurant/Hauptgerichte";
-import RestaurantDesserts from "./pages/templates/restaurant/Desserts";
-import RestaurantReservierung from "./pages/templates/restaurant/Reservierung";
-import RestaurantEvents from "./pages/templates/restaurant/Events";
-import FitnessTemplate from "./pages/templates/FitnessExtended";
-import FitnessKursplan from "./pages/templates/fitness/Kursplan";
-import FitnessYoga from "./pages/templates/fitness/Yoga";
-import FitnessHIIT from "./pages/templates/fitness/HIIT";
-import ImmobilienTemplate from "./pages/templates/ImmobilienExtended";
-import ImmobilienObjekte from "./pages/templates/immobilien/Objekte";
-import ImmobilienGrundriss3D from "./pages/templates/immobilien/Grundriss3D";
-import ImmobilienTeam from "./pages/templates/immobilien/Team";
-import FotografTemplate from "./pages/templates/FotografExtended";
-import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
-import FotografHochzeit from "./pages/templates/fotograf/Hochzeit";
-import FotografPortrait from "./pages/templates/fotograf/Portrait";
-import FriseurTemplate from "./pages/templates/FriseurExtended";
-import FriseurServices from "./pages/templates/friseur/Services";
-import FriseurOnlineBuchung from "./pages/templates/friseur/OnlineBuchung";
-import FriseurHaarschnitt from "./pages/templates/friseur/Haarschnitt";
-import FriseurColoration from "./pages/templates/friseur/Coloration";
-import FriseurPreise from "./pages/templates/friseur/Preise";
-import FriseurTeam from "./pages/templates/friseur/Team";
-import FriseurGalerie from "./pages/templates/friseur/Galerie";
-import AutowerkstattTemplate from "./pages/templates/AutowerkstattExtended";
-import AutowerkstattPreisrechner from "./pages/templates/autowerkstatt/Preisrechner";
-import AutowerkstattInspektion from "./pages/templates/autowerkstatt/Inspektion";
-import AutowerkstattMotor from "./pages/templates/autowerkstatt/Motor";
-import AutowerkstattBremsen from "./pages/templates/autowerkstatt/Bremsen";
-import AutowerkstattElektrik from "./pages/templates/autowerkstatt/Elektrik";
-import AutowerkstattKarosserie from "./pages/templates/autowerkstatt/Karosserie";
-import AutowerkstattTUV from "./pages/templates/autowerkstatt/TUV";
-import FitnessKursplan from "./pages/templates/fitness/Kursplan";
-import FitnessYoga from "./pages/templates/fitness/Yoga";
-import FitnessHIIT from "./pages/templates/fitness/HIIT";
-import FotografPortfolio from "./pages/templates/fotograf/Portfolio";
-import FotografHochzeit from "./pages/templates/fotograf/Hochzeit";
-import FotografPortrait from "./pages/templates/fotograf/Portrait";
-import HandwerkerProjekte from "./pages/templates/handwerker/Projekte";
-import HandwerkerElektro from "./pages/templates/handwerker/ElektroInstallationen";
-import HandwerkerSanitaer from "./pages/templates/handwerker/SanitaerHeizung";
-import HandwerkerSchreiner from "./pages/templates/handwerker/SchreinerArbeiten";
-import HandwerkerMaler from "./pages/templates/handwerker/MalerArbeiten";
-import HandwerkerRenovierungen from "./pages/templates/handwerker/Renovierungen";
-import HandwerkerWartung from "./pages/templates/handwerker/WartungService";
-import VersicherungRechner from "./pages/templates/versicherung/Rechner";
-import VersicherungProdukte from "./pages/templates/versicherung/Produkte";
-import VersicherungBeratung from "./pages/templates/versicherung/Beratung";
+
+// Eager load critical pages
+import Index from "./pages/Index";
+
+// Lazy load all other pages for better performance
+const Websites = lazy(() => import("./pages/Websites"));
+const Privatkunden = lazy(() => import("./pages/Privatkunden"));
+const Geschaeftskunden = lazy(() => import("./pages/Geschaeftskunden"));
+const Kontakt = lazy(() => import("./pages/Kontakt"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Impressum = lazy(() => import("./pages/Impressum"));
+const Datenschutz = lazy(() => import("./pages/Datenschutz"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Service pages
+const PCReparatur = lazy(() => import("./pages/services/PCReparatur"));
+const LeihPC = lazy(() => import("./pages/services/LeihPC"));
+const ITSicherheit = lazy(() => import("./pages/services/ITSicherheit"));
+const Netzwerk = lazy(() => import("./pages/services/Netzwerk"));
+const ITBusiness = lazy(() => import("./pages/services/ITBusiness"));
+const Webdesign = lazy(() => import("./pages/services/Webdesign"));
+const ITInfrastruktur = lazy(() => import("./pages/services/ITInfrastruktur"));
+const ITSupport = lazy(() => import("./pages/services/ITSupport"));
+const Beratung = lazy(() => import("./pages/services/Beratung"));
+const Diagnose = lazy(() => import("./pages/services/Diagnose"));
+const PCReinigung = lazy(() => import("./pages/services/PCReinigung"));
+const Datenrettung = lazy(() => import("./pages/services/Datenrettung"));
+const PCAufruestung = lazy(() => import("./pages/services/PCAufruestung"));
+const PCZusammenbau = lazy(() => import("./pages/services/PCZusammenbau"));
+
+// Website pages
+const WebsiteTemplate = lazy(() => import("./pages/websites/Template"));
+const WebsiteStarter = lazy(() => import("./pages/websites/Starter"));
+const WebsiteBusiness = lazy(() => import("./pages/websites/Business"));
+const WebsiteEnterprise = lazy(() => import("./pages/websites/Enterprise"));
+
+// Admin pages
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AdminVerify2FA = lazy(() => import("./pages/admin/Verify2FA"));
+const AdminForgotPassword = lazy(() => import("./pages/admin/ForgotPassword"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminInquiries = lazy(() => import("./pages/admin/Inquiries"));
+const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
+const AdminQuotes = lazy(() => import("./pages/admin/Quotes"));
+const AdminInvoices = lazy(() => import("./pages/admin/Invoices"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminAppointments = lazy(() => import("./pages/admin/Appointments"));
+const AdminWebsiteProjects = lazy(() => import("./pages/admin/WebsiteProjects"));
+const AdminSetup2FA = lazy(() => import("./pages/admin/Setup2FA"));
+const AdminMagicLinkHandler = lazy(() => import("./pages/admin/MagicLinkHandler"));
+const AdminUserManagement = lazy(() => import("./pages/admin/UserManagement"));
+const AdminServiceCatalog = lazy(() => import("./pages/admin/ServiceCatalog"));
+const AdminJobs = lazy(() => import("./pages/admin/Jobs"));
+
+// Template pages
+const TemplatesShowcase = lazy(() => import("./pages/TemplatesShowcase"));
+const HandwerkerTemplate = lazy(() => import("./pages/templates/HandwerkerExtended"));
+const VersicherungTemplate = lazy(() => import("./pages/templates/VersicherungExtended"));
+const RestaurantTemplate = lazy(() => import("./pages/templates/RestaurantExtended"));
+const RestaurantSpeisekarte = lazy(() => import("./pages/templates/restaurant/Speisekarte"));
+const RestaurantVorspeisen = lazy(() => import("./pages/templates/restaurant/Vorspeisen"));
+const RestaurantHauptgerichte = lazy(() => import("./pages/templates/restaurant/Hauptgerichte"));
+const RestaurantDesserts = lazy(() => import("./pages/templates/restaurant/Desserts"));
+const RestaurantReservierung = lazy(() => import("./pages/templates/restaurant/Reservierung"));
+const RestaurantEvents = lazy(() => import("./pages/templates/restaurant/Events"));
+const FitnessTemplate = lazy(() => import("./pages/templates/FitnessExtended"));
+const FitnessKursplan = lazy(() => import("./pages/templates/fitness/Kursplan"));
+const FitnessYoga = lazy(() => import("./pages/templates/fitness/Yoga"));
+const FitnessHIIT = lazy(() => import("./pages/templates/fitness/HIIT"));
+const ImmobilienTemplate = lazy(() => import("./pages/templates/ImmobilienExtended"));
+const ImmobilienObjekte = lazy(() => import("./pages/templates/immobilien/Objekte"));
+const ImmobilienGrundriss3D = lazy(() => import("./pages/templates/immobilien/Grundriss3D"));
+const ImmobilienTeam = lazy(() => import("./pages/templates/immobilien/Team"));
+const FotografTemplate = lazy(() => import("./pages/templates/FotografExtended"));
+const FotografPortfolio = lazy(() => import("./pages/templates/fotograf/Portfolio"));
+const FotografHochzeit = lazy(() => import("./pages/templates/fotograf/Hochzeit"));
+const FotografPortrait = lazy(() => import("./pages/templates/fotograf/Portrait"));
+const FriseurTemplate = lazy(() => import("./pages/templates/FriseurExtended"));
+const FriseurServices = lazy(() => import("./pages/templates/friseur/Services"));
+const FriseurOnlineBuchung = lazy(() => import("./pages/templates/friseur/OnlineBuchung"));
+const FriseurHaarschnitt = lazy(() => import("./pages/templates/friseur/Haarschnitt"));
+const FriseurColoration = lazy(() => import("./pages/templates/friseur/Coloration"));
+const FriseurPreise = lazy(() => import("./pages/templates/friseur/Preise"));
+const FriseurTeam = lazy(() => import("./pages/templates/friseur/Team"));
+const FriseurGalerie = lazy(() => import("./pages/templates/friseur/Galerie"));
+const AutowerkstattTemplate = lazy(() => import("./pages/templates/AutowerkstattExtended"));
+const AutowerkstattPreisrechner = lazy(() => import("./pages/templates/autowerkstatt/Preisrechner"));
+const AutowerkstattInspektion = lazy(() => import("./pages/templates/autowerkstatt/Inspektion"));
+const AutowerkstattMotor = lazy(() => import("./pages/templates/autowerkstatt/Motor"));
+const AutowerkstattBremsen = lazy(() => import("./pages/templates/autowerkstatt/Bremsen"));
+const AutowerkstattElektrik = lazy(() => import("./pages/templates/autowerkstatt/Elektrik"));
+const AutowerkstattKarosserie = lazy(() => import("./pages/templates/autowerkstatt/Karosserie"));
+const AutowerkstattTUV = lazy(() => import("./pages/templates/autowerkstatt/TUV"));
+const HandwerkerProjekte = lazy(() => import("./pages/templates/handwerker/Projekte"));
+const HandwerkerElektro = lazy(() => import("./pages/templates/handwerker/ElektroInstallationen"));
+const HandwerkerSanitaer = lazy(() => import("./pages/templates/handwerker/SanitaerHeizung"));
+const HandwerkerSchreiner = lazy(() => import("./pages/templates/handwerker/SchreinerArbeiten"));
+const HandwerkerMaler = lazy(() => import("./pages/templates/handwerker/MalerArbeiten"));
+const HandwerkerRenovierungen = lazy(() => import("./pages/templates/handwerker/Renovierungen"));
+const HandwerkerWartung = lazy(() => import("./pages/templates/handwerker/WartungService"));
+const VersicherungRechner = lazy(() => import("./pages/templates/versicherung/Rechner"));
+const VersicherungProdukte = lazy(() => import("./pages/templates/versicherung/Produkte"));
+const VersicherungBeratung = lazy(() => import("./pages/templates/versicherung/Beratung"));
+
+// Loading component for Suspense fallback
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -136,7 +149,8 @@ const App = () => {
           <BrowserRouter>
             <AnalyticsWrapper>
               <ScrollToTop />
-              <Routes>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/privatkunden" element={<Privatkunden />} />
             <Route path="/geschaeftskunden" element={<Geschaeftskunden />} />
@@ -232,6 +246,7 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
           <CookieBanner />
             </AnalyticsWrapper>
         </BrowserRouter>

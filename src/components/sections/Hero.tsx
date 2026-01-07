@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Hero3DScene } from "@/components/3d/Hero3DScene";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { trackCTAClick } from "@/lib/analytics";
+
+// Lazy load 3D scene for better initial page load
+const Hero3DScene = lazy(() => import("@/components/3d/Hero3DScene").then(mod => ({ default: mod.Hero3DScene })));
 
 export function Hero() {
   return (
