@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Hero3DScene } from "@/components/3d/Hero3DScene";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { trackCTAClick } from "@/lib/analytics";
+
+// Lazy load 3D scene for better initial page load
+const Hero3DSceneLazy = lazy(() => import("@/components/3d/Hero3DScene").then(module => ({
+  default: module.Hero3DScene
+})));
 
 export function Hero() {
   return (
@@ -20,7 +24,7 @@ export function Hero() {
           <div className="w-12 h-12 border border-white/20 border-t-white/60 rounded-full animate-spin" />
         </div>
       }>
-        <Hero3DScene />
+        <Hero3DSceneLazy />
       </Suspense>
 
       {/* Content overlay */}
