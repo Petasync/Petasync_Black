@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import LogoIconDark from "@/assets/logos/petasync-icon-dark.svg";
-import LogoIconLight from "@/assets/logos/petasync-icon-light.svg";
-import LogoHorizontalDark from "@/assets/logos/petasync-horizontal-dark.svg";
-import LogoHorizontalLight from "@/assets/logos/petasync-horizontal-light.svg";
-import LogoFullDark from "@/assets/logos/petasync-full-dark.svg";
-import LogoFullLight from "@/assets/logos/petasync-full-light.svg";
+import LogoIconDark from "@/assets/logo/petasync-icon-white.svg";
+import LogoIconLight from "@/assets/logo/petasync-icon-dark.svg";
+import LogoHorizontalDark from "@/assets/logo/petasync-horizontal-white.svg";
+import LogoHorizontalLight from "@/assets/logo/petasync-horizontal-dark.svg";
+import LogoFullDark from "@/assets/logo/petasync-stacked-white.svg";
+import LogoFullLight from "@/assets/logo/petasync-stacked-dark.svg";
 
 interface LogoProps {
   variant?: "full" | "icon" | "horizontal" | "wordmark";
