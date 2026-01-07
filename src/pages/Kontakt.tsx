@@ -24,7 +24,7 @@ const contactInfo = [
     title: "Telefon",
     value: "+49 163 711 7198",
     href: "tel:+491637117198",
-    description: "Mo-Fr: 09:00 - 19:00 Uhr"
+    description: "Mo-Fr: 08:00 - 20:00 Uhr"
   },
   {
     icon: Mail,
@@ -43,9 +43,9 @@ const contactInfo = [
   {
     icon: Clock,
     title: "Öffnungszeiten",
-    value: "Mo-Fr: 09:00 - 19:00",
+    value: "Mo-Fr: 08:00 - 20:00",
     href: null,
-    description: "Sa & So: Geschlossen"
+    description: "Sa: 10:00 - 18:00 · So: Geschlossen"
   }
 ];
 
