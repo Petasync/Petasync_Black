@@ -34,7 +34,7 @@ const Index = () => {
             { "@type": "City", "name": "Erlangen" }
           ],
           "priceRange": "€€",
-          "openingHours": "Mo-Fr 09:00-19:00"
+          "openingHours": "Mo-Fr 08:00-20:00, Sa 10:00-18:00"
         })
       }} />
 

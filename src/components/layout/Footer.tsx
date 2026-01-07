@@ -121,8 +121,9 @@ export function Footer() {
               <Clock className="w-4 h-4 mt-0.5" />
               <div>
                 <p className="font-medium text-foreground">Öffnungszeiten</p>
-                <p>Mo - Fr: 09:00 - 19:00 Uhr</p>
-                <p>Sa & So: Geschlossen</p>
+                <p>Mo - Fr: 08:00 - 20:00 Uhr</p>
+                <p>Sa: 10:00 - 18:00 Uhr</p>
+                <p>So: Geschlossen</p>
               </div>
             </div>
           </div>
