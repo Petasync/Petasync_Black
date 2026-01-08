@@ -1,31 +1,60 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import { trackCTAClick } from "@/lib/analytics";
 
-// Lazy load 3D scene for better initial page load
+// Lazy load 3D scene for better initial page load (only on desktop)
 const Hero3DSceneLazy = lazy(() => import("@/components/3d/Hero3DScene").then(module => ({
   default: module.Hero3DScene
 })));
 
 export function Hero() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    // Check if desktop on mount
+    const checkIfDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    checkIfDesktop();
+
+    // Update on resize
+    window.addEventListener('resize', checkIfDesktop);
+    return () => window.removeEventListener('resize', checkIfDesktop);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Pure black background */}
       <div className="absolute inset-0 bg-background" />
-      
-      {/* Radial light from top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-white/[0.03] rounded-full blur-[150px]" />
 
-      {/* 3D Scene */}
-      <Suspense fallback={
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 border border-white/20 border-t-white/60 rounded-full animate-spin" />
-        </div>
-      }>
-        <Hero3DSceneLazy />
-      </Suspense>
+      {/* Mobile-optimized background - beautiful gradient animation */}
+      {!isDesktop && (
+        <>
+          {/* Animated gradient orbs */}
+          <div className="absolute top-20 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-accent/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/[0.02] rounded-full blur-3xl" />
+        </>
+      )}
+
+      {/* Desktop: Radial light from top */}
+      {isDesktop && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-white/[0.03] rounded-full blur-[150px]" />
+      )}
+
+      {/* 3D Scene - Only on Desktop (>= 768px) */}
+      {isDesktop && (
+        <Suspense fallback={
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 border border-white/20 border-t-white/60 rounded-full animate-spin" />
+          </div>
+        }>
+          <Hero3DSceneLazy />
+        </Suspense>
+      )}
 
       {/* Content overlay */}
       <div className="container-tight relative z-10 pt-20">
