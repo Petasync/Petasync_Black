@@ -18,94 +18,50 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
-      manifest: {
-        name: 'Petasync - IT-Service & PC-Reparatur',
-        short_name: 'Petasync',
-        description: 'Professioneller IT-Service für Privat- und Geschäftskunden in Ansbach, Nürnberg und Umgebung',
-        theme_color: '#d97706',
-        background_color: '#050505',
-        display: 'standalone',
-        icons: [
-          {
-            src: '/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      },
+      registerType: 'prompt',  // User controls updates, prevents auto-caching broken versions
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Only cache after user interaction, prevent aggressive caching of broken builds
+        skipWaiting: false,
+        clientsClaim: false,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
+            handler: 'StaleWhileRevalidate',  // Changed from CacheFirst to prevent stale fonts
             options: {
               cacheName: 'google-fonts-cache',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // Reduced to 30 days
               }
             }
           },
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
+            handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
           }
         ]
+      },
+      devOptions: {
+        enabled: false  // Disable in development to prevent caching issues
       }
     }),
-    ViteImageOptimizer({
+    // Simplified image optimization - only optimize, don't break anything
+    mode === 'production' && ViteImageOptimizer({
       png: {
-        quality: 80,
+        quality: 85,  // Higher quality to prevent issues
       },
       jpeg: {
-        quality: 80,
+        quality: 85,
       },
       jpg: {
-        quality: 80,
-      },
-      webp: {
-        quality: 80,
-      },
-      avif: {
-        quality: 70,
+        quality: 85,
       },
       svg: {
         plugins: [
@@ -114,6 +70,7 @@ export default defineConfig(({ mode }) => ({
             params: {
               overrides: {
                 removeViewBox: false,
+                cleanupIds: false,  // Prevent breaking SVG references
               },
             },
           },
@@ -127,57 +84,32 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Target modern browsers for better optimization
-    target: 'es2020',
+    // Target modern browsers but not too aggressive
+    target: 'es2018',  // Better compatibility than es2020
     // Enable CSS code splitting
     cssCodeSplit: true,
-    // Optimize asset inlining
-    assetsInlineLimit: 4096, // 4kb
     rollupOptions: {
       output: {
         manualChunks: {
           // Separate vendor chunks for better caching
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
-          'animation-vendor': ['framer-motion', 'gsap'],
-          'chart-vendor': ['recharts'],
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-toast'],
-        },
-        // Optimize chunk naming for better caching
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: ({ name }) => {
-          if (/\.(gif|jpe?g|png|svg|webp|avif)$/.test(name ?? '')) {
-            return 'assets/images/[name]-[hash][extname]';
-          }
-          if (/\.css$/.test(name ?? '')) {
-            return 'assets/css/[name]-[hash][extname]';
-          }
-          if (/\.(woff2?|eot|ttf|otf)$/.test(name ?? '')) {
-            return 'assets/fonts/[name]-[hash][extname]';
-          }
-          return 'assets/[name]-[hash][extname]';
         },
       },
     },
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
-    // Better minification
+    // Better minification but less aggressive
     minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: mode === 'production',
         drop_debugger: mode === 'production',
-        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
-      },
-      format: {
-        comments: false,
       },
     },
     // Source maps only in dev
     sourcemap: mode === 'development',
-    // Report compressed size
-    reportCompressedSize: true,
   },
   // Optimize dependencies
   optimizeDeps: {

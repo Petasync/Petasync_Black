@@ -102,22 +102,21 @@
   </FilesMatch>
 </IfModule>
 
-# HTTP/2 Server Push for critical resources
-# Note: This requires Apache 2.4.17+ and mod_http2
+# HTTP/2 Protocol Support (if available)
 <IfModule mod_http2.c>
-  # Enable HTTP/2
   Protocols h2 h2c http/1.1
-
-  # Server Push for index.html
-  <FilesMatch "index\.html$">
-    # Push critical CSS and JS (update paths after build)
-    Header add Link "</assets/css/index.css>; rel=preload; as=style"
-    Header add Link "</assets/js/index.js>; rel=preload; as=script"
-    Header add Link "</assets/js/react-vendor.js>; rel=preload; as=script"
-  </FilesMatch>
 </IfModule>
 
 # Enable Keep-Alive for better performance
 <IfModule mod_headers.c>
   Header set Connection keep-alive
 </IfModule>
+
+# Force no-cache for HTML to prevent black screen issues
+<FilesMatch "\.html$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </IfModule>
+</FilesMatch>

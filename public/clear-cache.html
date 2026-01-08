@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cache Leeren - Petasync</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #0a0a0a;
+      color: #fff;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+    }
+    button {
+      background: #d97706;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #b45309;
+    }
+    .success {
+      color: #22c55e;
+      margin-top: 20px;
+    }
+    .info {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔧 Cache & Service Worker Leeren</h1>
+    <p>Wenn die Webseite schwarz bleibt, klicken Sie hier:</p>
+
+    <button onclick="clearEverything()">Cache Komplett Leeren</button>
+    <button onclick="window.location.href='/'">Zur Hauptseite</button>
+
+    <div id="status"></div>
+
+    <p class="info">
+      Dies entfernt alle gecachten Daten und Service Worker.<br>
+      Die Seite wird danach neu geladen.
+    </p>
+  </div>
+
+  <script>
+    async function clearEverything() {
+      const status = document.getElementById('status');
+      status.innerHTML = '<p>Cache wird geleert...</p>';
+
+      try {
+        // Unregister all service workers
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let registration of registrations) {
+            await registration.unregister();
+          }
+          status.innerHTML += '<p class="success">✓ Service Worker entfernt</p>';
+        }
+
+        // Clear all caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+          status.innerHTML += '<p class="success">✓ Cache geleert</p>';
+        }
+
+        // Clear localStorage and sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        status.innerHTML += '<p class="success">✓ LocalStorage geleert</p>';
+
+        status.innerHTML += '<p class="success"><strong>✓ Fertig! Seite wird neu geladen...</strong></p>';
+
+        // Reload after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+
+      } catch (error) {
+        status.innerHTML = '<p style="color: #ef4444">Fehler: ' + error.message + '</p>';
+        status.innerHTML += '<p class="info">Bitte versuchen Sie einen Hard Refresh: Strg+Shift+R (Windows) oder Cmd+Shift+R (Mac)</p>';
+      }
+    }
+  </script>
+</body>
+</html>
