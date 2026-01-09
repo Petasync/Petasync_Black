@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <!-- Stylized P with sync curve -->
-  <path d="M20 10 L20 90 L35 90 L35 60 L55 60 C75 60 85 50 85 35 C85 20 75 10 55 10 L20 10 Z M35 22 L52 22 C65 22 72 27 72 35 C72 43 65 48 52 48 L35 48 L35 22 Z" fill="#0a0a0a"/>
-  <!-- Inner sync curve -->
-  <path d="M42 35 Q50 28 58 35 Q66 42 58 50 Q50 42 42 35" fill="white"/>
-</svg>
