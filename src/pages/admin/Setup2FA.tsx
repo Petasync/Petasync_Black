@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Shield, ShieldCheck, Copy, RefreshCw, Key } from 'lucide-react';
+import { Shield, ShieldCheck, Copy, RefreshCw, Key, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
@@ -14,6 +14,7 @@ import QRCode from 'qrcode';
 export default function Setup2FA() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [secret, setSecret] = useState('');
   const [qrCode, setQrCode] = useState('');
@@ -21,10 +22,24 @@ export default function Setup2FA() {
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [step, setStep] = useState<'status' | 'setup' | 'verify' | 'backup'>('status');
+  const [companyName, setCompanyName] = useState('Petasync Admin');
 
   useEffect(() => {
     check2FAStatus();
+    loadCompanyName();
   }, []);
+
+  const loadCompanyName = async () => {
+    const { data } = await supabase
+      .from('admin_settings')
+      .select('value')
+      .eq('key', 'company')
+      .single();
+
+    if (data?.value && typeof data.value === 'object' && 'name' in data.value) {
+      setCompanyName((data.value as { name: string }).name + ' Admin');
+    }
+  };
 
   const check2FAStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +70,7 @@ export default function Setup2FA() {
     const newSecret = authenticator.generateSecret();
     setSecret(newSecret);
 
-    const otpauth = authenticator.keyuri(user.email || 'admin', 'ByteSync Admin', newSecret);
+    const otpauth = authenticator.keyuri(user.email || 'admin', companyName, newSecret);
     const qr = await QRCode.toDataURL(otpauth);
     setQrCode(qr);
 
@@ -74,8 +89,12 @@ export default function Setup2FA() {
       return;
     }
 
+    setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setSaving(false);
+      return;
+    }
 
     // Generate backup codes
     const newBackupCodes = Array.from({ length: 10 }, () =>
@@ -91,8 +110,11 @@ export default function Setup2FA() {
       })
       .eq('user_id', user.id);
 
+    setSaving(false);
+
     if (error) {
       toast.error('Fehler beim Aktivieren der 2FA');
+      console.error('2FA activation error:', error);
       return;
     }
 
@@ -311,11 +333,18 @@ export default function Setup2FA() {
                 maxLength={6}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('setup')} className="flex-1">
+                <Button variant="outline" onClick={() => setStep('setup')} className="flex-1" disabled={saving}>
                   Zurück
                 </Button>
-                <Button onClick={verifyAndEnable} className="flex-1">
-                  Verifizieren & Aktivieren
+                <Button onClick={verifyAndEnable} className="flex-1" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Aktiviere...
+                    </>
+                  ) : (
+                    'Verifizieren & Aktivieren'
+                  )}
                 </Button>
               </div>
             </CardContent>
