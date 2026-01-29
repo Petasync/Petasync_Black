@@ -457,42 +457,57 @@ export const generateEPCQRCode = (
 
 // Convert HTML to PDF Blob using jsPDF
 export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
-  // Create a temporary div to render the HTML
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = htmlContent;
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.left = '-9999px';
-  tempDiv.style.top = '0';
-  tempDiv.style.width = '210mm'; // A4 width
-  tempDiv.style.padding = '20mm';
-  tempDiv.style.background = 'white';
-  tempDiv.style.zIndex = '-9999';
-  tempDiv.style.pointerEvents = 'none';
-  tempDiv.setAttribute('data-pdf-temp', 'true');
+  // Create a temporary iframe to isolate the rendering
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.left = '-10000px';
+  iframe.style.top = '0';
+  iframe.style.width = '210mm';
+  iframe.style.height = '297mm';
+  iframe.style.border = 'none';
+  iframe.style.visibility = 'hidden';
+  iframe.setAttribute('data-pdf-temp', 'true');
 
-  document.body.appendChild(tempDiv);
+  document.body.appendChild(iframe);
 
   try {
+    // Write content to iframe
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) {
+      throw new Error('Could not access iframe document');
+    }
+
+    iframeDoc.open();
+    iframeDoc.write(htmlContent);
+    iframeDoc.close();
+
+    // Wait for iframe to be ready
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // Wait for images to load
-    const images = tempDiv.querySelectorAll('img');
+    const images = iframeDoc.querySelectorAll('img');
     await Promise.all(
       Array.from(images).map((img) => {
         if (img.complete) return Promise.resolve();
         return new Promise((resolve) => {
           img.onload = () => resolve(null);
           img.onerror = () => resolve(null);
+          // Timeout for images that never load
+          setTimeout(() => resolve(null), 3000);
         });
       })
     );
 
+    // Get the container element
+    const container = iframeDoc.querySelector('.container') || iframeDoc.body;
+
     // Convert to canvas
-    const canvas = await html2canvas(tempDiv, {
+    const canvas = await html2canvas(container as HTMLElement, {
       scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: tempDiv.scrollWidth,
-      windowHeight: tempDiv.scrollHeight,
+      allowTaint: true,
     });
 
     // Create PDF
@@ -528,10 +543,13 @@ export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
     console.error('Error generating PDF:', error);
     throw error;
   } finally {
-    // Clean up - ensure tempDiv is removed even if there's an error
-    if (tempDiv && tempDiv.parentNode) {
-      document.body.removeChild(tempDiv);
-    }
+    // Clean up - ensure iframe is removed even if there's an error
+    // Use setTimeout to ensure async operations complete
+    setTimeout(() => {
+      if (iframe && iframe.parentNode) {
+        document.body.removeChild(iframe);
+      }
+    }, 100);
   }
 };
 

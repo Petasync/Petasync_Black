@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ interface AdminUser {
 }
 
 export default function UserManagement() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -132,19 +134,36 @@ export default function UserManagement() {
   };
 
   const toggle2FA = async (user: AdminUser) => {
-    try {
-      const { error } = await supabase
-        .from('admin_profiles')
-        .update({ totp_enabled: !user.totp_enabled })
-        .eq('user_id', user.id);
+    // Get current user to check if it's the same user
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-      if (error) throw error;
+    if (user.totp_enabled) {
+      // Deactivating 2FA - allowed
+      try {
+        const { error } = await supabase
+          .from('admin_profiles')
+          .update({
+            totp_enabled: false,
+            totp_secret: null,
+            backup_codes: null
+          })
+          .eq('user_id', user.id);
 
-      toast.success(`2FA ${!user.totp_enabled ? 'aktiviert' : 'deaktiviert'}`);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error toggling 2FA:', error);
-      toast.error('Fehler beim Ändern der 2FA-Einstellungen');
+        if (error) throw error;
+
+        toast.success('2FA deaktiviert');
+        fetchUsers();
+      } catch (error) {
+        console.error('Error disabling 2FA:', error);
+        toast.error('Fehler beim Deaktivieren der 2FA');
+      }
+    } else {
+      // Activating 2FA - redirect to setup page (only works for current user)
+      if (currentUser?.id === user.id) {
+        navigate('/admin/2fa');
+      } else {
+        toast.error('2FA kann nur vom Benutzer selbst über die Einstellungen aktiviert werden');
+      }
     }
   };
 
