@@ -69,9 +69,9 @@ export default function AdminDashboard() {
       const { data: appointments, error: appointmentsError } = await supabase
         .from('appointments')
         .select('id', { count: 'exact', head: true })
-        .gte('date', weekStart.toISOString())
-        .lte('date', weekEnd.toISOString())
-        .eq('status', 'geplant');
+        .gte('scheduled_at', weekStart.toISOString())
+        .lte('scheduled_at', weekEnd.toISOString())
+        .eq('status', 'ausstehend');
 
       // Ignore error if appointments table doesn't exist
 
