@@ -40,6 +40,13 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
   const [services, setServices] = useState<ServiceCatalog[]>([]);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<QuoteItemForm[]>([]);
+  // Calculate default validity (2 weeks from today)
+  const getDefaultValidUntil = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 14);
+    return date.toISOString().split('T')[0];
+  };
+
   const [formData, setFormData] = useState<{
     customer_id: string;
     quote_number: string;
@@ -53,7 +60,7 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
     customer_id: '',
     quote_number: '',
     quote_date: new Date().toISOString().split('T')[0],
-    valid_until: '',
+    valid_until: getDefaultValidUntil(),
     discount_percent: 0,
     notes: '',
     terms: '',
@@ -127,7 +134,7 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
       customer_id: '',
       quote_number: '',
       quote_date: new Date().toISOString().split('T')[0],
-      valid_until: '',
+      valid_until: getDefaultValidUntil(),
       discount_percent: 0,
       notes: '',
       terms: '',
@@ -320,7 +327,7 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
     }));
 
     const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF, companyInfo);
-    downloadPDF(blob, `Angebot_${formData.quote_number}.html`);
+    downloadPDF(blob, `Angebot_${formData.quote_number}.pdf`);
     toast.success('PDF heruntergeladen');
   };
 

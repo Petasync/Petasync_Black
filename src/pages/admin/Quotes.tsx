@@ -19,11 +19,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Search, Plus, Edit, Loader2, FileText, MoreVertical, FileCheck, Briefcase } from 'lucide-react';
+import { Search, Plus, Edit, Loader2, FileText, MoreVertical, FileCheck, Briefcase, FileDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { QuoteEditor } from '@/components/admin/QuoteEditor';
 import type { Tables } from '@/integrations/supabase/types';
+import { generateQuotePDF, downloadPDF, loadCompanyInfo } from '@/lib/pdf-generator';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -216,6 +217,47 @@ export default function AdminQuotes() {
     }
   };
 
+  const handleDownloadPDF = async (quote: Quote) => {
+    try {
+      // Load quote items
+      const { data: quoteItems, error: itemsError } = await supabase
+        .from('quote_items')
+        .select('*')
+        .eq('quote_id', quote.id)
+        .order('position');
+
+      if (itemsError) throw itemsError;
+
+      // Load customer data
+      let customer = null;
+      if (quote.customer_id) {
+        const { data: customerData } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', quote.customer_id)
+          .single();
+        customer = customerData;
+      }
+
+      // Load company info
+      const companyInfo = await loadCompanyInfo();
+
+      // Generate PDF
+      const blob = await generateQuotePDF(
+        quote as Tables<'quotes'>,
+        customer,
+        quoteItems || [],
+        companyInfo
+      );
+
+      downloadPDF(blob, `Angebot_${quote.quote_number}.pdf`);
+      toast.success('PDF heruntergeladen');
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      toast.error('Fehler beim Erstellen des PDFs');
+    }
+  };
+
   const convertToJob = async (quote: Quote) => {
     if (!confirm(`Auftrag aus Angebot ${quote.quote_number} erstellen?`)) return;
 
@@ -365,6 +407,10 @@ export default function AdminQuotes() {
                           <DropdownMenuItem onClick={() => openEditor(quote)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Bearbeiten
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDownloadPDF(quote)}>
+                            <FileDown className="h-4 w-4 mr-2" />
+                            PDF herunterladen
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => convertToInvoice(quote)}>
                             <FileCheck className="h-4 w-4 mr-2" />
