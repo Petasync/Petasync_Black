@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { serviceCatalog as serviceCatalogApi, type Service } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,15 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Package, Loader2 } from 'lucide-react';
-import type { Tables } from '@/integrations/supabase/types';
-
-type ServiceCatalog = Tables<'service_catalog'>;
 
 export default function AdminServiceCatalog() {
-  const [services, setServices] = useState<ServiceCatalog[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingService, setEditingService] = useState<ServiceCatalog | null>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -36,20 +33,24 @@ export default function AdminServiceCatalog() {
 
   const fetchServices = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('service_catalog')
-      .select('*')
-      .order('sort_order', { ascending: true });
+    const response = await serviceCatalogApi.list({ sort: 'sort_order', order: 'asc' });
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Laden fehlgeschlagen', variant: 'destructive' });
     } else {
-      setServices(data || []);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setServices(data);
+      } else if (data && 'items' in data) {
+        setServices(data.items);
+      } else {
+        setServices([]);
+      }
     }
     setLoading(false);
   };
 
-  const handleEdit = (service: ServiceCatalog) => {
+  const handleEdit = (service: Service) => {
     setEditingService(service);
     setFormData({
       name: service.name,
@@ -95,13 +96,10 @@ export default function AdminServiceCatalog() {
 
     if (editingService) {
       // Update
-      const { error } = await supabase
-        .from('service_catalog')
-        .update(serviceData)
-        .eq('id', editingService.id);
+      const response = await serviceCatalogApi.update(editingService.id, serviceData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error || 'Aktualisieren fehlgeschlagen', variant: 'destructive' });
       } else {
         toast({ title: 'Erfolg', description: 'Dienstleistung aktualisiert' });
         setEditDialogOpen(false);
@@ -109,12 +107,10 @@ export default function AdminServiceCatalog() {
       }
     } else {
       // Create
-      const { error } = await supabase
-        .from('service_catalog')
-        .insert([serviceData]);
+      const response = await serviceCatalogApi.create(serviceData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error || 'Erstellen fehlgeschlagen', variant: 'destructive' });
       } else {
         toast({ title: 'Erfolg', description: 'Dienstleistung erstellt' });
         setEditDialogOpen(false);
@@ -123,16 +119,13 @@ export default function AdminServiceCatalog() {
     }
   };
 
-  const handleDelete = async (service: ServiceCatalog) => {
+  const handleDelete = async (service: Service) => {
     if (!confirm(`Möchten Sie "${service.name}" wirklich löschen?`)) return;
 
-    const { error } = await supabase
-      .from('service_catalog')
-      .delete()
-      .eq('id', service.id);
+    const response = await serviceCatalogApi.delete(service.id);
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Löschen fehlgeschlagen', variant: 'destructive' });
     } else {
       toast({ title: 'Erfolg', description: 'Dienstleistung gelöscht' });
       fetchServices();

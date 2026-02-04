@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { customers, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -35,25 +35,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 type CustomerType = 'privat' | 'business' | 'website';
 
-interface Customer {
-  id: string;
-  customer_number: string | null;
-  company_name: string | null;
-  first_name: string | null;
-  last_name: string;
-  email: string | null;
-  phone: string | null;
-  street: string | null;
-  zip: string | null;
-  city: string | null;
-  customer_type: CustomerType;
-  tags: string[];
-  notes: string | null;
-  total_revenue: number;
-  inquiry_count: number;
-  created_at: string;
-}
-
 const emptyCustomer: Partial<Customer> = {
   first_name: '',
   last_name: '',
@@ -69,7 +50,7 @@ const emptyCustomer: Partial<Customer> = {
 };
 
 export default function AdminCustomers() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerList, setCustomerList] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -88,15 +69,14 @@ export default function AdminCustomers() {
 
   const fetchCustomers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('customers')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const response = await customers.list();
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error, variant: 'destructive' });
     } else {
-      setCustomers(data || []);
+      // Handle paginated or direct array response
+      const data = Array.isArray(response.data) ? response.data : (response.data as any)?.items || [];
+      setCustomerList(data);
     }
     setLoading(false);
   };
@@ -116,29 +96,15 @@ export default function AdminCustomers() {
     setViewDialogOpen(true);
     setLoadingDetails(true);
 
-    // Fetch related quotes
-    const { data: quotes } = await supabase
-      .from('quotes')
-      .select('*')
-      .eq('customer_id', customer.id)
-      .order('created_at', { ascending: false });
-    setCustomerQuotes(quotes || []);
+    // Fetch customer details including related data
+    const response = await customers.get(customer.id);
 
-    // Fetch related invoices
-    const { data: invoices } = await supabase
-      .from('invoices')
-      .select('*')
-      .eq('customer_id', customer.id)
-      .order('created_at', { ascending: false });
-    setCustomerInvoices(invoices || []);
-
-    // Fetch related jobs
-    const { data: jobs } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('customer_id', customer.id)
-      .order('created_at', { ascending: false });
-    setCustomerJobs(jobs || []);
+    if (response.success && response.data) {
+      const data = response.data as any;
+      setCustomerQuotes(data.quotes || []);
+      setCustomerInvoices(data.invoices || []);
+      setCustomerJobs(data.jobs || []);
+    }
 
     setLoadingDetails(false);
   };
@@ -150,27 +116,26 @@ export default function AdminCustomers() {
     }
 
     setSaving(true);
-    
+
+    const customerData = {
+      first_name: editingCustomer.first_name || null,
+      last_name: editingCustomer.last_name,
+      company_name: editingCustomer.company_name || null,
+      email: editingCustomer.email || null,
+      phone: editingCustomer.phone || null,
+      street: editingCustomer.street || null,
+      zip: editingCustomer.zip || null,
+      city: editingCustomer.city || null,
+      customer_type: editingCustomer.customer_type || 'privat',
+      notes: editingCustomer.notes || null,
+    };
+
     if (editingCustomer.id) {
       // Update
-      const { error } = await supabase
-        .from('customers')
-        .update({
-          first_name: editingCustomer.first_name,
-          last_name: editingCustomer.last_name,
-          company_name: editingCustomer.company_name,
-          email: editingCustomer.email,
-          phone: editingCustomer.phone,
-          street: editingCustomer.street,
-          zip: editingCustomer.zip,
-          city: editingCustomer.city,
-          customer_type: editingCustomer.customer_type,
-          notes: editingCustomer.notes,
-        })
-        .eq('id', editingCustomer.id);
+      const response = await customers.update(editingCustomer.id, customerData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error, variant: 'destructive' });
       } else {
         toast({ title: 'Kunde aktualisiert' });
         fetchCustomers();
@@ -178,23 +143,10 @@ export default function AdminCustomers() {
       }
     } else {
       // Create
-      const { error } = await supabase
-        .from('customers')
-        .insert({
-          first_name: editingCustomer.first_name,
-          last_name: editingCustomer.last_name,
-          company_name: editingCustomer.company_name,
-          email: editingCustomer.email,
-          phone: editingCustomer.phone,
-          street: editingCustomer.street,
-          zip: editingCustomer.zip,
-          city: editingCustomer.city,
-          customer_type: editingCustomer.customer_type,
-          notes: editingCustomer.notes,
-        });
+      const response = await customers.create(customerData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error, variant: 'destructive' });
       } else {
         toast({ title: 'Kunde erstellt' });
         fetchCustomers();
@@ -206,20 +158,20 @@ export default function AdminCustomers() {
 
   const deleteCustomer = async (id: string) => {
     if (!confirm('Kunde wirklich löschen?')) return;
-    
-    const { error } = await supabase.from('customers').delete().eq('id', id);
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+
+    const response = await customers.delete(id);
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error, variant: 'destructive' });
     } else {
       toast({ title: 'Kunde gelöscht' });
       fetchCustomers();
     }
   };
 
-  const filteredCustomers = customers.filter((c) => {
+  const filteredCustomers = customerList.filter((c) => {
     const searchLower = search.toLowerCase();
     return (
-      c.last_name.toLowerCase().includes(searchLower) ||
+      c.last_name?.toLowerCase().includes(searchLower) ||
       c.first_name?.toLowerCase().includes(searchLower) ||
       c.company_name?.toLowerCase().includes(searchLower) ||
       c.email?.toLowerCase().includes(searchLower)
@@ -307,13 +259,13 @@ export default function AdminCustomers() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {customer.customer_type === 'privat' ? 'Privat' : 
+                        {customer.customer_type === 'privat' ? 'Privat' :
                          customer.customer_type === 'business' ? 'Business' : 'Website'}
                       </Badge>
                     </TableCell>
                     <TableCell>{customer.inquiry_count}</TableCell>
                     <TableCell>
-                      {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(customer.total_revenue)}
+                      {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(customer.total_revenue || 0)}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => openView(customer)} title="Ansehen">
@@ -522,7 +474,7 @@ export default function AdminCustomers() {
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Gesamtumsatz</p>
                           <p className="text-lg font-semibold">
-                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(viewingCustomer.total_revenue)}
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(viewingCustomer.total_revenue || 0)}
                           </p>
                         </div>
                         <div>
@@ -557,12 +509,12 @@ export default function AdminCustomers() {
                             <Badge>{quote.status}</Badge>
                           </div>
                           <CardDescription>
-                            Datum: {new Date(quote.quote_date).toLocaleDateString('de-DE')}
+                            Datum: {new Date(quote.quote_date || quote.created_at).toLocaleDateString('de-DE')}
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
                           <p className="text-lg font-semibold">
-                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total || 0)}
                           </p>
                         </CardContent>
                       </Card>
@@ -593,12 +545,12 @@ export default function AdminCustomers() {
                             <Badge>{invoice.status}</Badge>
                           </div>
                           <CardDescription>
-                            Datum: {new Date(invoice.invoice_date).toLocaleDateString('de-DE')}
+                            Datum: {new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('de-DE')}
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
                           <p className="text-lg font-semibold">
-                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.total)}
+                            {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(invoice.total || 0)}
                           </p>
                         </CardContent>
                       </Card>
@@ -634,9 +586,8 @@ export default function AdminCustomers() {
                         </CardHeader>
                         <CardContent>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>Priorität: {job.priority}</span>
-                            {job.start_date && (
-                              <span>Start: {new Date(job.start_date).toLocaleDateString('de-DE')}</span>
+                            {job.scheduled_date && (
+                              <span>Termin: {new Date(job.scheduled_date).toLocaleDateString('de-DE')}</span>
                             )}
                           </div>
                         </CardContent>

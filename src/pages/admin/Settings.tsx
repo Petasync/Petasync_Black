@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { settings as settingsApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -104,20 +104,17 @@ export default function AdminSettings() {
 
   const fetchSettings = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('admin_settings')
-      .select('key, value');
+    const response = await settingsApi.getAll();
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
-    } else if (data) {
-      data.forEach((setting) => {
-        if (setting.key === 'company') setCompany(setting.value as unknown as CompanySettings);
-        if (setting.key === 'number_sequences') setNumbers(setting.value as unknown as NumberSettings);
-        if (setting.key === 'notifications') setNotifications(setting.value as unknown as NotificationSettings);
-        if (setting.key === 'branding') setBranding(setting.value as unknown as BrandingSettings);
-        if (setting.key === 'payment_methods') setPaymentMethods(setting.value as unknown as PaymentMethodsSettings);
-      });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Einstellungen konnten nicht geladen werden', variant: 'destructive' });
+    } else if (response.data) {
+      const data = response.data as Record<string, unknown>;
+      if (data.company) setCompany(data.company as CompanySettings);
+      if (data.number_sequences) setNumbers(data.number_sequences as NumberSettings);
+      if (data.notifications) setNotifications(data.notifications as NotificationSettings);
+      if (data.branding) setBranding(data.branding as BrandingSettings);
+      if (data.payment_methods) setPaymentMethods(data.payment_methods as PaymentMethodsSettings);
     }
     setLoading(false);
   };
@@ -125,82 +122,22 @@ export default function AdminSettings() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const saveSettings = async (key: string, value: any) => {
     setSaving(true);
-    const { data: existingSettings } = await supabase
-      .from('admin_settings')
-      .select('id')
-      .eq('key', key)
-      .maybeSingle();
+    const response = await settingsApi.update(key, value);
 
-    let error;
-    if (existingSettings) {
-      const { error: updateError } = await supabase
-        .from('admin_settings')
-        .update({ value, updated_at: new Date().toISOString() })
-        .eq('key', key);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase
-        .from('admin_settings')
-        .insert({ key, value, updated_at: new Date().toISOString() });
-      error = insertError;
-    }
-
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Speichern fehlgeschlagen', variant: 'destructive' });
     } else {
       toast({ title: 'Einstellungen gespeichert' });
     }
     setSaving(false);
   };
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'icon') => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    const validTypes = ['image/png', 'image/svg+xml', 'image/jpeg'];
-    if (!validTypes.includes(file.type)) {
-      toast({ title: 'Fehler', description: 'Nur PNG, SVG oder JPG Dateien erlaubt', variant: 'destructive' });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'Fehler', description: 'Datei zu groß (max 5MB)', variant: 'destructive' });
-      return;
-    }
-
-    setUploadingLogo(true);
-    try {
-      const fileName = `${type}-${Date.now()}.${file.name.split('.').pop()}`;
-      const filePath = `logos/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('branding')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('branding')
-        .getPublicUrl(filePath);
-
-      if (type === 'logo') {
-        setBranding({ ...branding, logo_url: publicUrl });
-      } else {
-        setBranding({ ...branding, logo_icon_url: publicUrl });
-      }
-
-      toast({ title: 'Logo hochgeladen' });
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({ title: 'Fehler', description: 'Upload fehlgeschlagen', variant: 'destructive' });
-    } finally {
-      setUploadingLogo(false);
-    }
+  const handleLogoUpload = async (_event: React.ChangeEvent<HTMLInputElement>, _type: 'logo' | 'icon') => {
+    // TODO: Implement file upload API endpoint in PHP backend
+    toast({
+      title: 'Info',
+      description: 'Datei-Upload wird noch implementiert. Bitte URL manuell eingeben.'
+    });
   };
 
   const removeLogo = (type: 'logo' | 'icon') => {

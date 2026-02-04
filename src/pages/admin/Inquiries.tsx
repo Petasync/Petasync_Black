@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { inquiries as inquiriesApi, type Inquiry } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -32,23 +32,9 @@ import { Search, Filter, Plus, Eye, Loader2, Mail, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-type InquiryStatus = 'neu' | 'in_bearbeitung' | 'angebot_erstellt' | 'beantwortet' | 'erledigt' | 'archiviert';
-type InquiryPriority = 'normal' | 'hoch' | 'dringend';
-type InquiryType = 'privat' | 'business' | 'website';
-
-interface Inquiry {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  inquiry_type: InquiryType;
-  subject: string | null;
-  message: string;
-  status: InquiryStatus;
-  priority: InquiryPriority;
-  internal_notes: string | null;
-  created_at: string;
-}
+type InquiryStatus = Inquiry['status'];
+type InquiryPriority = Inquiry['priority'];
+type InquiryType = Inquiry['inquiry_type'];
 
 const statusLabels: Record<InquiryStatus, string> = {
   neu: 'Neu',
@@ -102,28 +88,29 @@ export default function AdminInquiries() {
 
   const fetchInquiries = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('inquiries')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const response = await inquiriesApi.list({ sort: 'created_at', order: 'desc' });
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Anfragen konnten nicht geladen werden', variant: 'destructive' });
     } else {
-      setInquiries(data || []);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setInquiries(data);
+      } else if (data && 'items' in data) {
+        setInquiries(data.items);
+      } else {
+        setInquiries([]);
+      }
     }
     setLoading(false);
   };
 
   const updateInquiry = async (id: string, updates: Partial<Inquiry>) => {
     setSaving(true);
-    const { error } = await supabase
-      .from('inquiries')
-      .update(updates)
-      .eq('id', id);
+    const response = await inquiriesApi.update(id, updates);
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Speichern fehlgeschlagen', variant: 'destructive' });
     } else {
       toast({ title: 'Gespeichert' });
       fetchInquiries();

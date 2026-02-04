@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { jobs as jobsApi, customers as customersApi, type Job, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,41 +12,23 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Loader2, Briefcase, Calendar } from 'lucide-react';
 
-interface Customer {
-  id: string;
-  first_name: string | null;
-  last_name: string;
-  company_name: string | null;
-}
-
-interface Job {
-  id: string;
-  customer_id: string | null;
-  title: string;
-  description: string | null;
-  status: 'offen' | 'in_arbeit' | 'abgeschlossen' | 'storniert';
-  priority: 'niedrig' | 'normal' | 'hoch' | 'dringend';
-  notes: string | null;
-  start_date: string | null;
-  due_date: string | null;
-  completed_date: string | null;
-  created_at: string;
-  updated_at: string;
+// Extended Job type with customer relation
+type JobWithCustomer = Job & {
   customer?: Customer;
-}
+};
 
 export default function AdminJobs() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<JobWithCustomer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [editingJob, setEditingJob] = useState<JobWithCustomer | null>(null);
   const [formData, setFormData] = useState({
     customer_id: '',
     title: '',
     description: '',
-    status: 'offen' as Job['status'],
-    priority: 'normal' as Job['priority'],
+    status: 'offen' as string,
+    priority: 'normal' as string,
     notes: '',
     start_date: '',
     due_date: '',
@@ -59,29 +41,33 @@ export default function AdminJobs() {
 
   const fetchJobs = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('jobs')
-      .select(`
-        *,
-        customer:customers(id, first_name, last_name, company_name)
-      `)
-      .order('created_at', { ascending: false });
+    const response = await jobsApi.list({ sort: 'created_at', order: 'desc' });
 
-    if (error) {
-      console.error('Error fetching jobs:', error);
-      toast({ title: 'Hinweis', description: 'Jobs-Tabelle existiert noch nicht. Bitte SQL ausführen.', variant: 'destructive' });
+    if (!response.success) {
+      console.error('Error fetching jobs:', response.error);
+      toast({ title: 'Hinweis', description: response.error || 'Jobs konnten nicht geladen werden', variant: 'destructive' });
     } else {
-      setJobs(data || []);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setJobs(data as JobWithCustomer[]);
+      } else if (data && 'items' in data) {
+        setJobs(data.items as JobWithCustomer[]);
+      } else {
+        setJobs([]);
+      }
     }
     setLoading(false);
   };
 
   const fetchCustomers = async () => {
-    const { data } = await supabase
-      .from('customers')
-      .select('id, first_name, last_name, company_name')
-      .order('last_name');
-    setCustomers(data || []);
+    const response = await customersApi.list({ sort: 'last_name', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setCustomers(response.data);
+      } else if ('items' in response.data) {
+        setCustomers(response.data.items);
+      }
+    }
   };
 
   const handleCreate = () => {
@@ -99,17 +85,17 @@ export default function AdminJobs() {
     setEditDialogOpen(true);
   };
 
-  const handleEdit = (job: Job) => {
+  const handleEdit = (job: JobWithCustomer) => {
     setEditingJob(job);
     setFormData({
       customer_id: job.customer_id || '',
       title: job.title,
       description: job.description || '',
-      status: job.status,
-      priority: job.priority,
+      status: job.status || 'offen',
+      priority: 'normal',
       notes: job.notes || '',
-      start_date: job.start_date || '',
-      due_date: job.due_date || '',
+      start_date: job.scheduled_date || '',
+      due_date: '',
     });
     setEditDialogOpen(true);
   };
@@ -125,33 +111,26 @@ export default function AdminJobs() {
       title: formData.title.trim(),
       description: formData.description.trim() || null,
       status: formData.status,
-      priority: formData.priority,
       notes: formData.notes.trim() || null,
-      start_date: formData.start_date || null,
-      due_date: formData.due_date || null,
+      scheduled_date: formData.start_date || null,
       completed_date: formData.status === 'abgeschlossen' ? new Date().toISOString() : null,
     };
 
     if (editingJob) {
-      const { error } = await supabase
-        .from('jobs')
-        .update(jobData)
-        .eq('id', editingJob.id);
+      const response = await jobsApi.update(editingJob.id, jobData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error || 'Speichern fehlgeschlagen', variant: 'destructive' });
       } else {
         toast({ title: 'Erfolg', description: 'Auftrag aktualisiert' });
         setEditDialogOpen(false);
         fetchJobs();
       }
     } else {
-      const { error } = await supabase
-        .from('jobs')
-        .insert([jobData]);
+      const response = await jobsApi.create(jobData);
 
-      if (error) {
-        toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+      if (!response.success) {
+        toast({ title: 'Fehler', description: response.error || 'Erstellen fehlgeschlagen', variant: 'destructive' });
       } else {
         toast({ title: 'Erfolg', description: 'Auftrag erstellt' });
         setEditDialogOpen(false);
@@ -160,38 +139,25 @@ export default function AdminJobs() {
     }
   };
 
-  const handleDelete = async (job: Job) => {
+  const handleDelete = async (job: JobWithCustomer) => {
     if (!confirm(`Auftrag "${job.title}" wirklich löschen?`)) return;
 
-    const { error } = await supabase
-      .from('jobs')
-      .delete()
-      .eq('id', job.id);
+    const response = await jobsApi.delete(job.id);
 
-    if (error) {
-      toast({ title: 'Fehler', description: error.message, variant: 'destructive' });
+    if (!response.success) {
+      toast({ title: 'Fehler', description: response.error || 'Löschen fehlgeschlagen', variant: 'destructive' });
     } else {
       toast({ title: 'Erfolg', description: 'Auftrag gelöscht' });
       fetchJobs();
     }
   };
 
-  const getStatusBadgeVariant = (status: Job['status']) => {
+  const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'abgeschlossen': return 'default';
       case 'in_arbeit': return 'secondary';
       case 'offen': return 'outline';
       case 'storniert': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
-  const getPriorityBadgeVariant = (priority: Job['priority']) => {
-    switch (priority) {
-      case 'dringend': return 'destructive';
-      case 'hoch': return 'secondary';
-      case 'normal': return 'outline';
-      case 'niedrig': return 'outline';
       default: return 'outline';
     }
   };
@@ -248,9 +214,6 @@ export default function AdminJobs() {
                         <Badge variant={getStatusBadgeVariant(job.status)}>
                           {job.status}
                         </Badge>
-                        <Badge variant={getPriorityBadgeVariant(job.priority)}>
-                          {job.priority}
-                        </Badge>
                       </CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         Kunde: {getCustomerName(job.customer)}
@@ -266,22 +229,22 @@ export default function AdminJobs() {
                     </div>
                   </div>
                 </CardHeader>
-                {(job.description || job.start_date || job.due_date) && (
+                {(job.description || job.scheduled_date || job.completed_date) && (
                   <CardContent>
                     {job.description && (
                       <p className="text-sm mb-2">{job.description}</p>
                     )}
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      {job.start_date && (
+                      {job.scheduled_date && (
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          Start: {new Date(job.start_date).toLocaleDateString('de-DE')}
+                          Geplant: {new Date(job.scheduled_date).toLocaleDateString('de-DE')}
                         </div>
                       )}
-                      {job.due_date && (
+                      {job.completed_date && (
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          Fällig: {new Date(job.due_date).toLocaleDateString('de-DE')}
+                          Abgeschlossen: {new Date(job.completed_date).toLocaleDateString('de-DE')}
                         </div>
                       )}
                     </div>
@@ -347,7 +310,7 @@ export default function AdminJobs() {
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value: Job['status']) => setFormData({ ...formData, status: value })}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -362,42 +325,12 @@ export default function AdminJobs() {
                 </div>
 
                 <div>
-                  <Label htmlFor="priority">Priorität</Label>
-                  <Select
-                    value={formData.priority}
-                    onValueChange={(value: Job['priority']) => setFormData({ ...formData, priority: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="niedrig">Niedrig</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="hoch">Hoch</SelectItem>
-                      <SelectItem value="dringend">Dringend</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="start_date">Startdatum</Label>
+                  <Label htmlFor="start_date">Geplantes Datum</Label>
                   <Input
                     id="start_date"
                     type="date"
                     value={formData.start_date}
                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="due_date">Fälligkeitsdatum</Label>
-                  <Input
-                    id="due_date"
-                    type="date"
-                    value={formData.due_date}
-                    onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
                   />
                 </div>
               </div>

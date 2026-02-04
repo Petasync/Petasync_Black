@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { invoices as invoicesApi, customers as customersApi, type Invoice as ApiInvoice, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -24,25 +24,17 @@ import { format, isPast, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { InvoiceEditor } from '@/components/admin/InvoiceEditor';
 import { generateInvoicePDF, downloadPDF, loadCompanyInfo } from '@/lib/pdf-generator';
-import type { Tables } from '@/integrations/supabase/types';
 
-type InvoiceStatus = 'entwurf' | 'versendet' | 'bezahlt' | 'ueberfaellig' | 'storniert';
+type InvoiceStatus = ApiInvoice['status'];
 
-interface Invoice {
-  id: string;
-  invoice_number: string;
-  customer_id: string | null;
-  status: InvoiceStatus;
-  invoice_date: string;
-  due_date: string | null;
-  total: number;
-  created_at: string;
+// Extended Invoice type with customer relation
+type Invoice = ApiInvoice & {
   customers?: {
     first_name: string | null;
     last_name: string;
     company_name: string | null;
   } | null;
-}
+};
 
 const statusLabels: Record<InvoiceStatus, string> = {
   entwurf: 'Entwurf',
@@ -66,7 +58,7 @@ export default function AdminInvoices() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState<Tables<'invoices'> | null>(null);
+  const [editingInvoice, setEditingInvoice] = useState<ApiInvoice | null>(null);
 
   useEffect(() => {
     fetchInvoices();
@@ -74,23 +66,20 @@ export default function AdminInvoices() {
 
   const fetchInvoices = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('invoices')
-      .select(`
-        *,
-        customers (
-          first_name,
-          last_name,
-          company_name
-        )
-      `)
-      .order('created_at', { ascending: false });
+    const response = await invoicesApi.list({ sort: 'created_at', order: 'desc' });
 
-    if (error) {
-      toast.error(error.message);
+    if (!response.success) {
+      toast.error(response.error || 'Rechnungen konnten nicht geladen werden');
     } else {
+      let data: Invoice[] = [];
+      if (Array.isArray(response.data)) {
+        data = response.data as Invoice[];
+      } else if (response.data && 'items' in response.data) {
+        data = response.data.items as Invoice[];
+      }
+
       // Check for overdue invoices
-      const updated = (data || []).map((inv) => {
+      const updated = data.map((inv) => {
         if (inv.status === 'versendet' && inv.due_date && isPast(parseISO(inv.due_date))) {
           return { ...inv, status: 'ueberfaellig' as InvoiceStatus };
         }
@@ -102,18 +91,15 @@ export default function AdminInvoices() {
   };
 
   const updateStatus = async (id: string, status: InvoiceStatus) => {
-    const updates: Record<string, unknown> = { status };
+    const updates: Partial<ApiInvoice> = { status };
     if (status === 'bezahlt') {
       updates.paid_at = new Date().toISOString();
     }
 
-    const { error } = await supabase
-      .from('invoices')
-      .update(updates)
-      .eq('id', id);
+    const response = await invoicesApi.update(id, updates);
 
-    if (error) {
-      toast.error(error.message);
+    if (!response.success) {
+      toast.error(response.error || 'Fehler beim Aktualisieren');
     } else {
       toast.success('Status aktualisiert');
       fetchInvoices();
@@ -121,7 +107,7 @@ export default function AdminInvoices() {
   };
 
   const openEditor = (invoice?: Invoice) => {
-    setEditingInvoice(invoice ? invoice as Tables<'invoices'> : null);
+    setEditingInvoice(invoice ? invoice as ApiInvoice : null);
     setEditorOpen(true);
   };
 
@@ -145,35 +131,23 @@ export default function AdminInvoices() {
       toast.info('PDF wird generiert...');
 
       // Fetch full invoice data with items
-      const { data: fullInvoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('id', invoice.id)
-        .single();
+      const invoiceResponse = await invoicesApi.get(invoice.id);
+      if (!invoiceResponse.success) throw new Error('Rechnung konnte nicht geladen werden');
+      const fullInvoice = invoiceResponse.data as ApiInvoice;
 
-      if (invoiceError) throw invoiceError;
-
-      const { data: items, error: itemsError } = await supabase
-        .from('invoice_items')
-        .select('*')
-        .eq('invoice_id', invoice.id)
-        .order('position');
-
-      if (itemsError) throw itemsError;
-
-      const { data: customer, error: customerError } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('id', invoice.customer_id!)
-        .single();
-
-      if (customerError && invoice.customer_id) throw customerError;
+      let customer = null;
+      if (invoice.customer_id) {
+        const customerResponse = await customersApi.get(invoice.customer_id);
+        if (customerResponse.success) {
+          customer = customerResponse.data;
+        }
+      }
 
       // Load company info
       const companyInfo = await loadCompanyInfo();
 
       // Generate PDF
-      const blob = await generateInvoicePDF(fullInvoice, customer, items || [], companyInfo);
+      const blob = await generateInvoicePDF(fullInvoice as any, customer as any, fullInvoice.items || [], companyInfo);
       downloadPDF(blob, `Rechnung_${invoice.invoice_number}.pdf`);
       toast.success('PDF heruntergeladen');
     } catch (error: any) {
