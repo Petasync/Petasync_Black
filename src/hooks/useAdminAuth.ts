@@ -1,280 +1,156 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { auth, getAccessToken, clearTokens } from '@/lib/api-client';
 import { useAdminStore } from '@/lib/admin-store';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import type { User, Session } from '@supabase/supabase-js';
 
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+interface User {
+  id: string;
+  email: string;
+  display_name: string | null;
+  role: string;
+  totp_enabled?: boolean;
+}
 
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [requires2FA, setRequires2FA] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
-  
+  const [tempToken, setTempToken] = useState<string | null>(null);
+
   const adminStore = useAdminStore();
   const navigate = useNavigate();
-
-  // Check if user has admin role
-  const checkAdminRole = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-    
-    return !error && data !== null;
-  }, []);
-
-  // Check if user has 2FA enabled
-  const check2FAStatus = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('admin_profiles')
-      .select('totp_enabled')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    return data?.totp_enabled ?? false;
-  }, []);
-
-  // Check account lockout
-  const checkLockout = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('admin_profiles')
-      .select('failed_login_attempts, locked_until')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    if (!data) return { locked: false, remainingAttempts: MAX_LOGIN_ATTEMPTS };
-    
-    if (data.locked_until && new Date(data.locked_until) > new Date()) {
-      return { locked: true, remainingAttempts: 0 };
-    }
-    
-    return { 
-      locked: false, 
-      remainingAttempts: MAX_LOGIN_ATTEMPTS - (data.failed_login_attempts || 0) 
-    };
-  }, []);
-
-  // Record failed login attempt
-  const recordFailedAttempt = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('admin_profiles')
-      .select('failed_login_attempts')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    const attempts = (data?.failed_login_attempts || 0) + 1;
-    const updates: Record<string, unknown> = { failed_login_attempts: attempts };
-    
-    if (attempts >= MAX_LOGIN_ATTEMPTS) {
-      updates.locked_until = new Date(Date.now() + LOCKOUT_DURATION).toISOString();
-    }
-    
-    await supabase
-      .from('admin_profiles')
-      .update(updates)
-      .eq('user_id', userId);
-    
-    return MAX_LOGIN_ATTEMPTS - attempts;
-  }, []);
-
-  // Reset failed attempts on successful login
-  const resetFailedAttempts = useCallback(async (userId: string) => {
-    await supabase
-      .from('admin_profiles')
-      .update({ 
-        failed_login_attempts: 0, 
-        locked_until: null,
-        last_login: new Date().toISOString()
-      })
-      .eq('user_id', userId);
-  }, []);
 
   // Login function
   const login = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      setLoading(true);
+      const response = await auth.login(email, password);
 
-      if (error) {
+      if (!response.success) {
         toast({
           title: "Login fehlgeschlagen",
-          description: error.message,
+          description: response.error || "Ungültige Anmeldedaten",
           variant: "destructive",
         });
-        return { success: false, error: error.message };
+        setLoading(false);
+        return { success: false, error: response.error };
       }
 
-      if (!data.user) {
-        return { success: false, error: "Benutzer nicht gefunden" };
-      }
+      const data = response.data;
 
-      // Check if user is admin
-      const hasAdminRole = await checkAdminRole(data.user.id);
-      if (!hasAdminRole) {
-        await supabase.auth.signOut();
-        toast({
-          title: "Zugriff verweigert",
-          description: "Sie haben keine Admin-Berechtigung.",
-          variant: "destructive",
-        });
-        return { success: false, error: "Keine Admin-Berechtigung" };
-      }
-
-      // Check lockout status
-      const lockoutStatus = await checkLockout(data.user.id);
-      if (lockoutStatus.locked) {
-        await supabase.auth.signOut();
-        toast({
-          title: "Account gesperrt",
-          description: "Zu viele fehlgeschlagene Versuche. Bitte warten Sie 15 Minuten.",
-          variant: "destructive",
-        });
-        return { success: false, error: "Account gesperrt" };
-      }
-
-      // Check 2FA status
-      const has2FA = await check2FAStatus(data.user.id);
-      setTwoFAEnabled(has2FA);
-
-      if (has2FA) {
+      // 2FA required?
+      if (data?.requires_2fa && data?.temp_token) {
+        setTempToken(data.temp_token);
         setRequires2FA(true);
-        adminStore.setSession({
-          userId: data.user.id,
-          email: data.user.email || '',
-          twoFactorVerified: false,
-          trustedDevice: rememberMe,
-          lastActivity: Date.now(),
-        });
+        setTwoFAEnabled(true);
+        setLoading(false);
         return { success: true, requires2FA: true };
       }
 
-      // No 2FA required, complete login
-      await resetFailedAttempts(data.user.id);
+      // Login successful
+      if (data?.user) {
+        setUser(data.user);
+        setIsAdmin(data.user.role === 'admin');
+        setTwoFAEnabled(data.user.totp_enabled || false);
+        setRequires2FA(false);
 
-      // Set session and admin state
-      setSession(data.session);
-      setUser(data.user);
-      setIsAdmin(true);
-      setRequires2FA(false);
-      setLoading(false); // Important: Set loading to false so AdminProtectedRoute knows we're ready
+        adminStore.setSession({
+          userId: data.user.id,
+          email: data.user.email,
+          twoFactorVerified: true,
+          trustedDevice: rememberMe,
+          lastActivity: Date.now(),
+        });
 
-      adminStore.setSession({
-        userId: data.user.id,
-        email: data.user.email || '',
-        twoFactorVerified: true,
-        trustedDevice: rememberMe,
-        lastActivity: Date.now(),
-      });
+        toast({
+          title: "Erfolgreich angemeldet",
+          description: "Willkommen im Admin-Bereich!",
+        });
 
-      toast({
-        title: "Erfolgreich angemeldet",
-        description: "Willkommen im Admin-Bereich!",
-      });
+        setLoading(false);
+        return { success: true, requires2FA: false };
+      }
 
-      return { success: true, requires2FA: false };
+      setLoading(false);
+      return { success: false, error: "Unbekannter Fehler" };
+
     } catch (err) {
       console.error('Login error:', err);
       setLoading(false);
       return { success: false, error: "Ein unerwarteter Fehler ist aufgetreten" };
     }
-  }, [adminStore, checkAdminRole, checkLockout, check2FAStatus, resetFailedAttempts]);
+  }, [adminStore]);
 
   // Verify 2FA code
   const verify2FA = useCallback(async (code: string) => {
-    const storeSession = adminStore.session;
-    if (!storeSession) return { success: false, error: "Keine Session" };
+    if (!tempToken) {
+      return { success: false, error: "Keine Session" };
+    }
 
     try {
-      // Dynamically import otplib for client-side use
-      const { authenticator } = await import('otplib');
-      
-      const { data: profile } = await supabase
-        .from('admin_profiles')
-        .select('totp_secret, backup_codes')
-        .eq('user_id', storeSession.userId)
-        .single();
+      const response = await auth.verify2FA(tempToken, code);
 
-      if (!profile?.totp_secret) {
-        return { success: false, error: "2FA nicht konfiguriert" };
+      if (!response.success) {
+        // Check if account is locked
+        if (response.error?.includes('gesperrt')) {
+          adminStore.logout();
+          setTempToken(null);
+          setRequires2FA(false);
+        }
+        return { success: false, error: response.error };
       }
 
-      // Try TOTP first
-      const isValidTOTP = authenticator.verify({ 
-        token: code, 
-        secret: profile.totp_secret 
-      });
+      const data = response.data;
 
-      if (isValidTOTP) {
-        await resetFailedAttempts(storeSession.userId);
+      if (data?.user) {
+        setUser(data.user);
+        setIsAdmin(data.user.role === 'admin');
+        setRequires2FA(false);
+        setTempToken(null);
+
         adminStore.setSession({
-          ...storeSession,
+          userId: data.user.id,
+          email: data.user.email,
           twoFactorVerified: true,
+          trustedDevice: false,
           lastActivity: Date.now(),
         });
-        setRequires2FA(false);
-        setIsAdmin(true);
-        return { success: true };
-      }
 
-      // Try backup codes
-      if (profile.backup_codes?.includes(code)) {
-        const newBackupCodes = profile.backup_codes.filter((c: string) => c !== code);
-        await supabase
-          .from('admin_profiles')
-          .update({ backup_codes: newBackupCodes })
-          .eq('user_id', storeSession.userId);
-        
-        await resetFailedAttempts(storeSession.userId);
-        adminStore.setSession({
-          ...storeSession,
-          twoFactorVerified: true,
-          lastActivity: Date.now(),
-        });
-        setRequires2FA(false);
-        setIsAdmin(true);
-        
         toast({
-          title: "Backup-Code verwendet",
-          description: `Noch ${newBackupCodes.length} Backup-Codes übrig.`,
+          title: "Erfolgreich angemeldet",
+          description: "Willkommen im Admin-Bereich!",
         });
-        
+
         return { success: true };
       }
 
-      // Invalid code
-      const remaining = await recordFailedAttempt(storeSession.userId);
-      if (remaining <= 0) {
-        await supabase.auth.signOut();
-        adminStore.logout();
-        return { success: false, error: "Account gesperrt. Bitte warten Sie 15 Minuten." };
-      }
+      return { success: false, error: "Verifizierung fehlgeschlagen" };
 
-      return { success: false, error: `Ungültiger Code. Noch ${remaining} Versuche.` };
     } catch (err) {
       console.error('2FA verification error:', err);
       return { success: false, error: "Verifizierung fehlgeschlagen" };
     }
-  }, [adminStore, recordFailedAttempt, resetFailedAttempts]);
+  }, [tempToken, adminStore]);
 
   // Logout
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      await auth.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+
     adminStore.logout();
     setUser(null);
-    setSession(null);
     setIsAdmin(false);
     setRequires2FA(false);
+    setTempToken(null);
+    clearTokens();
     navigate('/admin/login');
+
     toast({
       title: "Abgemeldet",
       description: "Sie wurden erfolgreich abgemeldet.",
@@ -283,25 +159,22 @@ export function useAdminAuth() {
 
   // Password reset
   const resetPassword = useCallback(async (email: string) => {
-    const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteUrl}/admin/magic-link`,
-    });
-    
-    if (error) {
+    const response = await auth.forgotPassword(email);
+
+    if (!response.success) {
       toast({
         title: "Fehler",
-        description: error.message,
+        description: response.error || "Fehler beim Senden",
         variant: "destructive",
       });
-      return { success: false, error: error.message };
+      return { success: false, error: response.error };
     }
-    
+
     toast({
       title: "E-Mail gesendet",
       description: "Prüfen Sie Ihr Postfach für den Passwort-Reset Link.",
     });
-    
+
     return { success: true };
   }, []);
 
@@ -310,50 +183,43 @@ export function useAdminAuth() {
     let mounted = true;
 
     const initAuth = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      // Check if we have a token
+      const token = getAccessToken();
 
-      if (!mounted) return;
-
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        const hasAdmin = await checkAdminRole(currentSession.user.id);
+      if (!token) {
         if (mounted) {
-          setIsAdmin(hasAdmin);
-          setLoading(false);
-        }
-      } else {
-        if (mounted) {
+          setUser(null);
           setIsAdmin(false);
           setLoading(false);
         }
+        return;
       }
+
+      // Verify token and get user
+      const response = await auth.getMe();
+
+      if (!mounted) return;
+
+      if (response.success && response.data) {
+        setUser(response.data);
+        setIsAdmin(response.data.role === 'admin');
+        setTwoFAEnabled(response.data.totp_enabled || false);
+      } else {
+        // Token invalid
+        clearTokens();
+        setUser(null);
+        setIsAdmin(false);
+      }
+
+      setLoading(false);
     };
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        if (!mounted) return;
-
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
-        if (currentSession?.user) {
-          const hasAdmin = await checkAdminRole(currentSession.user.id);
-          if (mounted) setIsAdmin(hasAdmin);
-        } else {
-          if (mounted) setIsAdmin(false);
-        }
-      }
-    );
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
     };
-  }, [checkAdminRole]);
+  }, []);
 
   // Check session timeout
   useEffect(() => {
@@ -390,7 +256,7 @@ export function useAdminAuth() {
 
   return {
     user,
-    session,
+    session: user ? { user } : null, // Backwards compatibility
     loading,
     isAdmin,
     requires2FA,
