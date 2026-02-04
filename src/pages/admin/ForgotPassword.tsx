@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { auth } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,14 +29,10 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      // Sende Password-Reset E-Mail via Supabase
-      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
-      const { error: supabaseError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/admin/magic-link`,
-      });
+      const response = await auth.forgotPassword(email);
 
-      if (supabaseError) {
-        setError('Fehler beim Senden der E-Mail: ' + supabaseError.message);
+      if (!response.success) {
+        setError(response.error || 'Fehler beim Senden der E-Mail');
         setIsLoading(false);
         return;
       }
@@ -54,7 +50,7 @@ export default function ForgotPassword() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        
+
         <div className="relative w-full max-w-md">
           <Card className="border-white/10 bg-card/50 backdrop-blur">
             <CardHeader className="text-center">
@@ -63,7 +59,7 @@ export default function ForgotPassword() {
               </div>
               <CardTitle className="text-2xl">E-Mail gesendet</CardTitle>
               <CardDescription>
-                Wir haben Ihnen eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts gesendet.
+                Falls ein Konto mit dieser E-Mail-Adresse existiert, haben wir Ihnen einen Link zum Zurücksetzen Ihres Passworts gesendet.
               </CardDescription>
             </CardHeader>
             <CardFooter>
@@ -81,10 +77,10 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[150px]" />
-      
+
       <div className="relative w-full max-w-md">
-        <Link 
-          to="/admin/login" 
+        <Link
+          to="/admin/login"
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -101,7 +97,7 @@ export default function ForgotPassword() {
               Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen.
             </CardDescription>
           </CardHeader>
-          
+
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">

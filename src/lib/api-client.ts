@@ -228,6 +228,40 @@ export const auth = {
     });
   },
 
+  async setup2FA() {
+    return apiFetch<{
+      secret: string;
+      qr_code: string;
+      otpauth_url: string;
+    }>('/auth/setup-2fa', {
+      method: 'POST',
+    });
+  },
+
+  async enable2FA(code: string) {
+    return apiFetch<{
+      backup_codes: string[];
+    }>('/auth/enable-2fa', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async disable2FA(code: string) {
+    return apiFetch('/auth/disable-2fa', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async regenerateBackupCodes() {
+    return apiFetch<{
+      backup_codes: string[];
+    }>('/auth/regenerate-backup-codes', {
+      method: 'POST',
+    });
+  },
+
   isAuthenticated(): boolean {
     return !!getAccessToken();
   },
