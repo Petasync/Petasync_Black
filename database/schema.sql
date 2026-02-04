@@ -499,3 +499,151 @@ BEGIN
     RETURN deleted_count;
 END;
 $$ LANGUAGE plpgsql;
+
+-- =====================================================
+-- RECURRING INVOICES (Wiederkehrende Rechnungen)
+-- =====================================================
+DO $$ BEGIN
+    CREATE TYPE recurring_interval AS ENUM ('monatlich', 'vierteljaehrlich', 'halbjaehrlich', 'jaehrlich');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE recurring_status AS ENUM ('aktiv', 'pausiert', 'beendet');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS recurring_invoices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id UUID REFERENCES customers(id) ON DELETE CASCADE NOT NULL,
+    -- Template-Daten
+    title TEXT NOT NULL,
+    description TEXT,
+    subtotal DECIMAL(12,2) DEFAULT 0,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    discount_amount DECIMAL(12,2) DEFAULT 0,
+    total DECIMAL(12,2) DEFAULT 0,
+    notes TEXT,
+    payment_terms TEXT,
+    -- Wiederholungseinstellungen
+    interval recurring_interval NOT NULL DEFAULT 'monatlich',
+    start_date DATE NOT NULL,
+    end_date DATE, -- NULL = unbegrenzt
+    next_invoice_date DATE NOT NULL,
+    last_invoice_date DATE,
+    -- Status
+    status recurring_status DEFAULT 'aktiv',
+    invoices_generated INTEGER DEFAULT 0,
+    -- Timestamps
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_recurring_invoices_customer_id ON recurring_invoices(customer_id);
+CREATE INDEX IF NOT EXISTS idx_recurring_invoices_status ON recurring_invoices(status);
+CREATE INDEX IF NOT EXISTS idx_recurring_invoices_next_date ON recurring_invoices(next_invoice_date);
+
+-- =====================================================
+-- RECURRING INVOICE ITEMS (Positionen für wiederkehrende Rechnungen)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS recurring_invoice_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recurring_invoice_id UUID REFERENCES recurring_invoices(id) ON DELETE CASCADE NOT NULL,
+    service_id UUID REFERENCES service_catalog(id) ON DELETE SET NULL,
+    position INTEGER DEFAULT 1,
+    description TEXT NOT NULL,
+    quantity DECIMAL(10,2) DEFAULT 1,
+    unit TEXT DEFAULT 'Stk.',
+    unit_price DECIMAL(10,2) NOT NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    total DECIMAL(12,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_recurring_invoice_items_recurring_id ON recurring_invoice_items(recurring_invoice_id);
+
+-- Verknüpfung: Welche Rechnungen wurden aus welchem Template generiert
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS recurring_invoice_id UUID REFERENCES recurring_invoices(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_invoices_recurring_id ON invoices(recurring_invoice_id);
+
+-- Trigger für recurring_invoices
+DROP TRIGGER IF EXISTS update_recurring_invoices_updated_at ON recurring_invoices;
+CREATE TRIGGER update_recurring_invoices_updated_at BEFORE UPDATE ON recurring_invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- FUNKTION: Nächstes Rechnungsdatum berechnen
+-- =====================================================
+CREATE OR REPLACE FUNCTION calculate_next_invoice_date(
+    current_date DATE,
+    invoice_interval recurring_interval
+)
+RETURNS DATE
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    CASE invoice_interval
+        WHEN 'monatlich' THEN
+            RETURN current_date + INTERVAL '1 month';
+        WHEN 'vierteljaehrlich' THEN
+            RETURN current_date + INTERVAL '3 months';
+        WHEN 'halbjaehrlich' THEN
+            RETURN current_date + INTERVAL '6 months';
+        WHEN 'jaehrlich' THEN
+            RETURN current_date + INTERVAL '1 year';
+        ELSE
+            RETURN current_date + INTERVAL '1 month';
+    END CASE;
+END;
+$$;
+
+-- =====================================================
+-- DASHBOARD STATISTICS VIEW
+-- =====================================================
+CREATE OR REPLACE VIEW dashboard_stats AS
+SELECT
+    -- Anfragen
+    (SELECT COUNT(*) FROM inquiries WHERE status = 'neu') as neue_anfragen,
+    (SELECT COUNT(*) FROM inquiries WHERE created_at >= date_trunc('month', CURRENT_DATE)) as anfragen_diesen_monat,
+
+    -- Angebote
+    (SELECT COUNT(*) FROM quotes WHERE status = 'entwurf') as offene_angebote,
+    (SELECT COUNT(*) FROM quotes WHERE status = 'versendet') as versendete_angebote,
+    (SELECT COALESCE(SUM(total), 0) FROM quotes WHERE status = 'versendet') as angebotssumme_offen,
+
+    -- Rechnungen
+    (SELECT COUNT(*) FROM invoices WHERE status = 'versendet') as offene_rechnungen,
+    (SELECT COUNT(*) FROM invoices WHERE status = 'ueberfaellig') as ueberfaellige_rechnungen,
+    (SELECT COALESCE(SUM(total), 0) FROM invoices WHERE status IN ('versendet', 'ueberfaellig')) as ausstehende_zahlungen,
+
+    -- Umsatz
+    (SELECT COALESCE(SUM(total), 0) FROM invoices WHERE status = 'bezahlt') as gesamtumsatz,
+    (SELECT COALESCE(SUM(total), 0) FROM invoices WHERE status = 'bezahlt' AND paid_at >= date_trunc('month', CURRENT_DATE)) as umsatz_diesen_monat,
+    (SELECT COALESCE(SUM(total), 0) FROM invoices WHERE status = 'bezahlt' AND paid_at >= date_trunc('year', CURRENT_DATE)) as umsatz_dieses_jahr,
+
+    -- Kunden
+    (SELECT COUNT(*) FROM customers) as kunden_gesamt,
+    (SELECT COUNT(*) FROM customers WHERE created_at >= date_trunc('month', CURRENT_DATE)) as neue_kunden_diesen_monat,
+
+    -- Termine
+    (SELECT COUNT(*) FROM appointments WHERE scheduled_at >= CURRENT_DATE AND status = 'ausstehend') as anstehende_termine,
+
+    -- Jobs
+    (SELECT COUNT(*) FROM jobs WHERE status = 'offen') as offene_auftraege,
+
+    -- Wiederkehrende Rechnungen
+    (SELECT COUNT(*) FROM recurring_invoices WHERE status = 'aktiv') as aktive_abos,
+    (SELECT COALESCE(SUM(total), 0) FROM recurring_invoices WHERE status = 'aktiv') as monatlicher_wiederkehrend;
+
+-- =====================================================
+-- MONATLICHE UMSATZ-STATISTIK VIEW
+-- =====================================================
+CREATE OR REPLACE VIEW monthly_revenue AS
+SELECT
+    date_trunc('month', paid_at)::DATE as monat,
+    COUNT(*) as anzahl_rechnungen,
+    SUM(total) as umsatz
+FROM invoices
+WHERE status = 'bezahlt' AND paid_at IS NOT NULL
+GROUP BY date_trunc('month', paid_at)
+ORDER BY monat DESC
+LIMIT 12;

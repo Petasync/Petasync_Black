@@ -21,6 +21,9 @@ dist-ssr
 # Sensitive deployment credentials
 .github/HETZNER_SECRETS.md
 
+# API local configuration (contains DB credentials)
+api/config.local.php
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

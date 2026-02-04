@@ -1,0 +1,19 @@
+# Petasync API Routing
+# Leitet alle API-Anfragen an die entsprechenden PHP-Dateien
+
+RewriteEngine On
+RewriteBase /api/
+
+# CORS Preflight für alle Requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ - [R=200,L]
+
+# Auth Endpoints -> auth.php
+RewriteRule ^auth/(.*)$ auth.php [L,QSA]
+
+# V1 API Endpoints -> v1.php
+RewriteRule ^v1/(.*)$ v1.php [L,QSA]
+
+# Contact Form (bestehend)
+RewriteRule ^contact$ contact-email.php [L,QSA]
+RewriteRule ^contact-form$ contact-form.php [L,QSA]
