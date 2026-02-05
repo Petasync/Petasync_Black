@@ -1,28 +1,19 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare, Calendar, FileText, Receipt, TrendingUp, Clock, AlertCircle, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { MessageSquare, Calendar, FileText, Receipt, TrendingUp, Clock, AlertCircle, Loader2, Euro, Users, RefreshCw } from 'lucide-react';
+import { dashboard, jobs, type DashboardStats, type MonthlyRevenue } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-interface DashboardStats {
-  newInquiries: number;
-  openAppointments: number;
-  openQuotes: number;
-  unpaidInvoices: number;
+interface ExtendedStats extends DashboardStats {
   recentInquiries: any[];
   openJobs: any[];
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    newInquiries: 0,
-    openAppointments: 0,
-    openQuotes: 0,
-    unpaidInvoices: 0,
-    recentInquiries: [],
-    openJobs: [],
-  });
+  const [stats, setStats] = useState<ExtendedStats | null>(null);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,75 +24,31 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
 
-      // Fetch inquiries count (today)
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const { data: inquiries, error: inquiriesError } = await supabase
-        .from('inquiries')
-        .select('id', { count: 'exact', head: true })
-        .gte('created_at', todayStart.toISOString());
+      // Fetch dashboard stats from API
+      const [statsResponse, activityResponse, jobsResponse, revenueResponse] = await Promise.all([
+        dashboard.getStats(),
+        dashboard.getRecentActivity(),
+        jobs.list({ status: 'offen' }),
+        dashboard.getMonthlyRevenue(),
+      ]);
 
-      if (inquiriesError) throw inquiriesError;
+      if (!statsResponse.success) {
+        throw new Error(statsResponse.error || 'Fehler beim Laden der Statistiken');
+      }
 
-      // Fetch open quotes
-      const { data: quotes, error: quotesError } = await supabase
-        .from('quotes')
-        .select('id', { count: 'exact', head: true })
-        .in('status', ['entwurf', 'versendet']);
-
-      if (quotesError) throw quotesError;
-
-      // Fetch unpaid invoices
-      const { data: invoices, error: invoicesError } = await supabase
-        .from('invoices')
-        .select('id', { count: 'exact', head: true })
-        .in('status', ['entwurf', 'versendet', 'ueberfaellig']);
-
-      if (invoicesError) throw invoicesError;
-
-      // Fetch open appointments (this week)
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      weekStart.setHours(0, 0, 0, 0);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 7);
-
-      const { data: appointments, error: appointmentsError } = await supabase
-        .from('appointments')
-        .select('id', { count: 'exact', head: true })
-        .gte('scheduled_at', weekStart.toISOString())
-        .lte('scheduled_at', weekEnd.toISOString())
-        .eq('status', 'ausstehend');
-
-      // Ignore error if appointments table doesn't exist
-
-      // Fetch recent inquiries
-      const { data: recentInquiries, error: recentInquiriesError } = await supabase
-        .from('inquiries')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (recentInquiriesError) throw recentInquiriesError;
-
-      // Fetch open jobs
-      const { data: openJobs, error: openJobsError } = await supabase
-        .from('jobs')
-        .select('*')
-        .in('status', ['offen', 'in_arbeit'])
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (openJobsError) throw openJobsError;
+      const dashboardStats = statsResponse.data;
+      const activity = activityResponse.data;
+      const openJobs = Array.isArray(jobsResponse.data) ? jobsResponse.data : [];
 
       setStats({
-        newInquiries: inquiries?.length || 0,
-        openAppointments: appointments?.length || 0,
-        openQuotes: quotes?.length || 0,
-        unpaidInvoices: invoices?.length || 0,
-        recentInquiries: recentInquiries || [],
-        openJobs: openJobs || [],
+        ...dashboardStats!,
+        recentInquiries: activity?.inquiries || [],
+        openJobs: openJobs.slice(0, 5),
       });
+
+      if (revenueResponse.success && revenueResponse.data) {
+        setMonthlyRevenue(Array.isArray(revenueResponse.data) ? revenueResponse.data : []);
+      }
     } catch (error: any) {
       console.error('Error fetching dashboard stats:', error);
       toast.error('Fehler beim Laden der Dashboard-Daten');
@@ -110,12 +57,23 @@ export default function AdminDashboard() {
     }
   };
 
-  const statCards = [
-    { name: 'Neue Anfragen', value: stats.newInquiries, icon: MessageSquare, change: 'Heute' },
-    { name: 'Offene Termine', value: stats.openAppointments, icon: Calendar, change: 'Diese Woche' },
-    { name: 'Angebote', value: stats.openQuotes, icon: FileText, change: 'Offen' },
-    { name: 'Rechnungen', value: stats.unpaidInvoices, icon: Receipt, change: 'Unbezahlt' },
-  ];
+  const statCards = stats ? [
+    { name: 'Neue Anfragen', value: stats.neue_anfragen, icon: MessageSquare, change: 'Unbearbeitet' },
+    { name: 'Offene Termine', value: stats.anstehende_termine, icon: Calendar, change: 'Anstehend' },
+    { name: 'Angebote', value: stats.offene_angebote + stats.versendete_angebote, icon: FileText, change: 'Offen' },
+    { name: 'Rechnungen', value: stats.offene_rechnungen + stats.ueberfaellige_rechnungen, icon: Receipt, change: 'Unbezahlt' },
+  ] : [];
+
+  const revenueCards = stats ? [
+    { name: 'Umsatz (Monat)', value: stats.umsatz_diesen_monat, icon: Euro },
+    { name: 'Umsatz (Jahr)', value: stats.umsatz_dieses_jahr, icon: TrendingUp },
+    { name: 'Kunden', value: stats.kunden_gesamt, icon: Users },
+    { name: 'Wiederkehrend', value: stats.monatlicher_wiederkehrend, icon: RefreshCw },
+  ] : [];
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value || 0);
+  };
 
   return (
     <AdminLayout>
@@ -151,6 +109,73 @@ export default function AdminDashboard() {
           )}
         </div>
 
+        {/* Revenue Stats */}
+        {!loading && stats && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {revenueCards.map((stat) => (
+              <Card key={stat.name}>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.name}
+                  </CardTitle>
+                  <stat.icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {stat.name === 'Kunden' ? stat.value : formatCurrency(stat.value)}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Monthly Revenue Chart */}
+        {!loading && monthlyRevenue.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Monatlicher Umsatz
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyRevenue}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="monat"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [formatCurrency(value), 'Umsatz']}
+                      labelFormatter={(label) => `Monat: ${label}`}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    />
+                    <Bar
+                      dataKey="umsatz"
+                      fill="hsl(var(--primary))"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
@@ -165,14 +190,14 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-center py-4">
                   <Loader2 className="h-5 w-5 animate-spin" />
                 </div>
-              ) : stats.recentInquiries.length === 0 ? (
+              ) : !stats?.recentInquiries?.length ? (
                 <p className="text-muted-foreground text-sm">Keine neuen Anfragen</p>
               ) : (
                 <div className="space-y-2">
-                  {stats.recentInquiries.map((inquiry) => (
+                  {stats.recentInquiries.map((inquiry: any) => (
                     <div key={inquiry.id} className="text-sm">
                       <p className="font-medium">{inquiry.name}</p>
-                      <p className="text-muted-foreground">{inquiry.subject || inquiry.service_type}</p>
+                      <p className="text-muted-foreground">{inquiry.subject || inquiry.inquiry_type}</p>
                     </div>
                   ))}
                 </div>
@@ -192,11 +217,11 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-center py-4">
                   <Loader2 className="h-5 w-5 animate-spin" />
                 </div>
-              ) : stats.openJobs.length === 0 ? (
+              ) : !stats?.openJobs?.length ? (
                 <p className="text-muted-foreground text-sm">Keine offenen Aufträge</p>
               ) : (
                 <div className="space-y-2">
-                  {stats.openJobs.map((job) => (
+                  {stats.openJobs.map((job: any) => (
                     <div key={job.id} className="text-sm">
                       <p className="font-medium">{job.title}</p>
                       <p className="text-muted-foreground">Status: {job.status}</p>
@@ -207,6 +232,36 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Ausstehende Zahlungen Warnung */}
+        {!loading && stats && (stats.ausstehende_zahlungen > 0 || stats.ueberfaellige_rechnungen > 0) && (
+          <Card className="border-yellow-500/50 bg-yellow-500/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-yellow-500">
+                <AlertCircle className="h-5 w-5" />
+                Zahlungen ausstehend
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-8">
+                <div>
+                  <p className="text-2xl font-bold text-yellow-500">
+                    {formatCurrency(stats.ausstehende_zahlungen)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Ausstehend</p>
+                </div>
+                {stats.ueberfaellige_rechnungen > 0 && (
+                  <div>
+                    <p className="text-2xl font-bold text-red-500">
+                      {stats.ueberfaellige_rechnungen}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Überfällig</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );

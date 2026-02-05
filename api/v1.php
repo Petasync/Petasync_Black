@@ -594,6 +594,62 @@ $router->delete('/quotes/{id}', function ($params) {
     Response::success(null, 'Angebot gelöscht');
 });
 
+// Quote Items (separate endpoint)
+$router->get('/quotes/{id}/items', function ($params) {
+    Auth::requireAdmin();
+
+    $items = Database::query(
+        "SELECT qi.*, sc.name as service_name
+         FROM quote_items qi
+         LEFT JOIN service_catalog sc ON sc.id = qi.service_id
+         WHERE qi.quote_id = :id ORDER BY qi.position",
+        ['id' => $params['id']]
+    );
+
+    Response::success($items);
+});
+
+$router->put('/quotes/{id}/items', function ($params) {
+    Auth::requireAdmin();
+    $body = Router::getJsonBody();
+
+    Database::beginTransaction();
+    try {
+        // Alte Items löschen
+        Database::execute("DELETE FROM quote_items WHERE quote_id = :id", ['id' => $params['id']]);
+
+        // Neue Items einfügen
+        $items = $body['items'] ?? $body;
+        if (is_array($items)) {
+            foreach ($items as $index => $item) {
+                Database::insert('quote_items', [
+                    'quote_id' => $params['id'],
+                    'service_id' => $item['service_id'] ?? null,
+                    'position' => $item['position'] ?? $index + 1,
+                    'description' => $item['description'],
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit' => $item['unit'] ?? 'Stk.',
+                    'unit_price' => $item['unit_price'],
+                    'discount_percent' => $item['discount_percent'] ?? 0,
+                    'total' => $item['total'],
+                ]);
+            }
+        }
+
+        Database::commit();
+
+        $savedItems = Database::query(
+            "SELECT * FROM quote_items WHERE quote_id = :id ORDER BY position",
+            ['id' => $params['id']]
+        );
+        Response::success($savedItems, 'Positionen gespeichert');
+
+    } catch (Exception $e) {
+        Database::rollback();
+        Response::error('Fehler beim Speichern: ' . $e->getMessage(), 500);
+    }
+});
+
 // ============================================
 // INVOICES
 // ============================================
@@ -679,10 +735,13 @@ $router->post('/invoices', function () {
             'due_date' => $body['due_date'] ?? null,
             'subtotal' => $body['subtotal'] ?? 0,
             'discount_percent' => $body['discount_percent'] ?? 0,
+            'discount_type' => $body['discount_type'] ?? 'percent',
             'discount_amount' => $body['discount_amount'] ?? 0,
             'total' => $body['total'] ?? 0,
             'notes' => $body['notes'] ?? null,
             'payment_terms' => $body['payment_terms'] ?? null,
+            'payment_method' => $body['payment_method'] ?? null,
+            'payment_methods' => $body['payment_methods'] ?? null,
         ];
 
         $invoiceId = Database::insert('invoices', $invoiceData);
@@ -740,14 +799,16 @@ $router->put('/invoices/{id}', function ($params) {
             'due_date' => $body['due_date'] ?? null,
             'subtotal' => $body['subtotal'] ?? null,
             'discount_percent' => $body['discount_percent'] ?? null,
+            'discount_type' => $body['discount_type'] ?? null,
             'discount_amount' => $body['discount_amount'] ?? null,
             'total' => $body['total'] ?? null,
             'notes' => $body['notes'] ?? null,
             'payment_terms' => $body['payment_terms'] ?? null,
+            'payment_method' => $body['payment_method'] ?? null,
+            'payment_methods' => $body['payment_methods'] ?? null,
             'sent_at' => $body['sent_at'] ?? null,
             'paid_at' => $body['paid_at'] ?? null,
             'paid_amount' => $body['paid_amount'] ?? null,
-            'payment_method' => $body['payment_method'] ?? null,
         ], fn($v) => $v !== null);
 
         if ($invoiceData) {
@@ -811,6 +872,62 @@ $router->delete('/invoices/{id}', function ($params) {
 
     Database::delete('invoices', $params['id']);
     Response::success(null, 'Rechnung gelöscht');
+});
+
+// Invoice Items (separate endpoint)
+$router->get('/invoices/{id}/items', function ($params) {
+    Auth::requireAdmin();
+
+    $items = Database::query(
+        "SELECT ii.*, sc.name as service_name
+         FROM invoice_items ii
+         LEFT JOIN service_catalog sc ON sc.id = ii.service_id
+         WHERE ii.invoice_id = :id ORDER BY ii.position",
+        ['id' => $params['id']]
+    );
+
+    Response::success($items);
+});
+
+$router->put('/invoices/{id}/items', function ($params) {
+    Auth::requireAdmin();
+    $body = Router::getJsonBody();
+
+    Database::beginTransaction();
+    try {
+        // Alte Items löschen
+        Database::execute("DELETE FROM invoice_items WHERE invoice_id = :id", ['id' => $params['id']]);
+
+        // Neue Items einfügen
+        $items = $body['items'] ?? $body;
+        if (is_array($items)) {
+            foreach ($items as $index => $item) {
+                Database::insert('invoice_items', [
+                    'invoice_id' => $params['id'],
+                    'service_id' => $item['service_id'] ?? null,
+                    'position' => $item['position'] ?? $index + 1,
+                    'description' => $item['description'],
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit' => $item['unit'] ?? 'Stk.',
+                    'unit_price' => $item['unit_price'],
+                    'discount_percent' => $item['discount_percent'] ?? 0,
+                    'total' => $item['total'],
+                ]);
+            }
+        }
+
+        Database::commit();
+
+        $savedItems = Database::query(
+            "SELECT * FROM invoice_items WHERE invoice_id = :id ORDER BY position",
+            ['id' => $params['id']]
+        );
+        Response::success($savedItems, 'Positionen gespeichert');
+
+    } catch (Exception $e) {
+        Database::rollback();
+        Response::error('Fehler beim Speichern: ' . $e->getMessage(), 500);
+    }
 });
 
 // ============================================
@@ -1044,6 +1161,23 @@ $router->put('/settings/{key}', function ($params) {
     }
 
     Response::success($body, 'Einstellung gespeichert');
+});
+
+// Next number generation
+$router->post('/settings/next-number/{type}', function ($params) {
+    Auth::requireAdmin();
+
+    $type = $params['type'];
+    if (!in_array($type, ['invoice', 'quote', 'customer'])) {
+        Response::error('Ungültiger Typ. Erlaubt: invoice, quote, customer', 400);
+    }
+
+    $result = Database::queryOne("SELECT get_next_number(:type) as num", ['type' => $type]);
+    if (!$result || !$result['num']) {
+        Response::error('Fehler beim Generieren der Nummer', 500);
+    }
+
+    Response::success($result['num']);
 });
 
 // ============================================

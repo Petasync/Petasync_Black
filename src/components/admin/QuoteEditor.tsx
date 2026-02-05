@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  quotes as quotesApi,
+  customers as customersApi,
+  serviceCatalog as serviceCatalogApi,
+  settings as settingsApi,
+  type Quote,
+  type Customer,
+  type Service,
+} from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,12 +18,6 @@ import { Label } from '@/components/ui/label';
 import { Plus, Trash2, FileDown, Printer, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateQuotePDF, downloadPDF, printPDF, loadCompanyInfo } from '@/lib/pdf-generator';
-import type { Tables } from '@/integrations/supabase/types';
-
-type Quote = Tables<'quotes'>;
-type QuoteItem = Tables<'quote_items'>;
-type Customer = Tables<'customers'>;
-type ServiceCatalog = Tables<'service_catalog'>;
 
 interface QuoteEditorProps {
   quote?: Quote | null;
@@ -37,7 +39,7 @@ interface QuoteItemForm {
 
 export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [services, setServices] = useState<ServiceCatalog[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<QuoteItemForm[]>([]);
   // Calculate default validity (2 weeks from today)
@@ -81,19 +83,31 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
   }, [open, quote]);
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from('customers').select('*').order('last_name');
-    setCustomers(data || []);
+    const response = await customersApi.list({ sort: 'last_name', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setCustomers(response.data);
+      } else if ('items' in response.data) {
+        setCustomers(response.data.items);
+      }
+    }
   };
 
   const fetchServices = async () => {
-    const { data } = await supabase.from('service_catalog').select('*').eq('is_active', true).order('sort_order');
-    setServices(data || []);
+    const response = await serviceCatalogApi.list({ is_active: 'true', sort: 'sort_order', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setServices(response.data);
+      } else if ('items' in response.data) {
+        setServices(response.data.items);
+      }
+    }
   };
 
   const generateQuoteNumber = async () => {
-    const { data } = await supabase.rpc('get_next_number', { sequence_type: 'quote' });
-    if (data) {
-      setFormData(prev => ({ ...prev, quote_number: data }));
+    const response = await settingsApi.getNextNumber('quote');
+    if (response.success && response.data) {
+      setFormData(prev => ({ ...prev, quote_number: response.data as string }));
     }
   };
 
@@ -109,13 +123,11 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
       status: q.status || 'entwurf',
     });
 
-    const { data: quoteItems } = await supabase
-      .from('quote_items')
-      .select('*')
-      .eq('quote_id', q.id)
-      .order('position');
+    // Load items via API
+    const itemsResponse = await quotesApi.getItems(q.id);
 
-    if (quoteItems) {
+    if (itemsResponse.success && itemsResponse.data) {
+      const quoteItems = Array.isArray(itemsResponse.data) ? itemsResponse.data : [];
       setItems(quoteItems.map(item => ({
         id: item.id,
         description: item.description,
@@ -235,32 +247,19 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
       let quoteId: string;
 
       if (quote) {
-        const { error } = await supabase
-          .from('quotes')
-          .update(quoteData)
-          .eq('id', quote.id);
-
-        if (error) throw error;
+        const response = await quotesApi.update(quote.id, quoteData);
+        if (!response.success) throw new Error(response.error || 'Update failed');
         quoteId = quote.id;
-
-        // Delete existing items
-        await supabase.from('quote_items').delete().eq('quote_id', quote.id);
       } else {
-        const { data, error } = await supabase
-          .from('quotes')
-          .insert(quoteData)
-          .select()
-          .single();
-
-        if (error) throw error;
-        quoteId = data.id;
+        const response = await quotesApi.create(quoteData);
+        if (!response.success || !response.data) throw new Error(response.error || 'Create failed');
+        quoteId = response.data.id;
       }
 
-      // Insert items
-      const itemsToInsert = items
+      // Save items via API
+      const itemsToSave = items
         .filter(item => item.description)
         .map((item, index) => ({
-          quote_id: quoteId,
           position: index + 1,
           description: item.description,
           quantity: item.quantity,
@@ -271,8 +270,7 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
           service_id: item.service_id || null,
         }));
 
-      const { error: itemsError } = await supabase.from('quote_items').insert(itemsToInsert);
-      if (itemsError) throw itemsError;
+      await quotesApi.saveItems(quoteId, itemsToSave);
 
       toast.success(quote ? 'Angebot aktualisiert' : 'Angebot erstellt');
       onSave();
@@ -323,7 +321,6 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
       discount_percent: item.discount_percent,
       total: item.total,
       service_id: item.service_id || null,
-      created_at: new Date().toISOString(),
     }));
 
     const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF, companyInfo);

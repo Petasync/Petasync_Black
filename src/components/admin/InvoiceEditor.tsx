@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  invoices as invoicesApi,
+  customers as customersApi,
+  serviceCatalog as serviceCatalogApi,
+  settings as settingsApi,
+  type Invoice,
+  type Customer,
+  type Service,
+} from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,12 +21,6 @@ import { toast } from 'sonner';
 import { generateInvoicePDF, downloadPDF, generateEPCQRCode, loadCompanyInfo } from '@/lib/pdf-generator';
 import { EPCQRCode } from './EPCQRCode';
 import { GoogleReviewQRCode } from './GoogleReviewQRCode';
-import type { Tables } from '@/integrations/supabase/types';
-
-type Invoice = Tables<'invoices'>;
-type InvoiceItem = Tables<'invoice_items'>;
-type Customer = Tables<'customers'>;
-type ServiceCatalog = Tables<'service_catalog'>;
 
 interface InvoiceEditorProps {
   invoice?: Invoice | null;
@@ -40,7 +42,7 @@ interface InvoiceItemForm {
 
 export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEditorProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [services, setServices] = useState<ServiceCatalog[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<InvoiceItemForm[]>([]);
   const [showQRCode, setShowQRCode] = useState(false);
@@ -85,26 +87,39 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   }, [open, invoice]);
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from('customers').select('*').order('last_name');
-    setCustomers(data || []);
+    const response = await customersApi.list({ sort: 'last_name', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setCustomers(response.data);
+      } else if ('items' in response.data) {
+        setCustomers(response.data.items);
+      }
+    }
   };
 
   const fetchServices = async () => {
-    const { data } = await supabase.from('service_catalog').select('*').eq('is_active', true).order('sort_order');
-    setServices(data || []);
+    const response = await serviceCatalogApi.list({ is_active: 'true', sort: 'sort_order', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setServices(response.data);
+      } else if ('items' in response.data) {
+        setServices(response.data.items);
+      }
+    }
   };
 
   const generateInvoiceNumber = async () => {
-    const { data } = await supabase.rpc('get_next_number', { sequence_type: 'invoice' });
-    if (data) {
-      setFormData(prev => ({ ...prev, invoice_number: data }));
+    const response = await settingsApi.getNextNumber('invoice');
+    if (response.success && response.data) {
+      setFormData(prev => ({ ...prev, invoice_number: response.data as string }));
     }
   };
 
   const loadInvoice = async (inv: Invoice) => {
-    // Convert comma-separated payment_method to array
-    const paymentMethods = inv.payment_method
-      ? inv.payment_method.split(',').map(m => m.trim()).filter(Boolean)
+    // Convert comma-separated payment_methods to array
+    const paymentMethodsStr = inv.payment_methods || inv.payment_method || '';
+    const paymentMethods = paymentMethodsStr
+      ? paymentMethodsStr.split(',').map(m => m.trim()).filter(Boolean)
       : ['Überweisung'];
 
     setFormData({
@@ -121,13 +136,11 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       status: inv.status || 'entwurf',
     });
 
-    const { data: invoiceItems } = await supabase
-      .from('invoice_items')
-      .select('*')
-      .eq('invoice_id', inv.id)
-      .order('position');
+    // Load items via API
+    const itemsResponse = await invoicesApi.getItems(inv.id);
 
-    if (invoiceItems) {
+    if (itemsResponse.success && itemsResponse.data) {
+      const invoiceItems = Array.isArray(itemsResponse.data) ? itemsResponse.data : [];
       setItems(invoiceItems.map(item => ({
         id: item.id,
         description: item.description,
@@ -219,89 +232,10 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     return { subtotal, discountAmount, total };
   };
 
-  const uploadInvoicePDF = async (invoiceId: string, invoiceNumber: string) => {
-    try {
-      // Get customer and recalculate totals
-      const customer = customers.find(c => c.id === formData.customer_id) || null;
-      const { subtotal, discountAmount, total } = calculateTotals();
-      const companyInfo = await loadCompanyInfo();
-
-      // Create invoice object for PDF
-      const invoiceForPDF: any = {
-        id: invoiceId,
-        invoice_number: invoiceNumber,
-        invoice_date: formData.invoice_date,
-        delivery_date: formData.delivery_date || null,
-        due_date: formData.due_date || null,
-        discount_percent: formData.discount_percent,
-        discount_type: formData.discount_type,
-        discount_amount: discountAmount,
-        subtotal,
-        total,
-        notes: formData.notes || null,
-        payment_terms: formData.payment_terms || null,
-        payment_method: null,
-        payment_methods: formData.payment_methods.join(', '),
-        status: formData.status,
-        customer_id: formData.customer_id || null,
-        quote_id: null,
-        sent_at: null,
-        paid_at: null,
-        paid_amount: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
-        id: item.id || '',
-        invoice_id: invoiceId,
-        position: index + 1,
-        description: item.description,
-        quantity: item.quantity,
-        unit: item.unit,
-        unit_price: item.unit_price,
-        discount_percent: item.discount_percent,
-        total: item.total,
-        service_id: item.service_id || null,
-        created_at: new Date().toISOString(),
-      }));
-
-      // Generate PDF blob
-      const pdfBlob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
-
-      // Create PDF file for upload
-      const file = new File([pdfBlob], `${invoiceNumber}.pdf`, { type: 'application/pdf' });
-
-      // Upload to Supabase Storage
-      const filePath = `${invoiceId}/${invoiceNumber}.pdf`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('invoices')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        return;
-      }
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('invoices')
-        .getPublicUrl(filePath);
-
-      // Update invoice with PDF URL
-      if (urlData.publicUrl) {
-        await supabase
-          .from('invoices')
-          .update({ pdf_url: urlData.publicUrl })
-          .eq('id', invoiceId);
-      }
-    } catch (error) {
-      console.error('Error uploading PDF:', error);
-      throw error;
-    }
+  const uploadInvoicePDF = async (_invoiceId: string, _invoiceNumber: string) => {
+    // TODO: Implement PDF upload via PHP backend file storage
+    // For now, PDFs are generated on-demand in the browser
+    console.log('PDF upload not yet implemented for new backend');
   };
 
   const handleSave = async () => {
@@ -339,30 +273,19 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       let invoiceId: string;
 
       if (invoice) {
-        const { error } = await supabase
-          .from('invoices')
-          .update(invoiceData)
-          .eq('id', invoice.id);
-
-        if (error) throw error;
+        const response = await invoicesApi.update(invoice.id, invoiceData);
+        if (!response.success) throw new Error(response.error || 'Update failed');
         invoiceId = invoice.id;
-
-        await supabase.from('invoice_items').delete().eq('invoice_id', invoice.id);
       } else {
-        const { data, error } = await supabase
-          .from('invoices')
-          .insert(invoiceData)
-          .select()
-          .single();
-
-        if (error) throw error;
-        invoiceId = data.id;
+        const response = await invoicesApi.create(invoiceData);
+        if (!response.success || !response.data) throw new Error(response.error || 'Create failed');
+        invoiceId = response.data.id;
       }
 
-      const itemsToInsert = items
+      // Save items via API
+      const itemsToSave = items
         .filter(item => item.description)
         .map((item, index) => ({
-          invoice_id: invoiceId,
           position: index + 1,
           description: item.description,
           quantity: item.quantity,
@@ -373,8 +296,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
           service_id: item.service_id || null,
         }));
 
-      const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert);
-      if (itemsError) throw itemsError;
+      await invoicesApi.saveItems(invoiceId, itemsToSave);
 
       // Generate and upload PDF to storage
       try {
@@ -402,7 +324,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
     // Load company info from settings
     const companyInfo = await loadCompanyInfo();
 
-    const invoiceForPDF: any = {
+    const invoiceForPDF: Invoice = {
       id: invoice?.id || '',
       invoice_number: formData.invoice_number,
       invoice_date: formData.invoice_date,
@@ -415,11 +337,13 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       total,
       notes: formData.notes || null,
       payment_terms: formData.payment_terms || null,
-      payment_method: null,
+      payment_method: formData.payment_methods.join(', '),
       payment_methods: formData.payment_methods.join(', '),
       status: formData.status,
       customer_id: formData.customer_id || null,
       quote_id: null,
+      recurring_invoice_id: null,
+      pdf_url: null,
       sent_at: null,
       paid_at: null,
       paid_amount: null,
@@ -438,7 +362,6 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
       discount_percent: item.discount_percent,
       total: item.total,
       service_id: item.service_id || null,
-      created_at: new Date().toISOString(),
     }));
 
     const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);

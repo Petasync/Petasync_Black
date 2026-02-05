@@ -65,6 +65,7 @@ const AdminMagicLinkHandler = lazy(() => import("./pages/admin/MagicLinkHandler"
 const AdminUserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AdminServiceCatalog = lazy(() => import("./pages/admin/ServiceCatalog"));
 const AdminJobs = lazy(() => import("./pages/admin/Jobs"));
+const AdminRecurringInvoices = lazy(() => import("./pages/admin/RecurringInvoices"));
 
 // Template pages
 const TemplatesShowcase = lazy(() => import("./pages/TemplatesShowcase"));
@@ -294,6 +295,7 @@ const App = () => {
             <Route path="/admin/users" element={<AdminProtectedRoute><AdminUserManagement /></AdminProtectedRoute>} />
             <Route path="/admin/services" element={<AdminProtectedRoute><AdminServiceCatalog /></AdminProtectedRoute>} />
             <Route path="/admin/jobs" element={<AdminProtectedRoute><AdminJobs /></AdminProtectedRoute>} />
+            <Route path="/admin/recurring-invoices" element={<AdminProtectedRoute><AdminRecurringInvoices /></AdminProtectedRoute>} />
             <Route path="/admin/2fa-setup" element={<AdminProtectedRoute><AdminSetup2FA /></AdminProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

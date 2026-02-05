@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { auth, settings as settingsApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck, Copy, RefreshCw, Key, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { authenticator } from 'otplib';
-import QRCode from 'qrcode';
 
 export default function Setup2FA() {
   const navigate = useNavigate();
@@ -19,61 +17,43 @@ export default function Setup2FA() {
   const [secret, setSecret] = useState('');
   const [qrCode, setQrCode] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
+  const [disableCode, setDisableCode] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const [step, setStep] = useState<'status' | 'setup' | 'verify' | 'backup'>('status');
-  const [companyName, setCompanyName] = useState('Petasync Admin');
+  const [step, setStep] = useState<'status' | 'setup' | 'verify' | 'backup' | 'disable'>('status');
 
   useEffect(() => {
     check2FAStatus();
-    loadCompanyName();
   }, []);
 
-  const loadCompanyName = async () => {
-    const { data } = await supabase
-      .from('admin_settings')
-      .select('value')
-      .eq('key', 'company')
-      .single();
-
-    if (data?.value && typeof data.value === 'object' && 'name' in data.value) {
-      setCompanyName((data.value as { name: string }).name + ' Admin');
-    }
-  };
-
   const check2FAStatus = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    const response = await auth.getMe();
+    if (!response.success) {
       navigate('/admin/login');
       return;
     }
 
-    const { data: profile } = await supabase
-      .from('admin_profiles')
-      .select('totp_enabled, backup_codes')
-      .eq('user_id', user.id)
-      .single();
-
-    if (profile) {
-      setTwoFAEnabled(profile.totp_enabled || false);
-      if (profile.backup_codes) {
-        setBackupCodes(profile.backup_codes);
-      }
+    if (response.data) {
+      setTwoFAEnabled(response.data.totp_enabled || false);
     }
     setLoading(false);
   };
 
   const generateSecret = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    setSaving(true);
+    const response = await auth.setup2FA();
 
-    const newSecret = authenticator.generateSecret();
-    setSecret(newSecret);
+    if (!response.success) {
+      toast.error(response.error || 'Fehler beim Generieren des 2FA-Secrets');
+      setSaving(false);
+      return;
+    }
 
-    const otpauth = authenticator.keyuri(user.email || 'admin', companyName, newSecret);
-    const qr = await QRCode.toDataURL(otpauth);
-    setQrCode(qr);
-
+    if (response.data) {
+      setSecret(response.data.secret);
+      setQrCode(response.data.qr_code);
+    }
+    setSaving(false);
     setStep('setup');
   };
 
@@ -83,63 +63,38 @@ export default function Setup2FA() {
       return;
     }
 
-    const isValid = authenticator.verify({ token: verificationCode, secret });
-    if (!isValid) {
-      toast.error('Ungültiger Code. Bitte versuchen Sie es erneut.');
-      return;
-    }
-
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    const response = await auth.enable2FA(verificationCode);
+
+    if (!response.success) {
+      toast.error(response.error || 'Ungültiger Code. Bitte versuchen Sie es erneut.');
       setSaving(false);
       return;
     }
 
-    // Generate backup codes
-    const newBackupCodes = Array.from({ length: 10 }, () =>
-      Math.random().toString(36).substring(2, 8).toUpperCase()
-    );
-
-    const { error } = await supabase
-      .from('admin_profiles')
-      .update({
-        totp_secret: secret,
-        totp_enabled: true,
-        backup_codes: newBackupCodes,
-      })
-      .eq('user_id', user.id);
-
-    setSaving(false);
-
-    if (error) {
-      toast.error('Fehler beim Aktivieren der 2FA');
-      console.error('2FA activation error:', error);
-      return;
+    if (response.data?.backup_codes) {
+      setBackupCodes(response.data.backup_codes);
     }
 
-    setBackupCodes(newBackupCodes);
     setTwoFAEnabled(true);
     setShowBackupCodes(true);
     setStep('backup');
+    setSaving(false);
     toast.success('2FA erfolgreich aktiviert');
   };
 
   const disable2FA = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!disableCode || disableCode.length !== 6) {
+      toast.error('Bitte geben Sie einen 6-stelligen Code ein');
+      return;
+    }
 
-    const { error } = await supabase
-      .from('admin_profiles')
-      .update({
-        totp_secret: null,
-        totp_enabled: false,
-        backup_codes: null,
-      })
-      .eq('user_id', user.id);
+    setSaving(true);
+    const response = await auth.disable2FA(disableCode);
 
-    if (error) {
-      toast.error('Fehler beim Deaktivieren der 2FA');
+    if (!response.success) {
+      toast.error(response.error || 'Fehler beim Deaktivieren der 2FA');
+      setSaving(false);
       return;
     }
 
@@ -147,30 +102,27 @@ export default function Setup2FA() {
     setSecret('');
     setQrCode('');
     setBackupCodes([]);
+    setDisableCode('');
     setStep('status');
+    setSaving(false);
     toast.success('2FA deaktiviert');
   };
 
   const regenerateBackupCodes = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    setSaving(true);
+    const response = await auth.regenerateBackupCodes();
 
-    const newBackupCodes = Array.from({ length: 10 }, () =>
-      Math.random().toString(36).substring(2, 8).toUpperCase()
-    );
-
-    const { error } = await supabase
-      .from('admin_profiles')
-      .update({ backup_codes: newBackupCodes })
-      .eq('user_id', user.id);
-
-    if (error) {
-      toast.error('Fehler beim Generieren neuer Backup-Codes');
+    if (!response.success) {
+      toast.error(response.error || 'Fehler beim Generieren neuer Backup-Codes');
+      setSaving(false);
       return;
     }
 
-    setBackupCodes(newBackupCodes);
-    setShowBackupCodes(true);
+    if (response.data?.backup_codes) {
+      setBackupCodes(response.data.backup_codes);
+      setShowBackupCodes(true);
+    }
+    setSaving(false);
     toast.success('Neue Backup-Codes generiert');
   };
 
@@ -183,7 +135,7 @@ export default function Setup2FA() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Laden...</div>
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       </AdminLayout>
     );
@@ -226,16 +178,13 @@ export default function Setup2FA() {
                     Ihr Konto ist durch Zwei-Faktor-Authentifizierung geschützt. Bei jedem Login
                     wird ein Code aus Ihrer Authenticator-App benötigt.
                   </p>
-                  <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setShowBackupCodes(!showBackupCodes)}>
-                      <Key className="h-4 w-4 mr-2" />
-                      Backup-Codes anzeigen
-                    </Button>
-                    <Button variant="outline" onClick={regenerateBackupCodes}>
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" onClick={regenerateBackupCodes} disabled={saving}>
+                      {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Neue Backup-Codes
                     </Button>
-                    <Button variant="destructive" onClick={disable2FA}>
+                    <Button variant="destructive" onClick={() => setStep('disable')}>
                       2FA deaktivieren
                     </Button>
                   </div>
@@ -271,7 +220,8 @@ export default function Setup2FA() {
                     Aktivieren Sie 2FA für zusätzliche Sicherheit. Sie benötigen eine Authenticator-App
                     wie Google Authenticator oder Authy.
                   </p>
-                  <Button onClick={generateSecret}>
+                  <Button onClick={generateSecret} disabled={saving}>
+                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     <Shield className="h-4 w-4 mr-2" />
                     2FA aktivieren
                   </Button>
@@ -300,7 +250,7 @@ export default function Setup2FA() {
                   Oder geben Sie diesen Code manuell ein:
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-muted px-3 py-2 rounded font-mono text-sm">
+                  <code className="flex-1 bg-muted px-3 py-2 rounded font-mono text-sm break-all">
                     {secret}
                   </code>
                   <Button variant="outline" size="icon" onClick={() => copyToClipboard(secret)}>
@@ -381,6 +331,42 @@ export default function Setup2FA() {
                 </Button>
                 <Button onClick={() => { setStep('status'); setShowBackupCodes(false); }}>
                   Fertig
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {step === 'disable' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-destructive">2FA deaktivieren</CardTitle>
+              <CardDescription>
+                Geben Sie zur Bestätigung Ihren aktuellen 2FA-Code ein
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                type="text"
+                placeholder="000000"
+                value={disableCode}
+                onChange={(e) => setDisableCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="text-center text-2xl tracking-widest font-mono"
+                maxLength={6}
+              />
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => { setStep('status'); setDisableCode(''); }} className="flex-1" disabled={saving}>
+                  Abbrechen
+                </Button>
+                <Button variant="destructive" onClick={disable2FA} className="flex-1" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Deaktiviere...
+                    </>
+                  ) : (
+                    '2FA deaktivieren'
+                  )}
                 </Button>
               </div>
             </CardContent>

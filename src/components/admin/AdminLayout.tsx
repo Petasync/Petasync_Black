@@ -19,6 +19,7 @@ import {
   Shield,
   Package,
   Briefcase,
+  RefreshCw,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ const navigation = [
   { name: 'Kunden', href: '/admin/customers', icon: Users },
   { name: 'Angebote', href: '/admin/quotes', icon: FileText },
   { name: 'Rechnungen', href: '/admin/invoices', icon: Receipt },
+  { name: 'Abo-Rechnungen', href: '/admin/recurring-invoices', icon: RefreshCw },
   { name: 'Dienstleistungen', href: '/admin/services', icon: Package },
   { name: 'Aufträge', href: '/admin/jobs', icon: Briefcase },
   { name: 'Website-Projekte', href: '/admin/website-projects', icon: Globe },

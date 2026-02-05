@@ -228,6 +228,40 @@ export const auth = {
     });
   },
 
+  async setup2FA() {
+    return apiFetch<{
+      secret: string;
+      qr_code: string;
+      otpauth_url: string;
+    }>('/auth/setup-2fa', {
+      method: 'POST',
+    });
+  },
+
+  async enable2FA(code: string) {
+    return apiFetch<{
+      backup_codes: string[];
+    }>('/auth/enable-2fa', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async disable2FA(code: string) {
+    return apiFetch('/auth/disable-2fa', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  async regenerateBackupCodes() {
+    return apiFetch<{
+      backup_codes: string[];
+    }>('/auth/regenerate-backup-codes', {
+      method: 'POST',
+    });
+  },
+
   isAuthenticated(): boolean {
     return !!getAccessToken();
   },
@@ -401,14 +435,17 @@ export interface Invoice {
   due_date: string | null;
   subtotal: number;
   discount_percent: number;
+  discount_type: 'percent' | 'euro';
   discount_amount: number;
   total: number;
   notes: string | null;
   payment_terms: string | null;
+  payment_methods: string | null;
   sent_at: string | null;
   paid_at: string | null;
   paid_amount: number | null;
   payment_method: string | null;
+  pdf_url: string | null;
   created_at: string;
   updated_at: string;
   items?: InvoiceItem[];
@@ -476,8 +513,34 @@ export const customers = createCrudApi<Customer>('customers');
 export const inquiries = createCrudApi<Inquiry>('inquiries');
 export const appointments = createCrudApi<Appointment>('appointments');
 export const serviceCatalog = createCrudApi<Service>('service-catalog');
-export const quotes = createCrudApi<Quote>('quotes');
-export const invoices = createCrudApi<Invoice>('invoices');
+export const quotes = {
+  ...createCrudApi<Quote>('quotes'),
+
+  async getItems(quoteId: string) {
+    return apiFetch<QuoteItem[]>(`/v1/quotes/${quoteId}/items`);
+  },
+
+  async saveItems(quoteId: string, items: Partial<QuoteItem>[]) {
+    return apiFetch<QuoteItem[]>(`/v1/quotes/${quoteId}/items`, {
+      method: 'PUT',
+      body: JSON.stringify({ items }),
+    });
+  },
+};
+export const invoices = {
+  ...createCrudApi<Invoice>('invoices'),
+
+  async getItems(invoiceId: string) {
+    return apiFetch<InvoiceItem[]>(`/v1/invoices/${invoiceId}/items`);
+  },
+
+  async saveItems(invoiceId: string, items: Partial<InvoiceItem>[]) {
+    return apiFetch<InvoiceItem[]>(`/v1/invoices/${invoiceId}/items`, {
+      method: 'PUT',
+      body: JSON.stringify({ items }),
+    });
+  },
+};
 export const jobs = createCrudApi<Job>('jobs');
 export const websiteProjects = createCrudApi<WebsiteProject>('website-projects');
 export const recurringInvoices = {
@@ -542,6 +605,12 @@ export const settings = {
     return apiFetch<T>(`/v1/settings/${key}`, {
       method: 'PUT',
       body: JSON.stringify(value),
+    });
+  },
+
+  async getNextNumber(type: 'invoice' | 'quote' | 'customer') {
+    return apiFetch<string>(`/v1/settings/next-number/${type}`, {
+      method: 'POST',
     });
   },
 };

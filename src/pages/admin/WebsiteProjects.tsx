@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { websiteProjects as projectsApi, customers as customersApi, type WebsiteProject, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,12 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from '@/components/ui/progress';
 import { Globe, Plus, Search, Calendar, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
-import type { Tables } from '@/integrations/supabase/types';
 
-type WebsiteProject = Tables<'website_projects'>;
-type Customer = Tables<'customers'>;
+type WebsiteProjectWithCustomer = WebsiteProject & { customer?: Customer };
 
 const statusColors: Record<string, string> = {
   anfrage: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -51,12 +48,12 @@ const statusProgress: Record<string, number> = {
 const packageTypes = ['Template', 'Starter', 'Business', 'Enterprise'];
 
 export default function WebsiteProjects() {
-  const [projects, setProjects] = useState<(WebsiteProject & { customer?: Customer })[]>([]);
+  const [projects, setProjects] = useState<WebsiteProjectWithCustomer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<WebsiteProject | null>(null);
+  const [editingProject, setEditingProject] = useState<WebsiteProjectWithCustomer | null>(null);
   const [formData, setFormData] = useState<{
     project_name: string;
     customer_id: string;
@@ -87,23 +84,34 @@ export default function WebsiteProjects() {
   }, []);
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase
-      .from('website_projects')
-      .select('*, customer:customers(*)')
-      .order('created_at', { ascending: false });
+    const response = await projectsApi.list({ sort: 'created_at', order: 'desc' });
 
-    if (error) {
+    if (!response.success) {
       toast.error('Fehler beim Laden der Projekte');
+      setLoading(false);
       return;
     }
 
-    setProjects(data || []);
+    const data = response.data;
+    if (Array.isArray(data)) {
+      setProjects(data as WebsiteProjectWithCustomer[]);
+    } else if (data && 'items' in data) {
+      setProjects(data.items as WebsiteProjectWithCustomer[]);
+    } else {
+      setProjects([]);
+    }
     setLoading(false);
   };
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from('customers').select('*').order('last_name');
-    setCustomers(data || []);
+    const response = await customersApi.list({ sort: 'last_name', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setCustomers(response.data);
+      } else if ('items' in response.data) {
+        setCustomers(response.data.items);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,20 +124,17 @@ export default function WebsiteProjects() {
     };
 
     if (editingProject) {
-      const { error } = await supabase
-        .from('website_projects')
-        .update(projectData)
-        .eq('id', editingProject.id);
+      const response = await projectsApi.update(editingProject.id, projectData);
 
-      if (error) {
+      if (!response.success) {
         toast.error('Fehler beim Aktualisieren');
         return;
       }
       toast.success('Projekt aktualisiert');
     } else {
-      const { error } = await supabase.from('website_projects').insert(projectData);
+      const response = await projectsApi.create(projectData);
 
-      if (error) {
+      if (!response.success) {
         toast.error('Fehler beim Erstellen');
         return;
       }
@@ -157,7 +162,7 @@ export default function WebsiteProjects() {
     setEditingProject(null);
   };
 
-  const openEditDialog = (project: WebsiteProject) => {
+  const openEditDialog = (project: WebsiteProjectWithCustomer) => {
     setEditingProject(project);
     setFormData({
       project_name: project.project_name,
@@ -166,7 +171,7 @@ export default function WebsiteProjects() {
       domain: project.domain || '',
       industry: project.industry || '',
       budget_range: project.budget_range || '',
-      status: project.status || 'anfrage',
+      status: (project.status as 'anfrage' | 'angebot' | 'anzahlung' | 'umsetzung' | 'review' | 'live' | 'wartung') || 'anfrage',
       go_live_date: project.go_live_date || '',
       notes: project.notes || '',
       features: project.features || [],
@@ -175,8 +180,8 @@ export default function WebsiteProjects() {
   };
 
   const updateStatus = async (id: string, status: 'anfrage' | 'angebot' | 'anzahlung' | 'umsetzung' | 'review' | 'live' | 'wartung') => {
-    const { error } = await supabase.from('website_projects').update({ status }).eq('id', id);
-    if (error) {
+    const response = await projectsApi.update(id, { status });
+    if (!response.success) {
       toast.error('Fehler beim Aktualisieren');
       return;
     }

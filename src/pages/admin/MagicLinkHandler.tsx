@@ -1,111 +1,175 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { auth } from '@/lib/api-client';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, CheckCircle2, XCircle, KeyRound } from 'lucide-react';
 
 export default function MagicLinkHandler() {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
-  const [message, setMessage] = useState('Verarbeite Magic Link...');
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<'validating' | 'form' | 'success' | 'error'>('validating');
+  const [message, setMessage] = useState('Token wird überprüft...');
+  const [isLoading, setIsLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const token = searchParams.get('token');
 
   useEffect(() => {
-    const handleMagicLink = async () => {
-      try {
-        // Parse URL hash parameters
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
+    if (!token) {
+      setStatus('error');
+      setMessage('Kein Token gefunden. Der Link ist ungültig oder abgelaufen.');
+      return;
+    }
 
-        if (!accessToken || !refreshToken) {
-          setStatus('error');
-          setMessage('Ungültiger Magic Link. Token fehlen.');
-          return;
-        }
+    // Token exists, show password reset form
+    setStatus('form');
+  }, [token]);
 
-        // Set the session using the tokens
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
 
-        if (error) {
-          setStatus('error');
-          setMessage(`Fehler beim Einloggen: ${error.message}`);
-          return;
-        }
+    if (!newPassword || newPassword.length < 8) {
+      setError('Das Passwort muss mindestens 8 Zeichen lang sein.');
+      return;
+    }
 
-        if (data.session) {
-          setStatus('success');
-          setMessage('Erfolgreich eingeloggt! Weiterleitung...');
+    if (newPassword !== confirmPassword) {
+      setError('Die Passwörter stimmen nicht überein.');
+      return;
+    }
 
-          // Redirect to admin dashboard after 1 second
-          setTimeout(() => {
-            navigate('/admin');
-          }, 1000);
-        } else {
-          setStatus('error');
-          setMessage('Keine Session erstellt. Bitte versuche es erneut.');
-        }
-      } catch (err) {
-        setStatus('error');
-        setMessage(`Unerwarteter Fehler: ${err instanceof Error ? err.message : 'Unbekannter Fehler'}`);
+    setIsLoading(true);
+
+    try {
+      const response = await auth.resetPassword(token!, newPassword);
+
+      if (!response.success) {
+        setError(response.error || 'Fehler beim Zurücksetzen des Passworts.');
+        setIsLoading(false);
+        return;
       }
-    };
 
-    handleMagicLink();
-  }, [navigate]);
+      setStatus('success');
+      setMessage('Passwort erfolgreich geändert! Sie werden zum Login weitergeleitet...');
+
+      setTimeout(() => {
+        navigate('/admin/login');
+      }, 2000);
+    } catch (err) {
+      setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+      console.error('Password reset error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Magic Link Authentifizierung</CardTitle>
-          <CardDescription>
-            {status === 'processing' && 'Dein Login wird verarbeitet...'}
-            {status === 'success' && 'Login erfolgreich!'}
-            {status === 'error' && 'Es ist ein Fehler aufgetreten'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center space-y-4">
-            {status === 'processing' && (
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            )}
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
 
-            {status === 'success' && (
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                  <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
+      <div className="relative w-full max-w-md">
+        {status === 'validating' && (
+          <Card className="border-white/10 bg-card/50 backdrop-blur">
+            <CardHeader className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+              <CardTitle>Überprüfung</CardTitle>
+              <CardDescription>{message}</CardDescription>
+            </CardHeader>
+          </Card>
+        )}
+
+        {status === 'form' && (
+          <Card className="border-white/10 bg-card/50 backdrop-blur">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <KeyRound className="h-6 w-6 text-primary" />
               </div>
-            )}
+              <CardTitle className="text-2xl">Neues Passwort setzen</CardTitle>
+              <CardDescription>
+                Geben Sie Ihr neues Passwort ein.
+              </CardDescription>
+            </CardHeader>
 
-            {status === 'error' && (
-              <div className="text-center">
-                <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                  <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+            <form onSubmit={handleResetPassword}>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Neues Passwort</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Mindestens 8 Zeichen"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Passwort wiederholen"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                {error && (
+                  <p className="text-sm text-destructive">{error}</p>
+                )}
+              </CardContent>
+
+              <CardFooter>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Wird gespeichert...
+                    </>
+                  ) : (
+                    'Passwort ändern'
+                  )}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        )}
+
+        {status === 'success' && (
+          <Card className="border-white/10 bg-card/50 backdrop-blur">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-green-500" />
               </div>
-            )}
+              <CardTitle className="text-2xl">Passwort geändert</CardTitle>
+              <CardDescription>{message}</CardDescription>
+            </CardHeader>
+          </Card>
+        )}
 
-            <p className="text-center text-sm text-gray-600">{message}</p>
-
-            {status === 'error' && (
-              <button
-                onClick={() => navigate('/admin/login')}
-                className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
-              >
+        {status === 'error' && (
+          <Card className="border-white/10 bg-card/50 backdrop-blur">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                <XCircle className="h-6 w-6 text-red-500" />
+              </div>
+              <CardTitle className="text-2xl">Fehler</CardTitle>
+              <CardDescription>{message}</CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button onClick={() => navigate('/admin/login')} className="w-full">
                 Zur Login-Seite
-              </button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

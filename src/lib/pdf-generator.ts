@@ -1,13 +1,6 @@
-import type { Tables } from '@/integrations/supabase/types';
-import { supabase } from '@/integrations/supabase/client';
+import { settings, type Quote, type Invoice, type Customer, type QuoteItem, type InvoiceItem } from '@/lib/api-client';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
-type Quote = Tables<'quotes'>;
-type Invoice = Tables<'invoices'>;
-type Customer = Tables<'customers'>;
-type QuoteItem = Tables<'quote_items'>;
-type InvoiceItem = Tables<'invoice_items'>;
 
 interface CompanyInfo {
   name: string;
@@ -42,37 +35,39 @@ const defaultCompanyInfo: CompanyInfo = {
 
 // Load company info from admin settings
 export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
-  // Load company, branding, and payment settings
-  const { data, error } = await supabase
-    .from('admin_settings')
-    .select('key, value')
-    .in('key', ['company', 'branding', 'payment_methods']);
+  try {
+    const response = await settings.getAll();
 
-  if (error || !data) {
-    console.warn('Could not load settings, using defaults');
+    if (!response.success || !response.data) {
+      console.warn('Could not load settings, using defaults');
+      return defaultCompanyInfo;
+    }
+
+    const allSettings = response.data;
+    const companyData = allSettings.company as Record<string, unknown> | undefined;
+    const brandingData = allSettings.branding as Record<string, unknown> | undefined;
+    const paymentData = allSettings.payment_methods as Record<string, unknown> | undefined;
+
+    return {
+      name: (companyData?.name as string) || defaultCompanyInfo.name,
+      street: (companyData?.street as string) || defaultCompanyInfo.street,
+      zip: (companyData?.zip as string) || defaultCompanyInfo.zip,
+      city: (companyData?.city as string) || defaultCompanyInfo.city,
+      phone: (companyData?.phone as string) || defaultCompanyInfo.phone,
+      email: (companyData?.email as string) || defaultCompanyInfo.email,
+      website: (companyData?.website as string) || defaultCompanyInfo.website,
+      taxId: (companyData?.tax_number as string) || defaultCompanyInfo.taxId,
+      bankName: (companyData?.bank_name as string) || defaultCompanyInfo.bankName,
+      iban: (companyData?.iban as string) || defaultCompanyInfo.iban,
+      bic: (companyData?.bic as string) || defaultCompanyInfo.bic,
+      logoUrl: brandingData?.logo_url as string | undefined,
+      googleReviewUrl: brandingData?.google_review_url as string | undefined,
+      paypalLink: paymentData?.paypal_link as string | undefined,
+    };
+  } catch (error) {
+    console.warn('Could not load settings, using defaults:', error);
     return defaultCompanyInfo;
   }
-
-  const companyData = data.find(s => s.key === 'company')?.value as any;
-  const brandingData = data.find(s => s.key === 'branding')?.value as any;
-  const paymentData = data.find(s => s.key === 'payment_methods')?.value as any;
-
-  return {
-    name: companyData?.name || defaultCompanyInfo.name,
-    street: companyData?.street || defaultCompanyInfo.street,
-    zip: companyData?.zip || defaultCompanyInfo.zip,
-    city: companyData?.city || defaultCompanyInfo.city,
-    phone: companyData?.phone || defaultCompanyInfo.phone,
-    email: companyData?.email || defaultCompanyInfo.email,
-    website: companyData?.website || defaultCompanyInfo.website,
-    taxId: companyData?.tax_number || defaultCompanyInfo.taxId,
-    bankName: companyData?.bank_name || defaultCompanyInfo.bankName,
-    iban: companyData?.iban || defaultCompanyInfo.iban,
-    bic: companyData?.bic || defaultCompanyInfo.bic,
-    logoUrl: brandingData?.logo_url,
-    googleReviewUrl: brandingData?.google_review_url,
-    paypalLink: paymentData?.paypal_link,
-  };
 };
 
 const formatCurrency = (amount: number | null): string => {

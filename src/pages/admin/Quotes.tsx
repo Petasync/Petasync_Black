@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { quotes as quotesApi, customers as customersApi, invoices as invoicesApi, jobs as jobsApi, settings as settingsApi, type Quote as ApiQuote, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -23,7 +23,6 @@ import { Search, Plus, Edit, Loader2, FileText, MoreVertical, FileCheck, Briefca
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { QuoteEditor } from '@/components/admin/QuoteEditor';
-import type { Tables } from '@/integrations/supabase/types';
 import { generateQuotePDF, downloadPDF, loadCompanyInfo } from '@/lib/pdf-generator';
 import {
   DropdownMenu,
@@ -32,23 +31,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-type QuoteStatus = 'entwurf' | 'versendet' | 'angenommen' | 'abgelehnt' | 'rechnung_erstellt';
+type QuoteStatus = ApiQuote['status'];
 
-interface Quote {
-  id: string;
-  quote_number: string;
-  customer_id: string | null;
-  status: QuoteStatus;
-  quote_date: string;
-  valid_until: string | null;
-  total: number;
-  created_at: string;
+// Extended Quote type with customer relation
+type Quote = ApiQuote & {
   customers?: {
     first_name: string | null;
     last_name: string;
     company_name: string | null;
   } | null;
-}
+};
 
 const statusLabels: Record<QuoteStatus, string> = {
   entwurf: 'Entwurf',
@@ -72,7 +64,7 @@ export default function AdminQuotes() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editingQuote, setEditingQuote] = useState<Tables<'quotes'> | null>(null);
+  const [editingQuote, setEditingQuote] = useState<ApiQuote | null>(null);
 
   useEffect(() => {
     fetchQuotes();
@@ -80,34 +72,28 @@ export default function AdminQuotes() {
 
   const fetchQuotes = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('quotes')
-      .select(`
-        *,
-        customers (
-          first_name,
-          last_name,
-          company_name
-        )
-      `)
-      .order('created_at', { ascending: false });
+    const response = await quotesApi.list({ sort: 'created_at', order: 'desc' });
 
-    if (error) {
-      toast.error(error.message);
+    if (!response.success) {
+      toast.error(response.error || 'Angebote konnten nicht geladen werden');
     } else {
-      setQuotes(data || []);
+      const data = response.data;
+      if (Array.isArray(data)) {
+        setQuotes(data as Quote[]);
+      } else if (data && 'items' in data) {
+        setQuotes(data.items as Quote[]);
+      } else {
+        setQuotes([]);
+      }
     }
     setLoading(false);
   };
 
   const updateStatus = async (id: string, status: QuoteStatus) => {
-    const { error } = await supabase
-      .from('quotes')
-      .update({ status })
-      .eq('id', id);
+    const response = await quotesApi.update(id, { status });
 
-    if (error) {
-      toast.error(error.message);
+    if (!response.success) {
+      toast.error(response.error || 'Fehler beim Aktualisieren');
     } else {
       toast.success('Status aktualisiert');
       fetchQuotes();
@@ -115,7 +101,7 @@ export default function AdminQuotes() {
   };
 
   const openEditor = (quote?: Quote) => {
-    setEditingQuote(quote ? quote as Tables<'quotes'> : null);
+    setEditingQuote(quote ? quote as ApiQuote : null);
     setEditorOpen(true);
   };
 
@@ -138,73 +124,50 @@ export default function AdminQuotes() {
     if (!confirm(`Angebot ${quote.quote_number} in Rechnung umwandeln?`)) return;
 
     try {
-      // Get quote items
-      const { data: quoteItems, error: itemsError } = await supabase
-        .from('quote_items')
-        .select('*')
-        .eq('quote_id', quote.id);
+      // Get quote with items
+      const quoteResponse = await quotesApi.get(quote.id);
+      if (!quoteResponse.success) throw new Error('Angebot konnte nicht geladen werden');
 
-      if (itemsError) throw itemsError;
+      const quoteData = quoteResponse.data as ApiQuote;
+      const quoteItems = quoteData.items || [];
 
-      // Get next invoice number
-      const { data: settings } = await supabase
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'number_sequences')
-        .single();
+      // Get next invoice number from settings
+      const settingsResponse = await settingsApi.get<{ invoice_prefix?: string; invoice_suffix?: string; invoice_counter?: number }>('number_sequences');
+      const numbers = settingsResponse.data || {};
+      const invoiceNumber = `${numbers.invoice_prefix || 'RE'}-${new Date().getFullYear()}-${String(numbers.invoice_counter || 1).padStart(4, '0')}${numbers.invoice_suffix || ''}`;
 
-      const numbers = settings?.value as any;
-      const invoiceNumber = `${numbers?.invoice_prefix || 'RE'}-${new Date().getFullYear()}-${String(numbers?.invoice_counter || 1).padStart(4, '0')}${numbers?.invoice_suffix || ''}`;
-
-      // Create invoice
-      const { data: newInvoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert({
-          invoice_number: invoiceNumber,
-          customer_id: quote.customer_id,
-          invoice_date: new Date().toISOString().split('T')[0],
-          due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          status: 'offen',
-          subtotal: quote.total,
-          tax_rate: 19,
-          tax_amount: quote.total * 0.19,
-          total: quote.total * 1.19,
-          notes: `Erstellt aus Angebot ${quote.quote_number}`,
-          payment_methods: 'Überweisung'
-        })
-        .select()
-        .single();
-
-      if (invoiceError) throw invoiceError;
-
-      // Copy quote items to invoice items
-      if (quoteItems && quoteItems.length > 0) {
-        const invoiceItems = quoteItems.map(item => ({
-          invoice_id: newInvoice.id,
+      // Create invoice with items
+      const invoiceResponse = await invoicesApi.create({
+        invoice_number: invoiceNumber,
+        customer_id: quote.customer_id,
+        quote_id: quote.id,
+        invoice_date: new Date().toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'entwurf',
+        subtotal: quote.subtotal,
+        discount_percent: quote.discount_percent,
+        discount_amount: quote.discount_amount,
+        total: quote.total,
+        notes: `Erstellt aus Angebot ${quote.quote_number}`,
+        items: quoteItems.map(item => ({
+          service_id: item.service_id,
+          position: item.position,
           description: item.description,
           quantity: item.quantity,
+          unit: item.unit,
           unit_price: item.unit_price,
-          total: item.total,
-          unit: item.unit
-        }));
+          discount_percent: item.discount_percent,
+          total: item.total
+        }))
+      });
 
-        const { error: itemsInsertError } = await supabase
-          .from('invoice_items')
-          .insert(invoiceItems);
-
-        if (itemsInsertError) throw itemsInsertError;
-      }
+      if (!invoiceResponse.success) throw new Error(invoiceResponse.error || 'Rechnung konnte nicht erstellt werden');
 
       // Update invoice counter
-      await supabase
-        .from('admin_settings')
-        .update({
-          value: {
-            ...numbers,
-            invoice_counter: (numbers?.invoice_counter || 1) + 1
-          }
-        })
-        .eq('key', 'number_sequences');
+      await settingsApi.update('number_sequences', {
+        ...numbers,
+        invoice_counter: (numbers.invoice_counter || 1) + 1
+      });
 
       // Update quote status
       await updateStatus(quote.id, 'rechnung_erstellt');
@@ -219,24 +182,18 @@ export default function AdminQuotes() {
 
   const handleDownloadPDF = async (quote: Quote) => {
     try {
-      // Load quote items
-      const { data: quoteItems, error: itemsError } = await supabase
-        .from('quote_items')
-        .select('*')
-        .eq('quote_id', quote.id)
-        .order('position');
-
-      if (itemsError) throw itemsError;
+      // Load quote with items
+      const quoteResponse = await quotesApi.get(quote.id);
+      if (!quoteResponse.success) throw new Error('Angebot konnte nicht geladen werden');
+      const quoteData = quoteResponse.data as ApiQuote;
 
       // Load customer data
       let customer = null;
       if (quote.customer_id) {
-        const { data: customerData } = await supabase
-          .from('customers')
-          .select('*')
-          .eq('id', quote.customer_id)
-          .single();
-        customer = customerData;
+        const customerResponse = await customersApi.get(quote.customer_id);
+        if (customerResponse.success) {
+          customer = customerResponse.data;
+        }
       }
 
       // Load company info
@@ -244,9 +201,9 @@ export default function AdminQuotes() {
 
       // Generate PDF
       const blob = await generateQuotePDF(
-        quote as Tables<'quotes'>,
-        customer,
-        quoteItems || [],
+        quoteData as any,
+        customer as any,
+        quoteData.items || [],
         companyInfo
       );
 
@@ -262,30 +219,28 @@ export default function AdminQuotes() {
     if (!confirm(`Auftrag aus Angebot ${quote.quote_number} erstellen?`)) return;
 
     try {
-      // Get quote items for description
-      const { data: quoteItems } = await supabase
-        .from('quote_items')
-        .select('*')
-        .eq('quote_id', quote.id);
+      // Get quote with items for description
+      const quoteResponse = await quotesApi.get(quote.id);
+      if (!quoteResponse.success) throw new Error('Angebot konnte nicht geladen werden');
+      const quoteData = quoteResponse.data as ApiQuote;
+      const quoteItems = quoteData.items || [];
 
-      const description = quoteItems?.map(item =>
+      const description = quoteItems.map(item =>
         `${item.description} (${item.quantity} ${item.unit || 'Stk.'})`
       ).join('\n') || '';
 
       // Create job
-      const { error: jobError } = await supabase
-        .from('jobs')
-        .insert({
-          customer_id: quote.customer_id,
-          title: `Auftrag aus Angebot ${quote.quote_number}`,
-          description,
-          status: 'offen',
-          priority: 'normal',
-          notes: `Erstellt aus Angebot ${quote.quote_number}\nGesamtwert: ${new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}`,
-          start_date: new Date().toISOString().split('T')[0]
-        });
+      const jobResponse = await jobsApi.create({
+        customer_id: quote.customer_id,
+        quote_id: quote.id,
+        title: `Auftrag aus Angebot ${quote.quote_number}`,
+        description,
+        status: 'offen',
+        notes: `Erstellt aus Angebot ${quote.quote_number}\nGesamtwert: ${new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(quote.total)}`,
+        scheduled_date: new Date().toISOString().split('T')[0]
+      });
 
-      if (jobError) throw jobError;
+      if (!jobResponse.success) throw new Error(jobResponse.error || 'Auftrag konnte nicht erstellt werden');
 
       toast.success('Auftrag erfolgreich erstellt');
       fetchQuotes();

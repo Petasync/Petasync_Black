@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { supabase } from '@/integrations/supabase/client';
+import { appointments as appointmentsApi, customers as customersApi, type Appointment, type Customer } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,10 +12,8 @@ import { Calendar, Clock, MapPin, Plus, Search, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
-import type { Tables } from '@/integrations/supabase/types';
 
-type Appointment = Tables<'appointments'>;
-type Customer = Tables<'customers'>;
+type AppointmentWithCustomer = Appointment & { customer?: Customer };
 
 const statusColors: Record<string, string> = {
   ausstehend: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
@@ -32,12 +30,12 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function Appointments() {
-  const [appointments, setAppointments] = useState<(Appointment & { customer?: Customer })[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentWithCustomer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentWithCustomer | null>(null);
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -64,23 +62,34 @@ export default function Appointments() {
   }, []);
 
   const fetchAppointments = async () => {
-    const { data, error } = await supabase
-      .from('appointments')
-      .select('*, customer:customers(*)')
-      .order('scheduled_at', { ascending: true });
+    const response = await appointmentsApi.list({ sort: 'scheduled_at', order: 'asc' });
 
-    if (error) {
+    if (!response.success) {
       toast.error('Fehler beim Laden der Termine');
+      setLoading(false);
       return;
     }
 
-    setAppointments(data || []);
+    const data = response.data;
+    if (Array.isArray(data)) {
+      setAppointments(data as AppointmentWithCustomer[]);
+    } else if (data && 'items' in data) {
+      setAppointments(data.items as AppointmentWithCustomer[]);
+    } else {
+      setAppointments([]);
+    }
     setLoading(false);
   };
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from('customers').select('*').order('last_name');
-    setCustomers(data || []);
+    const response = await customersApi.list({ sort: 'last_name', order: 'asc' });
+    if (response.success && response.data) {
+      if (Array.isArray(response.data)) {
+        setCustomers(response.data);
+      } else if ('items' in response.data) {
+        setCustomers(response.data.items);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,20 +101,17 @@ export default function Appointments() {
     };
 
     if (editingAppointment) {
-      const { error } = await supabase
-        .from('appointments')
-        .update(appointmentData)
-        .eq('id', editingAppointment.id);
+      const response = await appointmentsApi.update(editingAppointment.id, appointmentData);
 
-      if (error) {
+      if (!response.success) {
         toast.error('Fehler beim Aktualisieren');
         return;
       }
       toast.success('Termin aktualisiert');
     } else {
-      const { error } = await supabase.from('appointments').insert(appointmentData);
+      const response = await appointmentsApi.create(appointmentData);
 
-      if (error) {
+      if (!response.success) {
         toast.error('Fehler beim Erstellen');
         return;
       }
@@ -131,7 +137,7 @@ export default function Appointments() {
     setEditingAppointment(null);
   };
 
-  const openEditDialog = (appointment: Appointment) => {
+  const openEditDialog = (appointment: AppointmentWithCustomer) => {
     setEditingAppointment(appointment);
     setFormData({
       title: appointment.title,
@@ -140,15 +146,15 @@ export default function Appointments() {
       duration_minutes: appointment.duration_minutes || 60,
       location: appointment.location || '',
       customer_id: appointment.customer_id || '',
-      status: appointment.status || 'ausstehend',
+      status: (appointment.status as 'ausstehend' | 'bestaetigt' | 'abgesagt' | 'erledigt') || 'ausstehend',
       notes: appointment.notes || '',
     });
     setDialogOpen(true);
   };
 
   const updateStatus = async (id: string, status: 'ausstehend' | 'bestaetigt' | 'abgesagt' | 'erledigt') => {
-    const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
-    if (error) {
+    const response = await appointmentsApi.update(id, { status });
+    if (!response.success) {
       toast.error('Fehler beim Aktualisieren');
       return;
     }
