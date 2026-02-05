@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Calendar, FileText, Receipt, TrendingUp, Clock, AlertCircle, Loader2, Euro, Users, RefreshCw } from 'lucide-react';
-import { dashboard, jobs, type DashboardStats } from '@/lib/api-client';
+import { dashboard, jobs, type DashboardStats, type MonthlyRevenue } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ExtendedStats extends DashboardStats {
   recentInquiries: any[];
@@ -12,6 +13,7 @@ interface ExtendedStats extends DashboardStats {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<ExtendedStats | null>(null);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +25,11 @@ export default function AdminDashboard() {
       setLoading(true);
 
       // Fetch dashboard stats from API
-      const [statsResponse, activityResponse, jobsResponse] = await Promise.all([
+      const [statsResponse, activityResponse, jobsResponse, revenueResponse] = await Promise.all([
         dashboard.getStats(),
         dashboard.getRecentActivity(),
         jobs.list({ status: 'offen' }),
+        dashboard.getMonthlyRevenue(),
       ]);
 
       if (!statsResponse.success) {
@@ -42,6 +45,10 @@ export default function AdminDashboard() {
         recentInquiries: activity?.inquiries || [],
         openJobs: openJobs.slice(0, 5),
       });
+
+      if (revenueResponse.success && revenueResponse.data) {
+        setMonthlyRevenue(Array.isArray(revenueResponse.data) ? revenueResponse.data : []);
+      }
     } catch (error: any) {
       console.error('Error fetching dashboard stats:', error);
       toast.error('Fehler beim Laden der Dashboard-Daten');
@@ -121,6 +128,52 @@ export default function AdminDashboard() {
               </Card>
             ))}
           </div>
+        )}
+
+        {/* Monthly Revenue Chart */}
+        {!loading && monthlyRevenue.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Monatlicher Umsatz
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyRevenue}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="monat"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [formatCurrency(value), 'Umsatz']}
+                      labelFormatter={(label) => `Monat: ${label}`}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    />
+                    <Bar
+                      dataKey="umsatz"
+                      fill="hsl(var(--primary))"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Quick Actions */}
