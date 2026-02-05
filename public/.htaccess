@@ -2,6 +2,9 @@
   RewriteEngine On
   RewriteBase /
 
+  # WICHTIG: API-Anfragen NICHT an index.html weiterleiten
+  RewriteRule ^api/ - [L]
+
   # Handle existing files and directories
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
