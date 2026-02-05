@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Download, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { settings } from '@/lib/api-client';
 
 interface GoogleReviewQRCodeProps {
   open: boolean;
@@ -22,14 +22,10 @@ export function GoogleReviewQRCode({ open, onOpenChange }: GoogleReviewQRCodePro
 
   const fetchReviewUrl = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('admin_settings')
-      .select('value')
-      .eq('key', 'branding')
-      .maybeSingle();
+    const response = await settings.get<Record<string, unknown>>('branding');
 
-    if (data?.value && typeof data.value === 'object' && 'google_review_url' in data.value) {
-      setReviewUrl(data.value.google_review_url as string || '');
+    if (response.success && response.data && typeof response.data === 'object' && 'google_review_url' in response.data) {
+      setReviewUrl(response.data.google_review_url as string || '');
     }
     setLoading(false);
   };
