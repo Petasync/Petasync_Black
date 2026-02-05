@@ -574,7 +574,7 @@ CREATE TRIGGER update_recurring_invoices_updated_at BEFORE UPDATE ON recurring_i
 -- FUNKTION: Nächstes Rechnungsdatum berechnen
 -- =====================================================
 CREATE OR REPLACE FUNCTION calculate_next_invoice_date(
-    current_date DATE,
+    p_current_date DATE,
     invoice_interval recurring_interval
 )
 RETURNS DATE
@@ -583,15 +583,15 @@ AS $$
 BEGIN
     CASE invoice_interval
         WHEN 'monatlich' THEN
-            RETURN current_date + INTERVAL '1 month';
+            RETURN p_current_date + INTERVAL '1 month';
         WHEN 'vierteljaehrlich' THEN
-            RETURN current_date + INTERVAL '3 months';
+            RETURN p_current_date + INTERVAL '3 months';
         WHEN 'halbjaehrlich' THEN
-            RETURN current_date + INTERVAL '6 months';
+            RETURN p_current_date + INTERVAL '6 months';
         WHEN 'jaehrlich' THEN
-            RETURN current_date + INTERVAL '1 year';
+            RETURN p_current_date + INTERVAL '1 year';
         ELSE
-            RETURN current_date + INTERVAL '1 month';
+            RETURN p_current_date + INTERVAL '1 month';
     END CASE;
 END;
 $$;
