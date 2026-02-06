@@ -1,7 +1,11 @@
 /**
  * API Client für Petasync Backend
  *
- * Ersetzt den Supabase Client mit direkten API-Aufrufen
+ * Features:
+ * - Automatisches Token Refresh
+ * - Retry-Logik für Netzwerkfehler
+ * - Zentrale Fehlerbehandlung
+ * - TypeScript Support
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -32,7 +36,7 @@ export function clearTokens(): void {
 }
 
 // ============================================
-// Base Fetch Wrapper
+// Base Fetch Wrapper with Retry Logic
 // ============================================
 interface ApiResponse<T = unknown> {
   success: boolean;
@@ -49,13 +53,56 @@ interface ApiResponse<T = unknown> {
 
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
+  retries?: number;
+}
+
+// Flag um parallele Refresh-Requests zu verhindern
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshAccessToken(): Promise<boolean> {
+  // Wenn bereits ein Refresh läuft, warte darauf
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return false;
+
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data?.access_token) {
+        localStorage.setItem(TOKEN_KEY, data.data.access_token);
+        return true;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+    }
+
+    return false;
+  })();
+
+  const result = await refreshPromise;
+  isRefreshing = false;
+  refreshPromise = null;
+
+  return result;
 }
 
 async function apiFetch<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<ApiResponse<T>> {
-  const { skipAuth = false, ...fetchOptions } = options;
+  const { skipAuth = false, retries = 3, ...fetchOptions } = options;
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -72,65 +119,82 @@ async function apiFetch<T>(
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
 
-  try {
-    const response = await fetch(url, {
-      ...fetchOptions,
-      headers,
-    });
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...fetchOptions,
+        headers,
+      });
 
-    // Handle CSV downloads
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('text/csv')) {
-      const blob = await response.blob();
-      return { success: true, data: blob as unknown as T };
-    }
-
-    const data = await response.json();
-
-    // Handle token refresh on 401
-    if (response.status === 401 && !skipAuth) {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        // Retry the request with new token
-        return apiFetch<T>(endpoint, options);
+      // Handle CSV downloads
+      const contentType = response.headers.get('content-type');
+      if (contentType?.includes('text/csv')) {
+        const blob = await response.blob();
+        return { success: true, data: blob as unknown as T };
       }
-      // Refresh failed, clear tokens
-      clearTokens();
-      window.location.href = '/admin/login';
+
+      // Handle empty responses
+      const text = await response.text();
+      if (!text) {
+        if (response.ok) {
+          return { success: true };
+        }
+        return { success: false, error: 'Empty response' };
+      }
+
+      let data: ApiResponse<T>;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return { success: false, error: 'Invalid JSON response' };
+      }
+
+      // Handle 401 - Token expired
+      if (response.status === 401 && !skipAuth) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          // Retry with new token
+          const newToken = getAccessToken();
+          if (newToken) {
+            (headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
+          }
+          // Continue to retry
+          continue;
+        }
+
+        // Refresh failed - redirect to login
+        clearTokens();
+        // Nur redirect wenn wir nicht schon auf login sind
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/admin/login';
+        }
+        return { success: false, error: 'Session expired' };
+      }
+
+      // Handle server errors with retry
+      if (response.status >= 500 && attempt < retries - 1) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+
+      return data;
+    } catch (error) {
+      console.error(`API Error (attempt ${attempt + 1}/${retries}):`, error);
+
+      // Network errors - retry with backoff
+      if (attempt < retries - 1) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
     }
-
-    return data;
-  } catch (error) {
-    console.error('API Error:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Network error',
-    };
-  }
-}
-
-async function refreshAccessToken(): Promise<boolean> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return false;
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-
-    const data = await response.json();
-
-    if (data.success && data.data?.access_token) {
-      localStorage.setItem(TOKEN_KEY, data.data.access_token);
-      return true;
-    }
-  } catch (error) {
-    console.error('Token refresh failed:', error);
   }
 
-  return false;
+  return { success: false, error: 'Max retries exceeded' };
 }
 
 // ============================================
@@ -148,6 +212,7 @@ export const auth = {
         email: string;
         display_name: string;
         role: string;
+        totp_enabled?: boolean;
       };
     }>('/auth/login', {
       method: 'POST',
@@ -435,17 +500,14 @@ export interface Invoice {
   due_date: string | null;
   subtotal: number;
   discount_percent: number;
-  discount_type: 'percent' | 'euro';
   discount_amount: number;
   total: number;
   notes: string | null;
   payment_terms: string | null;
-  payment_methods: string | null;
   sent_at: string | null;
   paid_at: string | null;
   paid_amount: number | null;
   payment_method: string | null;
-  pdf_url: string | null;
   created_at: string;
   updated_at: string;
   items?: InvoiceItem[];
