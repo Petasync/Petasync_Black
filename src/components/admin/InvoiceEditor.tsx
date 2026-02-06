@@ -318,55 +318,62 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   };
 
   const handleDownloadPDF = async () => {
-    const customer = customers.find(c => c.id === formData.customer_id) || null;
-    const { subtotal, discountAmount, total } = calculateTotals();
+    try {
+      toast.info('PDF wird erstellt...');
 
-    // Load company info from settings
-    const companyInfo = await loadCompanyInfo();
+      const customer = customers.find(c => c.id === formData.customer_id) || null;
+      const { subtotal, discountAmount, total } = calculateTotals();
 
-    const invoiceForPDF: Invoice = {
-      id: invoice?.id || '',
-      invoice_number: formData.invoice_number,
-      invoice_date: formData.invoice_date,
-      delivery_date: formData.delivery_date || null,
-      due_date: formData.due_date || null,
-      discount_percent: formData.discount_percent,
-      discount_type: formData.discount_type,
-      discount_amount: discountAmount,
-      subtotal,
-      total,
-      notes: formData.notes || null,
-      payment_terms: formData.payment_terms || null,
-      payment_method: formData.payment_methods.join(', '),
-      payment_methods: formData.payment_methods.join(', '),
-      status: formData.status,
-      customer_id: formData.customer_id || null,
-      quote_id: null,
-      recurring_invoice_id: null,
-      pdf_url: null,
-      sent_at: null,
-      paid_at: null,
-      paid_amount: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      // Load company info from settings
+      const companyInfo = await loadCompanyInfo();
 
-    const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
-      id: item.id || '',
-      invoice_id: invoice?.id || '',
-      position: index + 1,
-      description: item.description,
-      quantity: item.quantity,
-      unit: item.unit,
-      unit_price: item.unit_price,
-      discount_percent: item.discount_percent,
-      total: item.total,
-      service_id: item.service_id || null,
-    }));
+      const invoiceForPDF: Invoice = {
+        id: invoice?.id || '',
+        invoice_number: formData.invoice_number,
+        invoice_date: formData.invoice_date,
+        delivery_date: formData.delivery_date || null,
+        due_date: formData.due_date || null,
+        discount_percent: formData.discount_percent,
+        discount_type: formData.discount_type,
+        discount_amount: discountAmount,
+        subtotal,
+        total,
+        notes: formData.notes || null,
+        payment_terms: formData.payment_terms || null,
+        payment_method: formData.payment_methods.join(', '),
+        payment_methods: formData.payment_methods.join(', '),
+        status: formData.status,
+        customer_id: formData.customer_id || null,
+        quote_id: null,
+        recurring_invoice_id: null,
+        pdf_url: null,
+        sent_at: null,
+        paid_at: null,
+        paid_amount: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
-    downloadPDF(blob, `Rechnung_${formData.invoice_number}.pdf`);
-    toast.success('PDF heruntergeladen');
+      const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
+        id: item.id || '',
+        invoice_id: invoice?.id || '',
+        position: index + 1,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        unit_price: item.unit_price,
+        discount_percent: item.discount_percent,
+        total: item.total,
+        service_id: item.service_id || null,
+      }));
+
+      const blob = await generateInvoicePDF(invoiceForPDF, customer, itemsForPDF, companyInfo);
+      downloadPDF(blob, `Rechnung_${formData.invoice_number}.pdf`);
+      toast.success('PDF heruntergeladen');
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast.error('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.');
+    }
   };
 
   const { subtotal, discountAmount, total } = calculateTotals();

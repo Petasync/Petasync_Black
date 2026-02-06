@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { settings as settingsApi } from '@/lib/api-client';
+import { settings as settingsApi, migration as migrationApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Building2, Hash, FileText, Mail, Bell, Save, Palette, Upload, X, Receipt } from 'lucide-react';
+import { Loader2, Building2, Hash, FileText, Bell, Save, Palette, Upload, X, Receipt, Database, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface CompanySettings {
   name: string;
@@ -97,9 +97,15 @@ export default function AdminSettings() {
     other_methods: ''
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [migrationStatus, setMigrationStatus] = useState<{
+    table_counts: Record<string, number>;
+    has_data: boolean;
+  } | null>(null);
+  const [runningMigration, setRunningMigration] = useState(false);
 
   useEffect(() => {
     fetchSettings();
+    fetchMigrationStatus();
   }, []);
 
   const fetchSettings = async () => {
@@ -148,6 +154,45 @@ export default function AdminSettings() {
     }
   };
 
+  const fetchMigrationStatus = async () => {
+    const response = await migrationApi.getStatus();
+    if (response.success && response.data) {
+      setMigrationStatus(response.data);
+    }
+  };
+
+  const runMigration = async () => {
+    if (!confirm('Möchten Sie wirklich die Daten importieren? Dies kann bestehende Daten überschreiben.')) {
+      return;
+    }
+
+    setRunningMigration(true);
+    toast({ title: 'Migration läuft...', description: 'Bitte warten Sie.' });
+
+    const response = await migrationApi.run();
+
+    if (response.success && response.data) {
+      const result = response.data;
+      if (result.errors?.length > 0) {
+        toast({
+          title: 'Migration mit Warnungen',
+          description: `${result.statements_executed} Statements ausgeführt, ${result.errors.length} Fehler`,
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Migration erfolgreich',
+          description: `${result.statements_executed} Statements ausgeführt`
+        });
+      }
+      fetchMigrationStatus();
+    } else {
+      toast({ title: 'Migration fehlgeschlagen', description: response.error, variant: 'destructive' });
+    }
+
+    setRunningMigration(false);
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -167,12 +212,13 @@ export default function AdminSettings() {
         </div>
 
         <Tabs defaultValue="company" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="company">Firmendaten</TabsTrigger>
             <TabsTrigger value="numbers">Nummernkreise</TabsTrigger>
             <TabsTrigger value="branding">Branding</TabsTrigger>
             <TabsTrigger value="payment_methods">Zahlungsmethoden</TabsTrigger>
             <TabsTrigger value="notifications">Benachrichtigungen</TabsTrigger>
+            <TabsTrigger value="migration">Daten-Migration</TabsTrigger>
           </TabsList>
 
           {/* Company Settings */}
@@ -670,6 +716,69 @@ export default function AdminSettings() {
                   <Save className="h-4 w-4 mr-2" />
                   Speichern
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Data Migration */}
+          <TabsContent value="migration">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Daten-Migration
+                </CardTitle>
+                <CardDescription>
+                  Importieren Sie Daten aus der migration_data.sql Datei
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {migrationStatus && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-lg font-medium">
+                      {migrationStatus.has_data ? (
+                        <>
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                          Datenbank enthält Daten
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="h-5 w-5 text-yellow-500" />
+                          Datenbank ist leer
+                        </>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {Object.entries(migrationStatus.table_counts).map(([table, count]) => (
+                        <div key={table} className="p-3 rounded-lg bg-muted">
+                          <p className="text-sm text-muted-foreground capitalize">{table.replace('_', ' ')}</p>
+                          <p className="text-2xl font-bold">{count}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="border-t pt-4 space-y-4">
+                      <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                        <h4 className="font-medium text-amber-800 dark:text-amber-200">Hinweis zur Migration</h4>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                          Die Migration importiert Daten aus der Datei <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded">database/migration_data.sql</code>.
+                          Bestehende Einträge mit gleicher ID werden übersprungen (ON CONFLICT DO NOTHING).
+                        </p>
+                      </div>
+
+                      <Button
+                        onClick={runMigration}
+                        disabled={runningMigration}
+                        variant={migrationStatus.has_data ? "outline" : "default"}
+                      >
+                        {runningMigration && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        <Database className="h-4 w-4 mr-2" />
+                        {migrationStatus.has_data ? 'Migration erneut ausführen' : 'Daten importieren'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
