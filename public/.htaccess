@@ -2,12 +2,11 @@
   RewriteEngine On
   RewriteBase /
 
-  # WICHTIG: API-Anfragen NICHT an index.html weiterleiten
-  RewriteRule ^api/ - [L]
-
   # Handle existing files and directories
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
+  # WICHTIG: API-Anfragen NICHT an index.html weiterleiten
+  RewriteCond %{REQUEST_URI} !^/api/
 
   # Redirect all requests to index.html for SPA routing
   RewriteRule ^ index.html [QSA,L]
