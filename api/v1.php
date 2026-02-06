@@ -735,13 +735,11 @@ $router->post('/invoices', function () {
             'due_date' => $body['due_date'] ?? null,
             'subtotal' => $body['subtotal'] ?? 0,
             'discount_percent' => $body['discount_percent'] ?? 0,
-            'discount_type' => $body['discount_type'] ?? 'percent',
             'discount_amount' => $body['discount_amount'] ?? 0,
             'total' => $body['total'] ?? 0,
             'notes' => $body['notes'] ?? null,
             'payment_terms' => $body['payment_terms'] ?? null,
             'payment_method' => $body['payment_method'] ?? null,
-            'payment_methods' => $body['payment_methods'] ?? null,
         ];
 
         $invoiceId = Database::insert('invoices', $invoiceData);
@@ -799,13 +797,11 @@ $router->put('/invoices/{id}', function ($params) {
             'due_date' => $body['due_date'] ?? null,
             'subtotal' => $body['subtotal'] ?? null,
             'discount_percent' => $body['discount_percent'] ?? null,
-            'discount_type' => $body['discount_type'] ?? null,
             'discount_amount' => $body['discount_amount'] ?? null,
             'total' => $body['total'] ?? null,
             'notes' => $body['notes'] ?? null,
             'payment_terms' => $body['payment_terms'] ?? null,
             'payment_method' => $body['payment_method'] ?? null,
-            'payment_methods' => $body['payment_methods'] ?? null,
             'sent_at' => $body['sent_at'] ?? null,
             'paid_at' => $body['paid_at'] ?? null,
             'paid_amount' => $body['paid_amount'] ?? null,
