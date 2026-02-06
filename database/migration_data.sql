@@ -104,8 +104,8 @@ INSERT INTO invoice_items (id, invoice_id, service_id, position, description, qu
 ON CONFLICT (id) DO NOTHING;
 
 -- 7. JOBS
-INSERT INTO jobs (id, customer_id, title, description, status, priority, notes, start_date, due_date, completed_date, created_at, updated_at) VALUES
-('1dfd1eea-448e-44f1-bf10-6ec3047599ca', '31d252c3-cc1d-45bc-972c-29bf861570ca', 'Auftrag aus Angebot AG-2026-0008', 'PC Zusammenbau - Wir bauen Ihren Wunsch-PC nach Ihren Anforderungen zusammen – ob Gaming, Office oder Workstation. Individuelle Konfiguration, Windows-Installation, 12 Monate Garantie. (1 pauschal)', 'offen', 'normal', E'Erstellt aus Angebot AG-2026-0008\nGesamtwert: 300,00 €', '2026-01-01', NULL, NULL, '2026-01-01T19:31:15.006389+00:00', '2026-01-01T19:31:15.006389+00:00')
+INSERT INTO jobs (id, customer_id, title, description, status, notes, scheduled_date, completed_date, created_at, updated_at) VALUES
+('1dfd1eea-448e-44f1-bf10-6ec3047599ca', '31d252c3-cc1d-45bc-972c-29bf861570ca', 'Auftrag aus Angebot AG-2026-0008', 'PC Zusammenbau - Wir bauen Ihren Wunsch-PC nach Ihren Anforderungen zusammen – ob Gaming, Office oder Workstation. Individuelle Konfiguration, Windows-Installation, 12 Monate Garantie. (1 pauschal)', 'offen', E'Erstellt aus Angebot AG-2026-0008\nGesamtwert: 300,00 €', '2026-01-01', NULL, '2026-01-01T19:31:15.006389+00:00', '2026-01-01T19:31:15.006389+00:00')
 ON CONFLICT (id) DO NOTHING;
 
 -- 8. ADMIN SETTINGS (Update existing)
