@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -52,7 +52,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAdminAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = async () => {
     await logout();

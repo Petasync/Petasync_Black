@@ -1561,5 +1561,78 @@ $router->get('/users', function () {
     Response::success($users);
 });
 
+// ============================================
+// DATA MIGRATION (Admin Only)
+// ============================================
+$router->post('/migrate/run', function () {
+    Auth::requireAdmin();
+
+    $migrationFile = __DIR__ . '/../database/migration_data.sql';
+
+    if (!file_exists($migrationFile)) {
+        Response::error('Migration file not found', 404);
+    }
+
+    $sql = file_get_contents($migrationFile);
+    if (!$sql) {
+        Response::error('Could not read migration file', 500);
+    }
+
+    try {
+        $pdo = Database::getConnection();
+
+        // Split SQL into statements and execute each one
+        // Remove comments for cleaner execution
+        $statements = preg_split('/;[\r\n]+/', $sql);
+
+        $executed = 0;
+        $errors = [];
+
+        foreach ($statements as $statement) {
+            $statement = trim($statement);
+
+            // Skip empty statements and comments
+            if (empty($statement) || strpos($statement, '--') === 0) {
+                continue;
+            }
+
+            try {
+                $pdo->exec($statement);
+                $executed++;
+            } catch (PDOException $e) {
+                $errors[] = substr($statement, 0, 100) . '... - ' . $e->getMessage();
+            }
+        }
+
+        Response::success([
+            'message' => 'Migration completed',
+            'statements_executed' => $executed,
+            'errors' => $errors
+        ]);
+
+    } catch (Exception $e) {
+        Response::error('Migration failed: ' . $e->getMessage(), 500);
+    }
+});
+
+$router->get('/migrate/status', function () {
+    Auth::requireAdmin();
+
+    // Check data counts in each table
+    $counts = [
+        'customers' => Database::queryOne("SELECT COUNT(*) as count FROM customers")['count'] ?? 0,
+        'service_catalog' => Database::queryOne("SELECT COUNT(*) as count FROM service_catalog")['count'] ?? 0,
+        'quotes' => Database::queryOne("SELECT COUNT(*) as count FROM quotes")['count'] ?? 0,
+        'invoices' => Database::queryOne("SELECT COUNT(*) as count FROM invoices")['count'] ?? 0,
+        'jobs' => Database::queryOne("SELECT COUNT(*) as count FROM jobs")['count'] ?? 0,
+        'settings' => Database::queryOne("SELECT COUNT(*) as count FROM settings")['count'] ?? 0,
+    ];
+
+    Response::success([
+        'table_counts' => $counts,
+        'has_data' => array_sum($counts) > 0
+    ]);
+});
+
 // Router ausführen
 $router->dispatch();

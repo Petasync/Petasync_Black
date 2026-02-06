@@ -792,6 +792,39 @@ export async function submitContactForm(data: {
   });
 }
 
+// ============================================
+// Migration API (Admin Only)
+// ============================================
+export interface MigrationStatus {
+  table_counts: {
+    customers: number;
+    service_catalog: number;
+    quotes: number;
+    invoices: number;
+    jobs: number;
+    settings: number;
+  };
+  has_data: boolean;
+}
+
+export interface MigrationResult {
+  message: string;
+  statements_executed: number;
+  errors: string[];
+}
+
+export const migration = {
+  async getStatus() {
+    return apiFetch<MigrationStatus>('/v1/migrate/status');
+  },
+
+  async run() {
+    return apiFetch<MigrationResult>('/v1/migrate/run', {
+      method: 'POST',
+    });
+  },
+};
+
 // Default export for compatibility
 const api = {
   auth,
@@ -807,6 +840,7 @@ const api = {
   settings,
   dashboard,
   export: exportApi,
+  migration,
   submitContactForm,
 };
 

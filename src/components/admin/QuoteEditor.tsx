@@ -284,48 +284,55 @@ export function QuoteEditor({ quote, open, onOpenChange, onSave }: QuoteEditorPr
   };
 
   const handleDownloadPDF = async () => {
-    const customer = customers.find(c => c.id === formData.customer_id) || null;
-    const { subtotal, discountAmount, total } = calculateTotals();
+    try {
+      toast.info('PDF wird erstellt...');
 
-    // Load company info from settings
-    const companyInfo = await loadCompanyInfo();
+      const customer = customers.find(c => c.id === formData.customer_id) || null;
+      const { subtotal, discountAmount, total } = calculateTotals();
 
-    const quoteForPDF: Quote = {
-      id: quote?.id || '',
-      quote_number: formData.quote_number,
-      quote_date: formData.quote_date,
-      valid_until: formData.valid_until || null,
-      discount_percent: formData.discount_percent,
-      discount_amount: discountAmount,
-      subtotal,
-      total,
-      notes: formData.notes || null,
-      terms: formData.terms || null,
-      status: formData.status,
-      customer_id: formData.customer_id || null,
-      inquiry_id: null,
-      sent_at: null,
-      accepted_at: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      // Load company info from settings
+      const companyInfo = await loadCompanyInfo();
 
-    const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
-      id: item.id || '',
-      quote_id: quote?.id || '',
-      position: index + 1,
-      description: item.description,
-      quantity: item.quantity,
-      unit: item.unit,
-      unit_price: item.unit_price,
-      discount_percent: item.discount_percent,
-      total: item.total,
-      service_id: item.service_id || null,
-    }));
+      const quoteForPDF: Quote = {
+        id: quote?.id || '',
+        quote_number: formData.quote_number,
+        quote_date: formData.quote_date,
+        valid_until: formData.valid_until || null,
+        discount_percent: formData.discount_percent,
+        discount_amount: discountAmount,
+        subtotal,
+        total,
+        notes: formData.notes || null,
+        terms: formData.terms || null,
+        status: formData.status,
+        customer_id: formData.customer_id || null,
+        inquiry_id: null,
+        sent_at: null,
+        accepted_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF, companyInfo);
-    downloadPDF(blob, `Angebot_${formData.quote_number}.pdf`);
-    toast.success('PDF heruntergeladen');
+      const itemsForPDF = items.filter(i => i.description).map((item, index) => ({
+        id: item.id || '',
+        quote_id: quote?.id || '',
+        position: index + 1,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit,
+        unit_price: item.unit_price,
+        discount_percent: item.discount_percent,
+        total: item.total,
+        service_id: item.service_id || null,
+      }));
+
+      const blob = await generateQuotePDF(quoteForPDF, customer, itemsForPDF, companyInfo);
+      downloadPDF(blob, `Angebot_${formData.quote_number}.pdf`);
+      toast.success('PDF heruntergeladen');
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast.error('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.');
+    }
   };
 
   const { subtotal, discountAmount, total } = calculateTotals();
