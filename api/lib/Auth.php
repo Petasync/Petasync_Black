@@ -267,7 +267,7 @@ class Auth
     /**
      * Passwort-Reset anfordern
      */
-    public static function requestPasswordReset(string $email): void
+    public static function requestPasswordReset(string $email): ?string
     {
         $user = Database::queryOne(
             "SELECT id, email FROM users WHERE LOWER(email) = LOWER(:email)",
@@ -276,7 +276,7 @@ class Auth
 
         // Auch wenn User nicht existiert, geben wir keine Info preis
         if (!$user) {
-            return;
+            return null;
         }
 
         // Reset-Token generieren
