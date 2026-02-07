@@ -793,6 +793,52 @@ export async function submitContactForm(data: {
 }
 
 // ============================================
+// File Upload API
+// ============================================
+export interface UploadResult {
+  url: string;
+  filename: string;
+  size: number;
+  type: string;
+}
+
+export const upload = {
+  async file(file: File, type: 'logo' | 'icon' | 'general' = 'general') {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    const token = getAccessToken();
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false as const, error: data.error || 'Upload fehlgeschlagen' };
+      }
+
+      return { success: true as const, data: data.data as UploadResult };
+    } catch (error) {
+      return { success: false as const, error: error instanceof Error ? error.message : 'Netzwerkfehler' };
+    }
+  },
+
+  async deleteFile(filename: string) {
+    return apiFetch(`/v1/upload/${encodeURIComponent(filename)}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// ============================================
 // Migration API (Admin Only)
 // ============================================
 export interface MigrationStatus {
@@ -840,6 +886,7 @@ const api = {
   settings,
   dashboard,
   export: exportApi,
+  upload,
   migration,
   submitContactForm,
 };

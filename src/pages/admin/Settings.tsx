@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { settings as settingsApi, migration as migrationApi } from '@/lib/api-client';
+import { settings as settingsApi, migration as migrationApi, upload as uploadApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -138,12 +138,61 @@ export default function AdminSettings() {
     setSaving(false);
   };
 
-  const handleLogoUpload = async (_event: React.ChangeEvent<HTMLInputElement>, _type: 'logo' | 'icon') => {
-    // TODO: Implement file upload API endpoint in PHP backend
-    toast({
-      title: 'Info',
-      description: 'Datei-Upload wird noch implementiert. Bitte URL manuell eingeben.'
-    });
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'icon') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Fehler',
+        description: 'Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP, SVG',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Fehler',
+        description: 'Datei zu groß. Maximal 5MB erlaubt.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setUploadingLogo(true);
+    toast({ title: 'Uploading...', description: 'Datei wird hochgeladen...' });
+
+    const response = await uploadApi.file(file, type);
+
+    if (response.success && response.data) {
+      const newBranding = type === 'logo'
+        ? { ...branding, logo_url: response.data.url }
+        : { ...branding, logo_icon_url: response.data.url };
+
+      setBranding(newBranding);
+
+      // Auto-save the branding settings
+      await saveSettings('branding', newBranding);
+
+      toast({
+        title: 'Erfolgreich',
+        description: `${type === 'logo' ? 'Logo' : 'Icon'} wurde hochgeladen`
+      });
+    } else {
+      toast({
+        title: 'Fehler',
+        description: response.error || 'Upload fehlgeschlagen',
+        variant: 'destructive'
+      });
+    }
+
+    setUploadingLogo(false);
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
   };
 
   const removeLogo = (type: 'logo' | 'icon') => {
