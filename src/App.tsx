@@ -25,15 +25,25 @@ function lazyWithRetry<T extends ComponentType<unknown>>(
   importFn: () => Promise<{ default: T }>
 ) {
   return lazy(() =>
-    importFn().catch((error) => {
-      // Only retry once per session to prevent infinite loops
-      const alreadyRetried = sessionStorage.getItem(RELOAD_FLAG);
-      if (!alreadyRetried) {
-        sessionStorage.setItem(RELOAD_FLAG, '1');
-        window.location.reload();
-      }
-      throw error;
-    })
+    importFn()
+      .then((module) => {
+        // Import succeeded — clear any stale reload flag from a previous attempt
+        sessionStorage.removeItem(RELOAD_FLAG);
+        return module;
+      })
+      .catch((error) => {
+        // Only retry once per session to prevent infinite loops
+        const alreadyRetried = sessionStorage.getItem(RELOAD_FLAG);
+        if (!alreadyRetried) {
+          sessionStorage.setItem(RELOAD_FLAG, '1');
+          window.location.reload();
+          // Return never-resolving promise so Suspense shows the spinner
+          // until the page reload completes — prevents the error from
+          // propagating to ErrorBoundary and triggering a conflicting reload.
+          return new Promise<{ default: T }>(() => {});
+        }
+        throw error;
+      })
   );
 }
 
@@ -210,19 +220,23 @@ class ErrorBoundary extends React.Component<
   };
 
   handleClearCache = async () => {
-    // Unregister service workers
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
+    try {
+      // Unregister service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
       }
-    }
-    // Clear caches
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      for (const name of cacheNames) {
-        await caches.delete(name);
+      // Clear caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (const name of cacheNames) {
+          await caches.delete(name);
+        }
       }
+    } catch {
+      // Ignore — still clear storage and reload below
     }
     localStorage.clear();
     sessionStorage.clear();
@@ -414,11 +428,8 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  // Initialize analytics on app mount + clear chunk reload flag on success
   useEffect(() => {
     initAnalytics();
-    // App loaded successfully — clear reload flag so future navigations can retry
-    sessionStorage.removeItem(RELOAD_FLAG);
   }, []);
 
   return (
