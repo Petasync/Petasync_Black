@@ -17,6 +17,7 @@ interface CompanyInfo {
   logoUrl?: string;
   googleReviewUrl?: string;
   paypalLink?: string;
+  paypalEnabled?: boolean;
 }
 
 const defaultCompanyInfo: CompanyInfo = {
@@ -63,6 +64,7 @@ export const loadCompanyInfo = async (): Promise<CompanyInfo> => {
       logoUrl: brandingData?.logo_url as string | undefined,
       googleReviewUrl: brandingData?.google_review_url as string | undefined,
       paypalLink: paymentData?.paypal_link as string | undefined,
+      paypalEnabled: paymentData?.paypal_enabled as boolean | undefined,
     };
   } catch (error) {
     console.warn('Could not load settings, using defaults:', error);
@@ -376,25 +378,36 @@ export const generateInvoicePDF = async (
           </div>
         ` : ''}
 
-        <!-- QR Codes Section -->
-        <div style="display: flex; gap: 20px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px; page-break-inside: avoid; break-inside: avoid;">
+        <!-- QR Codes Section - page-break-inside: avoid prevents splitting across pages -->
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px; page-break-inside: avoid; break-inside: avoid;">
           <!-- EPC QR Code (GiroCode für Banking) -->
-          <div style="flex: 1; text-align: center; page-break-inside: avoid; break-inside: avoid;">
-            <h4 style="margin-bottom: 10px; font-size: 11pt;">Zahlung per QR-Code</h4>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateEPCQRCode(invoice, companyInfo))}"
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
+            <h4 style="margin-bottom: 8px; font-size: 10pt;">Überweisung</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(generateEPCQRCode(invoice, companyInfo))}"
                  alt="EPC QR Code"
-                 style="width: 150px; height: 150px; margin: 0 auto;"/>
-            <p style="font-size: 8pt; color: #666; margin-top: 5px;">Scannen zum Bezahlen</p>
+                 style="width: 120px; height: 120px; margin: 0 auto;"/>
+            <p style="font-size: 7pt; color: #666; margin-top: 4px;">Scannen zum Bezahlen</p>
           </div>
+
+          <!-- PayPal QR Code (falls aktiviert und Link vorhanden) -->
+          ${companyInfo.paypalEnabled && companyInfo.paypalLink ? `
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
+            <h4 style="margin-bottom: 8px; font-size: 10pt;">PayPal</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(companyInfo.paypalLink.startsWith('http') ? companyInfo.paypalLink : 'https://paypal.me/' + companyInfo.paypalLink)}"
+                 alt="PayPal QR Code"
+                 style="width: 120px; height: 120px; margin: 0 auto;"/>
+            <p style="font-size: 7pt; color: #666; margin-top: 4px;">Mit PayPal zahlen</p>
+          </div>
+          ` : ''}
 
           <!-- Google Review QR Code (falls vorhanden) -->
           ${companyInfo.googleReviewUrl ? `
-          <div style="flex: 1; text-align: center; page-break-inside: avoid; break-inside: avoid;">
-            <h4 style="margin-bottom: 10px; font-size: 11pt;">Bewerten Sie uns!</h4>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(companyInfo.googleReviewUrl)}"
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
+            <h4 style="margin-bottom: 8px; font-size: 10pt;">Bewerten Sie uns!</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(companyInfo.googleReviewUrl)}"
                  alt="Google Review QR Code"
-                 style="width: 150px; height: 150px; margin: 0 auto;"/>
-            <p style="font-size: 8pt; color: #666; margin-top: 5px;">Google Bewertung</p>
+                 style="width: 120px; height: 120px; margin: 0 auto;"/>
+            <p style="font-size: 7pt; color: #666; margin-top: 4px;">Google Bewertung</p>
           </div>
           ` : ''}
         </div>

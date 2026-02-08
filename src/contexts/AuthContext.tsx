@@ -10,7 +10,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -23,6 +23,9 @@ const AUTH_STATE_KEY = 'petasync_auth_state';
 // Timeouts
 const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 Minuten vor Ablauf refreshen
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 Minuten Inaktivität
+
+// Global initialization flag to prevent multiple initializations across re-renders
+let globalInitialized = false;
 
 interface User {
   id: string;
@@ -145,13 +148,36 @@ async function authFetch<T>(
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>(initialState);
+  const [state, setState] = useState<AuthState>(() => {
+    // Try to restore state from localStorage on initial render
+    try {
+      const savedState = localStorage.getItem(AUTH_STATE_KEY);
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        // Only restore if we have tokens
+        if (getAccessToken()) {
+          return {
+            ...initialState,
+            user: parsed.user || null,
+            isAuthenticated: !!parsed.user,
+            isAdmin: parsed.user?.role === 'admin',
+            isLoading: true, // Still need to verify
+            isInitialized: false,
+          };
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return initialState;
+  });
+
   const navigate = useNavigate();
-  const location = useLocation();
 
   const lastActivityRef = useRef<number>(Date.now());
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initializingRef = useRef<boolean>(false);
+  const mountedRef = useRef<boolean>(true);
 
   // Update last activity
   const updateActivity = useCallback(() => {
@@ -179,108 +205,138 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.isAuthenticated, navigate]);
 
-  // Refresh access token
-  const refreshAccessToken = useCallback(async (): Promise<boolean> => {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) return false;
 
-    const result = await authFetch<{ access_token: string }>('/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-
-    if (result.success && result.data?.access_token) {
-      localStorage.setItem(TOKEN_KEY, result.data.access_token);
-      return true;
-    }
-
-    return false;
-  }, []);
-
-  // Setup refresh timer
+  // Setup refresh timer - stable function
   const setupRefreshTimer = useCallback(() => {
     if (refreshTimerRef.current) {
       clearInterval(refreshTimerRef.current);
     }
 
     refreshTimerRef.current = setInterval(async () => {
-      if (state.isAuthenticated) {
-        await refreshAccessToken();
+      const token = getAccessToken();
+      const refreshToken = getRefreshToken();
+
+      if (token && refreshToken) {
+        const result = await authFetch<{ access_token: string }>('/auth/refresh', {
+          method: 'POST',
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+
+        if (result.success && result.data?.access_token) {
+          localStorage.setItem(TOKEN_KEY, result.data.access_token);
+        }
       }
     }, TOKEN_REFRESH_INTERVAL);
-  }, [state.isAuthenticated, refreshAccessToken]);
+  }, []); // No dependencies - stable function
 
-  // Initialize auth state
+  // Initialize auth state - stable function that doesn't change
   const initializeAuth = useCallback(async () => {
     // Prevent multiple simultaneous initializations
-    if (initializingRef.current) return;
+    if (initializingRef.current || globalInitialized) return;
     initializingRef.current = true;
 
     const token = getAccessToken();
 
     if (!token) {
-      setState({
-        ...initialState,
-        isLoading: false,
-        isInitialized: true,
-      });
+      if (mountedRef.current) {
+        setState({
+          ...initialState,
+          isLoading: false,
+          isInitialized: true,
+        });
+        globalInitialized = true;
+      }
       initializingRef.current = false;
       return;
     }
 
-    // Validate token with /auth/me
-    const result = await authFetch<User>('/auth/me');
+    try {
+      // Validate token with /auth/me
+      const result = await authFetch<User>('/auth/me');
 
-    if (result.success && result.data) {
-      const user = result.data;
-      setState({
-        user,
-        isAuthenticated: true,
-        isAdmin: user.role === 'admin',
-        isLoading: false,
-        isInitialized: true,
-        requires2FA: false,
-        tempToken: null,
-        error: null,
-      });
-      setupRefreshTimer();
-    } else {
-      // Token ungültig - versuche refresh
-      const refreshed = await refreshAccessToken();
-
-      if (refreshed) {
-        // Nochmal versuchen mit neuem Token
-        const retryResult = await authFetch<User>('/auth/me');
-
-        if (retryResult.success && retryResult.data) {
-          const user = retryResult.data;
-          setState({
-            user,
-            isAuthenticated: true,
-            isAdmin: user.role === 'admin',
-            isLoading: false,
-            isInitialized: true,
-            requires2FA: false,
-            tempToken: null,
-            error: null,
-          });
-          setupRefreshTimer();
-          initializingRef.current = false;
-          return;
-        }
+      if (!mountedRef.current) {
+        initializingRef.current = false;
+        return;
       }
 
-      // Komplett fehlgeschlagen
-      clearTokens();
-      setState({
-        ...initialState,
-        isLoading: false,
-        isInitialized: true,
-      });
+      if (result.success && result.data) {
+        const user = result.data;
+        // Save to localStorage for faster initial render
+        localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user }));
+
+        setState({
+          user,
+          isAuthenticated: true,
+          isAdmin: user.role === 'admin',
+          isLoading: false,
+          isInitialized: true,
+          requires2FA: false,
+          tempToken: null,
+          error: null,
+        });
+        globalInitialized = true;
+      } else {
+        // Token ungültig - versuche refresh
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+          const refreshResult = await authFetch<{ access_token: string }>('/auth/refresh', {
+            method: 'POST',
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+
+          if (refreshResult.success && refreshResult.data?.access_token) {
+            localStorage.setItem(TOKEN_KEY, refreshResult.data.access_token);
+
+            // Nochmal versuchen mit neuem Token
+            const retryResult = await authFetch<User>('/auth/me');
+
+            if (mountedRef.current && retryResult.success && retryResult.data) {
+              const user = retryResult.data;
+              localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user }));
+
+              setState({
+                user,
+                isAuthenticated: true,
+                isAdmin: user.role === 'admin',
+                isLoading: false,
+                isInitialized: true,
+                requires2FA: false,
+                tempToken: null,
+                error: null,
+              });
+              globalInitialized = true;
+              initializingRef.current = false;
+              return;
+            }
+          }
+        }
+
+        // Komplett fehlgeschlagen
+        if (mountedRef.current) {
+          clearTokens();
+          setState({
+            ...initialState,
+            isLoading: false,
+            isInitialized: true,
+          });
+          globalInitialized = true;
+        }
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      if (mountedRef.current) {
+        setState({
+          ...initialState,
+          isLoading: false,
+          isInitialized: true,
+          error: 'Authentifizierung fehlgeschlagen',
+        });
+        globalInitialized = true;
+      }
     }
 
     initializingRef.current = false;
-  }, [refreshAccessToken, setupRefreshTimer]);
+  }, []); // No dependencies - stable function
 
   // Login
   const login = useCallback(async (
@@ -322,6 +378,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Login erfolgreich
     if (data.access_token && data.refresh_token && data.user) {
       setTokens(data.access_token, data.refresh_token);
+      localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
+      globalInitialized = true;
+
       setState({
         user: data.user,
         isAuthenticated: true,
@@ -332,13 +391,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         tempToken: null,
         error: null,
       });
-      setupRefreshTimer();
       return { success: true };
     }
 
     setState(s => ({ ...s, isLoading: false, error: 'Unknown error' }));
     return { success: false, error: 'Unknown error' };
-  }, [setupRefreshTimer]);
+  }, []);
 
   // Verify 2FA
   const verify2FA = useCallback(async (
@@ -366,6 +424,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const data = result.data!;
     setTokens(data.access_token, data.refresh_token);
+    localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
+    globalInitialized = true;
 
     setState({
       user: data.user,
@@ -378,9 +438,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       error: null,
     });
 
-    setupRefreshTimer();
     return { success: true };
-  }, [state.tempToken, setupRefreshTimer]);
+  }, [state.tempToken]);
 
   // Logout
   const logout = useCallback(async () => {
@@ -398,6 +457,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // State und Tokens clearen
     clearTokens();
+    globalInitialized = false;
+
     setState({
       ...initialState,
       isLoading: false,
@@ -428,6 +489,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Refresh auth manually
   const refreshAuth = useCallback(async () => {
+    globalInitialized = false;
+    initializingRef.current = false;
     await initializeAuth();
   }, [initializeAuth]);
 
@@ -438,14 +501,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize on mount
   useEffect(() => {
+    mountedRef.current = true;
+
+    // Reset global flag if we're re-mounting fresh (e.g., after HMR)
+    if (!getAccessToken()) {
+      globalInitialized = false;
+    }
+
     initializeAuth();
+    setupRefreshTimer();
 
     return () => {
+      mountedRef.current = false;
       if (refreshTimerRef.current) {
         clearInterval(refreshTimerRef.current);
       }
     };
-  }, [initializeAuth]);
+  }, [initializeAuth, setupRefreshTimer]);
 
   // Activity tracking
   useEffect(() => {

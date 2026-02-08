@@ -1177,6 +1177,95 @@ $router->post('/settings/next-number/{type}', function ($params) {
 });
 
 // ============================================
+// FILE UPLOAD (Logo, etc.)
+// ============================================
+$router->post('/upload', function () {
+    Auth::requireAdmin();
+
+    // Check if file was uploaded
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        $errorMessages = [
+            UPLOAD_ERR_INI_SIZE => 'Datei zu groß (Server-Limit)',
+            UPLOAD_ERR_FORM_SIZE => 'Datei zu groß (Form-Limit)',
+            UPLOAD_ERR_PARTIAL => 'Datei nur teilweise hochgeladen',
+            UPLOAD_ERR_NO_FILE => 'Keine Datei ausgewählt',
+            UPLOAD_ERR_NO_TMP_DIR => 'Server-Fehler: Temp-Ordner fehlt',
+            UPLOAD_ERR_CANT_WRITE => 'Server-Fehler: Schreibfehler',
+        ];
+        $error = $_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE;
+        Response::error($errorMessages[$error] ?? 'Upload fehlgeschlagen', 400);
+    }
+
+    $file = $_FILES['file'];
+    $type = $_POST['type'] ?? 'general';
+
+    // Validate file type
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($mimeType, $allowedTypes)) {
+        Response::error('Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP, SVG', 400);
+    }
+
+    // Validate file size (max 5MB)
+    $maxSize = 5 * 1024 * 1024;
+    if ($file['size'] > $maxSize) {
+        Response::error('Datei zu groß. Maximal 5MB erlaubt.', 400);
+    }
+
+    // Create upload directory if not exists
+    $uploadDir = __DIR__ . '/../uploads';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    // Generate unique filename
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = $type . '_' . uniqid() . '.' . strtolower($extension);
+    $targetPath = $uploadDir . '/' . $filename;
+
+    // Move uploaded file
+    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+        Response::error('Fehler beim Speichern der Datei', 500);
+    }
+
+    // Return the URL
+    $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $baseUrl .= $_SERVER['HTTP_HOST'];
+
+    // Get relative path from document root
+    $relativePath = '/uploads/' . $filename;
+    $fileUrl = $baseUrl . $relativePath;
+
+    Response::success([
+        'url' => $fileUrl,
+        'filename' => $filename,
+        'size' => $file['size'],
+        'type' => $mimeType
+    ]);
+});
+
+// Delete uploaded file
+$router->delete('/upload/{filename}', function ($params) {
+    Auth::requireAdmin();
+
+    $filename = basename($params['filename']); // Prevent directory traversal
+    $filePath = __DIR__ . '/../uploads/' . $filename;
+
+    if (!file_exists($filePath)) {
+        Response::error('Datei nicht gefunden', 404);
+    }
+
+    if (!unlink($filePath)) {
+        Response::error('Fehler beim Löschen der Datei', 500);
+    }
+
+    Response::success(['message' => 'Datei gelöscht']);
+});
+
+// ============================================
 // RECURRING INVOICES
 // ============================================
 $router->get('/recurring-invoices', function () {

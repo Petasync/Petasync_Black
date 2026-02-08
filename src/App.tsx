@@ -127,6 +127,7 @@ const PageLoader = () => (
 
 /**
  * Enhanced Error Boundary with auto-recovery
+ * Only catches actual render errors, not loading states
  */
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -146,20 +147,39 @@ class ErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+    // Only show error UI for actual errors, not auth redirects or navigation
+    const errorMessage = error.message?.toLowerCase() || '';
+    if (
+      errorMessage.includes('unauthorized') ||
+      errorMessage.includes('navigate') ||
+      errorMessage.includes('redirect') ||
+      errorMessage.includes('loading chunk')
+    ) {
+      // These are expected "errors" during auth flow or lazy loading
+      console.warn('Expected navigation/loading error, not showing error UI:', error.message);
+      return { hasError: false };
+    }
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
 
+    // Don't count or auto-retry for chunk loading errors (lazy loading)
+    if (error.message?.includes('Loading chunk')) {
+      // Just reload the page for chunk errors
+      window.location.reload();
+      return;
+    }
+
     // Increment error count
     this.setState(prev => ({ errorCount: prev.errorCount + 1 }));
 
-    // Auto-recovery nach 3 Sekunden (max 3 Versuche)
-    if (this.state.errorCount < 3) {
+    // Auto-recovery nach 2 Sekunden (max 2 Versuche)
+    if (this.state.errorCount < 2) {
       this.retryTimeout = setTimeout(() => {
         this.setState({ hasError: false, error: undefined });
-      }, 3000);
+      }, 2000);
     }
   }
 
@@ -190,9 +210,9 @@ class ErrorBoundary extends React.Component<
             <p className="text-muted-foreground mb-6">
               Die Seite konnte nicht geladen werden.
             </p>
-            {this.state.errorCount < 3 && (
+            {this.state.errorCount < 2 && (
               <p className="text-sm text-muted-foreground mb-4">
-                Automatischer Neuversuch in 3 Sekunden...
+                Automatischer Neuversuch...
               </p>
             )}
             <div className="space-y-3">
@@ -206,8 +226,14 @@ class ErrorBoundary extends React.Component<
                 onClick={this.handleClearCache}
                 className="block w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:opacity-90"
               >
-                Cache leeren & neu anmelden
+                Cache leeren
               </button>
+              <a
+                href="/"
+                className="block w-full text-center text-sm text-muted-foreground hover:text-foreground mt-4"
+              >
+                Website öffnen →
+              </a>
             </div>
           </div>
         </div>
