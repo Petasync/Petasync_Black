@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,36 @@ export default function Verify2FA() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const { verify2FA, logout } = useAuth();
+
+  const { verify2FA, logout, requires2FA, isInitialized, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string })?.from || '/admin';
+
+  // Redirect if no pending 2FA session
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    // If already authenticated, go to dashboard
+    if (isAuthenticated && !requires2FA) {
+      navigate(from, { replace: true });
+      return;
+    }
+
+    // If no pending 2FA, go to login
+    if (!requires2FA) {
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isInitialized, isAuthenticated, requires2FA, navigate, from]);
+
+  // Show loading while checking
+  if (!isInitialized || (!requires2FA && !isAuthenticated)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

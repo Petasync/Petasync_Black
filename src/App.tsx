@@ -126,95 +126,71 @@ const PageLoader = () => (
 );
 
 /**
- * Enhanced Error Boundary with auto-recovery
- * Only catches actual render errors, not loading states
+ * Simplified Error Boundary - only catches critical render errors
+ * Does NOT auto-recover to prevent flickering
  */
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
-  errorCount: number;
 }
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   ErrorBoundaryState
 > {
-  private retryTimeout: NodeJS.Timeout | null = null;
-
   constructor(props: { children: React.ReactNode }) {
     super(props);
-    this.state = { hasError: false, errorCount: 0 };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    // Only show error UI for actual errors, not auth redirects or navigation
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState | null {
+    // Ignore expected errors that shouldn't show error UI
     const errorMessage = error.message?.toLowerCase() || '';
-    if (
-      errorMessage.includes('unauthorized') ||
-      errorMessage.includes('navigate') ||
-      errorMessage.includes('redirect') ||
-      errorMessage.includes('loading chunk')
-    ) {
-      // These are expected "errors" during auth flow or lazy loading
-      console.warn('Expected navigation/loading error, not showing error UI:', error.message);
-      return { hasError: false };
+    const ignoredErrors = [
+      'loading chunk',
+      'dynamically imported module',
+      'failed to fetch',
+      'network',
+      'minified react error',
+    ];
+
+    if (ignoredErrors.some(e => errorMessage.includes(e))) {
+      console.warn('Ignoring expected error:', error.message);
+      return null; // Don't update state
     }
+
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('ErrorBoundary caught error:', error, errorInfo);
 
-    // Don't count or auto-retry for chunk loading errors (lazy loading)
+    // Reload for chunk loading errors
     if (error.message?.includes('Loading chunk')) {
-      // Just reload the page for chunk errors
       window.location.reload();
-      return;
-    }
-
-    // Increment error count
-    this.setState(prev => ({ errorCount: prev.errorCount + 1 }));
-
-    // Auto-recovery nach 2 Sekunden (max 2 Versuche)
-    if (this.state.errorCount < 2) {
-      this.retryTimeout = setTimeout(() => {
-        this.setState({ hasError: false, error: undefined });
-      }, 2000);
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.retryTimeout) {
-      clearTimeout(this.retryTimeout);
     }
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorCount: 0 });
+    this.setState({ hasError: false, error: undefined });
+    window.location.reload();
   };
 
   handleClearCache = () => {
-    // Clear all storage
     localStorage.clear();
     sessionStorage.clear();
-    // Reload page
     window.location.href = '/admin/login';
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen bg-background text-foreground p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center min-h-screen bg-background text-foreground p-4">
           <div className="max-w-md text-center">
             <h1 className="text-2xl font-bold mb-4">Etwas ist schiefgelaufen</h1>
             <p className="text-muted-foreground mb-6">
               Die Seite konnte nicht geladen werden.
             </p>
-            {this.state.errorCount < 2 && (
-              <p className="text-sm text-muted-foreground mb-4">
-                Automatischer Neuversuch...
-              </p>
-            )}
             <div className="space-y-3">
               <button
                 onClick={this.handleRetry}
