@@ -29,6 +29,12 @@ type InvoiceStatus = ApiInvoice['status'];
 
 // Extended Invoice type with customer relation
 type Invoice = ApiInvoice & {
+  // Customer data comes directly on invoice from JOIN
+  company_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  customer_email?: string | null;
+  // Deprecated - keep for backwards compat
   customers?: {
     first_name: string | null;
     last_name: string;
@@ -112,18 +118,32 @@ export default function AdminInvoices() {
   };
 
   const filteredInvoices = invoices.filter((invoice) => {
+    const searchLower = search.toLowerCase();
     const matchesSearch =
-      invoice.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
-      invoice.customers?.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-      invoice.customers?.company_name?.toLowerCase().includes(search.toLowerCase());
+      invoice.invoice_number.toLowerCase().includes(searchLower) ||
+      invoice.last_name?.toLowerCase().includes(searchLower) ||
+      invoice.first_name?.toLowerCase().includes(searchLower) ||
+      invoice.company_name?.toLowerCase().includes(searchLower) ||
+      invoice.customers?.last_name?.toLowerCase().includes(searchLower) ||
+      invoice.customers?.company_name?.toLowerCase().includes(searchLower);
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getCustomerName = (invoice: Invoice) => {
-    if (!invoice.customers) return 'Kein Kunde';
-    if (invoice.customers.company_name) return invoice.customers.company_name;
-    return `${invoice.customers.first_name || ''} ${invoice.customers.last_name}`.trim();
+    // Handle direct properties from API JOIN (new format)
+    if (invoice.company_name) return invoice.company_name;
+    if (invoice.first_name || invoice.last_name) {
+      return `${invoice.first_name || ''} ${invoice.last_name || ''}`.trim();
+    }
+    // Handle nested customers object (old format / backwards compat)
+    if (invoice.customers) {
+      if (invoice.customers.company_name) return invoice.customers.company_name;
+      return `${invoice.customers.first_name || ''} ${invoice.customers.last_name}`.trim();
+    }
+    // No customer
+    if (!invoice.customer_id) return 'Kein Kunde';
+    return 'Kunde nicht gefunden';
   };
 
   const handleDownloadPDF = async (invoice: Invoice) => {

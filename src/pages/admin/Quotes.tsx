@@ -35,6 +35,12 @@ type QuoteStatus = ApiQuote['status'];
 
 // Extended Quote type with customer relation
 type Quote = ApiQuote & {
+  // Customer data comes directly on quote from JOIN
+  company_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  customer_email?: string | null;
+  // Deprecated - keep for backwards compat
   customers?: {
     first_name: string | null;
     last_name: string;
@@ -106,18 +112,32 @@ export default function AdminQuotes() {
   };
 
   const filteredQuotes = quotes.filter((quote) => {
+    const searchLower = search.toLowerCase();
     const matchesSearch =
-      quote.quote_number.toLowerCase().includes(search.toLowerCase()) ||
-      quote.customers?.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-      quote.customers?.company_name?.toLowerCase().includes(search.toLowerCase());
+      quote.quote_number.toLowerCase().includes(searchLower) ||
+      quote.last_name?.toLowerCase().includes(searchLower) ||
+      quote.first_name?.toLowerCase().includes(searchLower) ||
+      quote.company_name?.toLowerCase().includes(searchLower) ||
+      quote.customers?.last_name?.toLowerCase().includes(searchLower) ||
+      quote.customers?.company_name?.toLowerCase().includes(searchLower);
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getCustomerName = (quote: Quote) => {
-    if (!quote.customers) return 'Kein Kunde';
-    if (quote.customers.company_name) return quote.customers.company_name;
-    return `${quote.customers.first_name || ''} ${quote.customers.last_name}`.trim();
+    // Handle direct properties from API JOIN (new format)
+    if (quote.company_name) return quote.company_name;
+    if (quote.first_name || quote.last_name) {
+      return `${quote.first_name || ''} ${quote.last_name || ''}`.trim();
+    }
+    // Handle nested customers object (old format / backwards compat)
+    if (quote.customers) {
+      if (quote.customers.company_name) return quote.customers.company_name;
+      return `${quote.customers.first_name || ''} ${quote.customers.last_name}`.trim();
+    }
+    // No customer
+    if (!quote.customer_id) return 'Kein Kunde';
+    return 'Kunde nicht gefunden';
   };
 
   const convertToInvoice = async (quote: Quote) => {
