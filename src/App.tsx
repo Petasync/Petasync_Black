@@ -9,114 +9,137 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { initAnalytics } from "@/lib/analytics";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
-import { useEffect, lazy, Suspense, useState, useCallback } from "react";
+import { useEffect, lazy, Suspense, ComponentType } from "react";
 import React from "react";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
+const RELOAD_FLAG = 'petasync_chunk_reload';
+
+/**
+ * Lazy import with automatic retry on chunk load failure.
+ * If the first import fails (stale chunks after deployment),
+ * reloads the page to fetch fresh HTML with correct chunk hashes.
+ */
+function lazyWithRetry<T extends ComponentType<unknown>>(
+  importFn: () => Promise<{ default: T }>
+) {
+  return lazy(() =>
+    importFn().catch((error) => {
+      // Only retry once per session to prevent infinite loops
+      const alreadyRetried = sessionStorage.getItem(RELOAD_FLAG);
+      if (!alreadyRetried) {
+        sessionStorage.setItem(RELOAD_FLAG, '1');
+        window.location.reload();
+      }
+      throw error;
+    })
+  );
+}
+
 // Eager load critical pages
 import Index from "./pages/Index";
 
-// Lazy load all other pages for better performance
-const Websites = lazy(() => import("./pages/Websites"));
-const Privatkunden = lazy(() => import("./pages/Privatkunden"));
-const Geschaeftskunden = lazy(() => import("./pages/Geschaeftskunden"));
-const Kontakt = lazy(() => import("./pages/Kontakt"));
-const FAQ = lazy(() => import("./pages/FAQ"));
-const Impressum = lazy(() => import("./pages/Impressum"));
-const Datenschutz = lazy(() => import("./pages/Datenschutz"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+// Lazy load all other pages with retry logic for chunk errors
+const Websites = lazyWithRetry(() => import("./pages/Websites"));
+const Privatkunden = lazyWithRetry(() => import("./pages/Privatkunden"));
+const Geschaeftskunden = lazyWithRetry(() => import("./pages/Geschaeftskunden"));
+const Kontakt = lazyWithRetry(() => import("./pages/Kontakt"));
+const FAQ = lazyWithRetry(() => import("./pages/FAQ"));
+const Impressum = lazyWithRetry(() => import("./pages/Impressum"));
+const Datenschutz = lazyWithRetry(() => import("./pages/Datenschutz"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 // Service pages
-const PCReparatur = lazy(() => import("./pages/services/PCReparatur"));
-const LeihPC = lazy(() => import("./pages/services/LeihPC"));
-const ITSicherheit = lazy(() => import("./pages/services/ITSicherheit"));
-const Netzwerk = lazy(() => import("./pages/services/Netzwerk"));
-const ITBusiness = lazy(() => import("./pages/services/ITBusiness"));
-const Webdesign = lazy(() => import("./pages/services/Webdesign"));
-const ITInfrastruktur = lazy(() => import("./pages/services/ITInfrastruktur"));
-const ITSupport = lazy(() => import("./pages/services/ITSupport"));
-const Beratung = lazy(() => import("./pages/services/Beratung"));
-const Diagnose = lazy(() => import("./pages/services/Diagnose"));
-const PCReinigung = lazy(() => import("./pages/services/PCReinigung"));
-const Datenrettung = lazy(() => import("./pages/services/Datenrettung"));
-const PCAufruestung = lazy(() => import("./pages/services/PCAufruestung"));
-const PCZusammenbau = lazy(() => import("./pages/services/PCZusammenbau"));
+const PCReparatur = lazyWithRetry(() => import("./pages/services/PCReparatur"));
+const LeihPC = lazyWithRetry(() => import("./pages/services/LeihPC"));
+const ITSicherheit = lazyWithRetry(() => import("./pages/services/ITSicherheit"));
+const Netzwerk = lazyWithRetry(() => import("./pages/services/Netzwerk"));
+const ITBusiness = lazyWithRetry(() => import("./pages/services/ITBusiness"));
+const Webdesign = lazyWithRetry(() => import("./pages/services/Webdesign"));
+const ITInfrastruktur = lazyWithRetry(() => import("./pages/services/ITInfrastruktur"));
+const ITSupport = lazyWithRetry(() => import("./pages/services/ITSupport"));
+const Beratung = lazyWithRetry(() => import("./pages/services/Beratung"));
+const Diagnose = lazyWithRetry(() => import("./pages/services/Diagnose"));
+const PCReinigung = lazyWithRetry(() => import("./pages/services/PCReinigung"));
+const Datenrettung = lazyWithRetry(() => import("./pages/services/Datenrettung"));
+const PCAufruestung = lazyWithRetry(() => import("./pages/services/PCAufruestung"));
+const PCZusammenbau = lazyWithRetry(() => import("./pages/services/PCZusammenbau"));
 
 // Website pages
-const WebsiteTemplate = lazy(() => import("./pages/websites/Template"));
-const WebsiteStarter = lazy(() => import("./pages/websites/Starter"));
-const WebsiteBusiness = lazy(() => import("./pages/websites/Business"));
-const WebsiteEnterprise = lazy(() => import("./pages/websites/Enterprise"));
+const WebsiteTemplate = lazyWithRetry(() => import("./pages/websites/Template"));
+const WebsiteStarter = lazyWithRetry(() => import("./pages/websites/Starter"));
+const WebsiteBusiness = lazyWithRetry(() => import("./pages/websites/Business"));
+const WebsiteEnterprise = lazyWithRetry(() => import("./pages/websites/Enterprise"));
 
 // Admin pages
-const AdminLogin = lazy(() => import("./pages/admin/Login"));
-const AdminVerify2FA = lazy(() => import("./pages/admin/Verify2FA"));
-const AdminForgotPassword = lazy(() => import("./pages/admin/ForgotPassword"));
-const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminInquiries = lazy(() => import("./pages/admin/Inquiries"));
-const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
-const AdminQuotes = lazy(() => import("./pages/admin/Quotes"));
-const AdminInvoices = lazy(() => import("./pages/admin/Invoices"));
-const AdminSettings = lazy(() => import("./pages/admin/Settings"));
-const AdminAppointments = lazy(() => import("./pages/admin/Appointments"));
-const AdminWebsiteProjects = lazy(() => import("./pages/admin/WebsiteProjects"));
-const AdminSetup2FA = lazy(() => import("./pages/admin/Setup2FA"));
-const AdminMagicLinkHandler = lazy(() => import("./pages/admin/MagicLinkHandler"));
-const AdminUserManagement = lazy(() => import("./pages/admin/UserManagement"));
-const AdminServiceCatalog = lazy(() => import("./pages/admin/ServiceCatalog"));
-const AdminJobs = lazy(() => import("./pages/admin/Jobs"));
-const AdminRecurringInvoices = lazy(() => import("./pages/admin/RecurringInvoices"));
+const AdminLogin = lazyWithRetry(() => import("./pages/admin/Login"));
+const AdminVerify2FA = lazyWithRetry(() => import("./pages/admin/Verify2FA"));
+const AdminForgotPassword = lazyWithRetry(() => import("./pages/admin/ForgotPassword"));
+const AdminDashboard = lazyWithRetry(() => import("./pages/admin/Dashboard"));
+const AdminInquiries = lazyWithRetry(() => import("./pages/admin/Inquiries"));
+const AdminCustomers = lazyWithRetry(() => import("./pages/admin/Customers"));
+const AdminQuotes = lazyWithRetry(() => import("./pages/admin/Quotes"));
+const AdminInvoices = lazyWithRetry(() => import("./pages/admin/Invoices"));
+const AdminSettings = lazyWithRetry(() => import("./pages/admin/Settings"));
+const AdminAppointments = lazyWithRetry(() => import("./pages/admin/Appointments"));
+const AdminWebsiteProjects = lazyWithRetry(() => import("./pages/admin/WebsiteProjects"));
+const AdminSetup2FA = lazyWithRetry(() => import("./pages/admin/Setup2FA"));
+const AdminMagicLinkHandler = lazyWithRetry(() => import("./pages/admin/MagicLinkHandler"));
+const AdminUserManagement = lazyWithRetry(() => import("./pages/admin/UserManagement"));
+const AdminServiceCatalog = lazyWithRetry(() => import("./pages/admin/ServiceCatalog"));
+const AdminJobs = lazyWithRetry(() => import("./pages/admin/Jobs"));
+const AdminRecurringInvoices = lazyWithRetry(() => import("./pages/admin/RecurringInvoices"));
 
 // Template pages
-const TemplatesShowcase = lazy(() => import("./pages/TemplatesShowcase"));
-const HandwerkerTemplate = lazy(() => import("./pages/templates/HandwerkerExtended"));
-const VersicherungTemplate = lazy(() => import("./pages/templates/VersicherungExtended"));
-const RestaurantTemplate = lazy(() => import("./pages/templates/RestaurantExtended"));
-const RestaurantSpeisekarte = lazy(() => import("./pages/templates/restaurant/Speisekarte"));
-const RestaurantVorspeisen = lazy(() => import("./pages/templates/restaurant/Vorspeisen"));
-const RestaurantHauptgerichte = lazy(() => import("./pages/templates/restaurant/Hauptgerichte"));
-const RestaurantDesserts = lazy(() => import("./pages/templates/restaurant/Desserts"));
-const RestaurantReservierung = lazy(() => import("./pages/templates/restaurant/Reservierung"));
-const RestaurantEvents = lazy(() => import("./pages/templates/restaurant/Events"));
-const FitnessTemplate = lazy(() => import("./pages/templates/FitnessExtended"));
-const FitnessKursplan = lazy(() => import("./pages/templates/fitness/Kursplan"));
-const FitnessYoga = lazy(() => import("./pages/templates/fitness/Yoga"));
-const FitnessHIIT = lazy(() => import("./pages/templates/fitness/HIIT"));
-const ImmobilienTemplate = lazy(() => import("./pages/templates/ImmobilienExtended"));
-const ImmobilienObjekte = lazy(() => import("./pages/templates/immobilien/Objekte"));
-const ImmobilienGrundriss3D = lazy(() => import("./pages/templates/immobilien/Grundriss3D"));
-const ImmobilienTeam = lazy(() => import("./pages/templates/immobilien/Team"));
-const FotografTemplate = lazy(() => import("./pages/templates/FotografExtended"));
-const FotografPortfolio = lazy(() => import("./pages/templates/fotograf/Portfolio"));
-const FotografHochzeit = lazy(() => import("./pages/templates/fotograf/Hochzeit"));
-const FotografPortrait = lazy(() => import("./pages/templates/fotograf/Portrait"));
-const FriseurTemplate = lazy(() => import("./pages/templates/FriseurExtended"));
-const FriseurServices = lazy(() => import("./pages/templates/friseur/Services"));
-const FriseurOnlineBuchung = lazy(() => import("./pages/templates/friseur/OnlineBuchung"));
-const FriseurHaarschnitt = lazy(() => import("./pages/templates/friseur/Haarschnitt"));
-const FriseurColoration = lazy(() => import("./pages/templates/friseur/Coloration"));
-const FriseurPreise = lazy(() => import("./pages/templates/friseur/Preise"));
-const FriseurTeam = lazy(() => import("./pages/templates/friseur/Team"));
-const FriseurGalerie = lazy(() => import("./pages/templates/friseur/Galerie"));
-const AutowerkstattTemplate = lazy(() => import("./pages/templates/AutowerkstattExtended"));
-const AutowerkstattPreisrechner = lazy(() => import("./pages/templates/autowerkstatt/Preisrechner"));
-const AutowerkstattInspektion = lazy(() => import("./pages/templates/autowerkstatt/Inspektion"));
-const AutowerkstattMotor = lazy(() => import("./pages/templates/autowerkstatt/Motor"));
-const AutowerkstattBremsen = lazy(() => import("./pages/templates/autowerkstatt/Bremsen"));
-const AutowerkstattElektrik = lazy(() => import("./pages/templates/autowerkstatt/Elektrik"));
-const AutowerkstattKarosserie = lazy(() => import("./pages/templates/autowerkstatt/Karosserie"));
-const AutowerkstattTUV = lazy(() => import("./pages/templates/autowerkstatt/TUV"));
-const HandwerkerProjekte = lazy(() => import("./pages/templates/handwerker/Projekte"));
-const HandwerkerElektro = lazy(() => import("./pages/templates/handwerker/ElektroInstallationen"));
-const HandwerkerSanitaer = lazy(() => import("./pages/templates/handwerker/SanitaerHeizung"));
-const HandwerkerSchreiner = lazy(() => import("./pages/templates/handwerker/SchreinerArbeiten"));
-const HandwerkerMaler = lazy(() => import("./pages/templates/handwerker/MalerArbeiten"));
-const HandwerkerRenovierungen = lazy(() => import("./pages/templates/handwerker/Renovierungen"));
-const HandwerkerWartung = lazy(() => import("./pages/templates/handwerker/WartungService"));
-const VersicherungRechner = lazy(() => import("./pages/templates/versicherung/Rechner"));
-const VersicherungProdukte = lazy(() => import("./pages/templates/versicherung/Produkte"));
-const VersicherungBeratung = lazy(() => import("./pages/templates/versicherung/Beratung"));
+const TemplatesShowcase = lazyWithRetry(() => import("./pages/TemplatesShowcase"));
+const HandwerkerTemplate = lazyWithRetry(() => import("./pages/templates/HandwerkerExtended"));
+const VersicherungTemplate = lazyWithRetry(() => import("./pages/templates/VersicherungExtended"));
+const RestaurantTemplate = lazyWithRetry(() => import("./pages/templates/RestaurantExtended"));
+const RestaurantSpeisekarte = lazyWithRetry(() => import("./pages/templates/restaurant/Speisekarte"));
+const RestaurantVorspeisen = lazyWithRetry(() => import("./pages/templates/restaurant/Vorspeisen"));
+const RestaurantHauptgerichte = lazyWithRetry(() => import("./pages/templates/restaurant/Hauptgerichte"));
+const RestaurantDesserts = lazyWithRetry(() => import("./pages/templates/restaurant/Desserts"));
+const RestaurantReservierung = lazyWithRetry(() => import("./pages/templates/restaurant/Reservierung"));
+const RestaurantEvents = lazyWithRetry(() => import("./pages/templates/restaurant/Events"));
+const FitnessTemplate = lazyWithRetry(() => import("./pages/templates/FitnessExtended"));
+const FitnessKursplan = lazyWithRetry(() => import("./pages/templates/fitness/Kursplan"));
+const FitnessYoga = lazyWithRetry(() => import("./pages/templates/fitness/Yoga"));
+const FitnessHIIT = lazyWithRetry(() => import("./pages/templates/fitness/HIIT"));
+const ImmobilienTemplate = lazyWithRetry(() => import("./pages/templates/ImmobilienExtended"));
+const ImmobilienObjekte = lazyWithRetry(() => import("./pages/templates/immobilien/Objekte"));
+const ImmobilienGrundriss3D = lazyWithRetry(() => import("./pages/templates/immobilien/Grundriss3D"));
+const ImmobilienTeam = lazyWithRetry(() => import("./pages/templates/immobilien/Team"));
+const FotografTemplate = lazyWithRetry(() => import("./pages/templates/FotografExtended"));
+const FotografPortfolio = lazyWithRetry(() => import("./pages/templates/fotograf/Portfolio"));
+const FotografHochzeit = lazyWithRetry(() => import("./pages/templates/fotograf/Hochzeit"));
+const FotografPortrait = lazyWithRetry(() => import("./pages/templates/fotograf/Portrait"));
+const FriseurTemplate = lazyWithRetry(() => import("./pages/templates/FriseurExtended"));
+const FriseurServices = lazyWithRetry(() => import("./pages/templates/friseur/Services"));
+const FriseurOnlineBuchung = lazyWithRetry(() => import("./pages/templates/friseur/OnlineBuchung"));
+const FriseurHaarschnitt = lazyWithRetry(() => import("./pages/templates/friseur/Haarschnitt"));
+const FriseurColoration = lazyWithRetry(() => import("./pages/templates/friseur/Coloration"));
+const FriseurPreise = lazyWithRetry(() => import("./pages/templates/friseur/Preise"));
+const FriseurTeam = lazyWithRetry(() => import("./pages/templates/friseur/Team"));
+const FriseurGalerie = lazyWithRetry(() => import("./pages/templates/friseur/Galerie"));
+const AutowerkstattTemplate = lazyWithRetry(() => import("./pages/templates/AutowerkstattExtended"));
+const AutowerkstattPreisrechner = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Preisrechner"));
+const AutowerkstattInspektion = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Inspektion"));
+const AutowerkstattMotor = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Motor"));
+const AutowerkstattBremsen = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Bremsen"));
+const AutowerkstattElektrik = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Elektrik"));
+const AutowerkstattKarosserie = lazyWithRetry(() => import("./pages/templates/autowerkstatt/Karosserie"));
+const AutowerkstattTUV = lazyWithRetry(() => import("./pages/templates/autowerkstatt/TUV"));
+const HandwerkerProjekte = lazyWithRetry(() => import("./pages/templates/handwerker/Projekte"));
+const HandwerkerElektro = lazyWithRetry(() => import("./pages/templates/handwerker/ElektroInstallationen"));
+const HandwerkerSanitaer = lazyWithRetry(() => import("./pages/templates/handwerker/SanitaerHeizung"));
+const HandwerkerSchreiner = lazyWithRetry(() => import("./pages/templates/handwerker/SchreinerArbeiten"));
+const HandwerkerMaler = lazyWithRetry(() => import("./pages/templates/handwerker/MalerArbeiten"));
+const HandwerkerRenovierungen = lazyWithRetry(() => import("./pages/templates/handwerker/Renovierungen"));
+const HandwerkerWartung = lazyWithRetry(() => import("./pages/templates/handwerker/WartungService"));
+const VersicherungRechner = lazyWithRetry(() => import("./pages/templates/versicherung/Rechner"));
+const VersicherungProdukte = lazyWithRetry(() => import("./pages/templates/versicherung/Produkte"));
+const VersicherungBeratung = lazyWithRetry(() => import("./pages/templates/versicherung/Beratung"));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -126,12 +149,29 @@ const PageLoader = () => (
 );
 
 /**
- * Simplified Error Boundary - only catches critical render errors
- * Does NOT auto-recover to prevent flickering
+ * Error Boundary with chunk loading error recovery
+ *
+ * Detects stale chunk errors (after deployments) and auto-reloads.
+ * Uses sessionStorage flag to prevent infinite reload loops.
  */
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
+}
+
+function isChunkLoadError(error: Error): boolean {
+  const msg = (error.message || '').toLowerCase();
+  const name = (error.name || '').toLowerCase();
+  return (
+    msg.includes('loading chunk') ||
+    msg.includes('dynamically imported module') ||
+    msg.includes('failed to fetch') ||
+    msg.includes("unexpected token '<'") ||
+    msg.includes('expected expression') ||
+    msg.includes('is not a valid javascript') ||
+    (name === 'syntaxerror' && msg.includes('unexpected token')) ||
+    msg.includes('loading css chunk')
+  );
 }
 
 class ErrorBoundary extends React.Component<
@@ -143,43 +183,50 @@ class ErrorBoundary extends React.Component<
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState | null {
-    // Ignore expected errors that shouldn't show error UI
-    const errorMessage = error.message?.toLowerCase() || '';
-    const ignoredErrors = [
-      'loading chunk',
-      'dynamically imported module',
-      'failed to fetch',
-      'network',
-      'minified react error',
-    ];
-
-    if (ignoredErrors.some(e => errorMessage.includes(e))) {
-      console.warn('Ignoring expected error:', error.message);
-      return null; // Don't update state
-    }
-
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught error:', error, errorInfo);
 
-    // Reload for chunk loading errors
-    if (error.message?.includes('Loading chunk')) {
-      window.location.reload();
+    // For chunk loading errors: auto-reload once to get fresh assets
+    if (isChunkLoadError(error)) {
+      const alreadyReloaded = sessionStorage.getItem(RELOAD_FLAG);
+      if (!alreadyReloaded) {
+        sessionStorage.setItem(RELOAD_FLAG, '1');
+        window.location.reload();
+        return;
+      }
+      // Already reloaded once — clear flag and show error UI
+      sessionStorage.removeItem(RELOAD_FLAG);
     }
   }
 
   handleRetry = () => {
+    sessionStorage.removeItem(RELOAD_FLAG);
     this.setState({ hasError: false, error: undefined });
     window.location.reload();
   };
 
-  handleClearCache = () => {
+  handleClearCache = async () => {
+    // Unregister service workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
+    // Clear caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+      }
+    }
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = '/admin/login';
+    window.location.href = '/';
   };
 
   render() {
@@ -367,9 +414,11 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  // Initialize analytics on app mount
+  // Initialize analytics on app mount + clear chunk reload flag on success
   useEffect(() => {
     initAnalytics();
+    // App loaded successfully — clear reload flag so future navigations can retry
+    sessionStorage.removeItem(RELOAD_FLAG);
   }, []);
 
   return (

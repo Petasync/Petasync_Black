@@ -7,6 +7,8 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   # WICHTIG: API-Anfragen NICHT an index.html weiterleiten
   RewriteCond %{REQUEST_URI} !^/api/
+  # Static assets (JS/CSS/fonts/images) should 404, not return index.html
+  RewriteCond %{REQUEST_URI} !\.(js|css|mjs|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|avif|ico|map|json)$ [NC]
 
   # Redirect all requests to index.html for SPA routing
   RewriteRule ^ index.html [QSA,L]
