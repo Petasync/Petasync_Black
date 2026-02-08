@@ -1,16 +1,10 @@
 /**
- * Robust Auth Context Provider
+ * Simplified Auth Context Provider
  *
- * Zentrale Auth-Verwaltung mit:
- * - Einmalige State-Instanz (keine Race Conditions)
- * - Proper Loading States
- * - Auto-Retry bei Netzwerkfehlern
- * - Token Refresh im Hintergrund
- * - Session Persistenz
+ * Zentrale Auth-Verwaltung ohne komplexe globale Flags
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -21,11 +15,8 @@ const REFRESH_TOKEN_KEY = 'petasync_refresh_token';
 const AUTH_STATE_KEY = 'petasync_auth_state';
 
 // Timeouts
-const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 Minuten vor Ablauf refreshen
+const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 Minuten
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 Minuten Inaktivität
-
-// Global initialization flag to prevent multiple initializations across re-renders
-let globalInitialized = false;
 
 interface User {
   id: string;
@@ -68,24 +59,49 @@ const initialState: AuthState = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Safe localStorage access
+function safeGetItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function safeRemoveItem(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 // Token Management
 function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return safeGetItem(TOKEN_KEY);
 }
 
 function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  return safeGetItem(REFRESH_TOKEN_KEY);
 }
 
 function setTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  safeSetItem(TOKEN_KEY, accessToken);
+  safeSetItem(REFRESH_TOKEN_KEY, refreshToken);
 }
 
 function clearTokens(): void {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(AUTH_STATE_KEY);
+  safeRemoveItem(TOKEN_KEY);
+  safeRemoveItem(REFRESH_TOKEN_KEY);
+  safeRemoveItem(AUTH_STATE_KEY);
 }
 
 // API Helper with retry logic
@@ -115,12 +131,10 @@ async function authFetch<T>(
       const data = await response.json();
 
       if (!response.ok) {
-        // Bei 401 nicht retry - Token ist ungültig
         if (response.status === 401) {
           return { success: false, error: data.error || 'Unauthorized' };
         }
 
-        // Bei Server-Fehlern retry
         if (response.status >= 500 && attempt < retries - 1) {
           await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
           continue;
@@ -131,7 +145,6 @@ async function authFetch<T>(
 
       return data;
     } catch (error) {
-      // Netzwerkfehler - retry
       if (attempt < retries - 1) {
         await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
         continue;
@@ -148,31 +161,7 @@ async function authFetch<T>(
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>(() => {
-    // Try to restore state from localStorage on initial render
-    try {
-      const savedState = localStorage.getItem(AUTH_STATE_KEY);
-      if (savedState) {
-        const parsed = JSON.parse(savedState);
-        // Only restore if we have tokens
-        if (getAccessToken()) {
-          return {
-            ...initialState,
-            user: parsed.user || null,
-            isAuthenticated: !!parsed.user,
-            isAdmin: parsed.user?.role === 'admin',
-            isLoading: true, // Still need to verify
-            isInitialized: false,
-          };
-        }
-      }
-    } catch {
-      // Ignore parse errors
-    }
-    return initialState;
-  });
-
-  const navigate = useNavigate();
+  const [state, setState] = useState<AuthState>(initialState);
 
   const lastActivityRef = useRef<number>(Date.now());
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -201,12 +190,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading: false,
         isInitialized: true,
       });
-      navigate('/admin/login');
     }
-  }, [state.isAuthenticated, navigate]);
+  }, [state.isAuthenticated]);
 
-
-  // Setup refresh timer - stable function
+  // Setup refresh timer
   const setupRefreshTimer = useCallback(() => {
     if (refreshTimerRef.current) {
       clearInterval(refreshTimerRef.current);
@@ -223,16 +210,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (result.success && result.data?.access_token) {
-          localStorage.setItem(TOKEN_KEY, result.data.access_token);
+          safeSetItem(TOKEN_KEY, result.data.access_token);
         }
       }
     }, TOKEN_REFRESH_INTERVAL);
-  }, []); // No dependencies - stable function
+  }, []);
 
-  // Initialize auth state - stable function that doesn't change
+  // Initialize auth state
   const initializeAuth = useCallback(async () => {
-    // Prevent multiple simultaneous initializations
-    if (initializingRef.current || globalInitialized) return;
+    // Prevent concurrent initializations
+    if (initializingRef.current) return;
     initializingRef.current = true;
 
     const token = getAccessToken();
@@ -244,14 +231,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isLoading: false,
           isInitialized: true,
         });
-        globalInitialized = true;
       }
       initializingRef.current = false;
       return;
     }
 
     try {
-      // Validate token with /auth/me
       const result = await authFetch<User>('/auth/me');
 
       if (!mountedRef.current) {
@@ -261,8 +246,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (result.success && result.data) {
         const user = result.data;
-        // Save to localStorage for faster initial render
-        localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user }));
+        safeSetItem(AUTH_STATE_KEY, JSON.stringify({ user }));
 
         setState({
           user,
@@ -274,9 +258,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           tempToken: null,
           error: null,
         });
-        globalInitialized = true;
       } else {
-        // Token ungültig - versuche refresh
+        // Token invalid - try refresh
         const refreshToken = getRefreshToken();
         if (refreshToken) {
           const refreshResult = await authFetch<{ access_token: string }>('/auth/refresh', {
@@ -285,14 +268,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
 
           if (refreshResult.success && refreshResult.data?.access_token) {
-            localStorage.setItem(TOKEN_KEY, refreshResult.data.access_token);
+            safeSetItem(TOKEN_KEY, refreshResult.data.access_token);
 
-            // Nochmal versuchen mit neuem Token
             const retryResult = await authFetch<User>('/auth/me');
 
             if (mountedRef.current && retryResult.success && retryResult.data) {
               const user = retryResult.data;
-              localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user }));
+              safeSetItem(AUTH_STATE_KEY, JSON.stringify({ user }));
 
               setState({
                 user,
@@ -304,14 +286,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 tempToken: null,
                 error: null,
               });
-              globalInitialized = true;
               initializingRef.current = false;
               return;
             }
           }
         }
 
-        // Komplett fehlgeschlagen
+        // Complete failure
         if (mountedRef.current) {
           clearTokens();
           setState({
@@ -319,24 +300,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isLoading: false,
             isInitialized: true,
           });
-          globalInitialized = true;
         }
       }
     } catch (error) {
       console.error('Auth initialization error:', error);
       if (mountedRef.current) {
+        clearTokens();
         setState({
           ...initialState,
           isLoading: false,
           isInitialized: true,
           error: 'Authentifizierung fehlgeschlagen',
         });
-        globalInitialized = true;
       }
     }
 
     initializingRef.current = false;
-  }, []); // No dependencies - stable function
+  }, []);
 
   // Login
   const login = useCallback(async (
@@ -364,7 +344,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const data = result.data!;
 
-    // 2FA erforderlich
+    // 2FA required
     if (data.requires_2fa && data.temp_token) {
       setState(s => ({
         ...s,
@@ -375,11 +355,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true, requires2FA: true };
     }
 
-    // Login erfolgreich
+    // Login successful
     if (data.access_token && data.refresh_token && data.user) {
       setTokens(data.access_token, data.refresh_token);
-      localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
-      globalInitialized = true;
+      safeSetItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
 
       setState({
         user: data.user,
@@ -424,8 +403,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const data = result.data!;
     setTokens(data.access_token, data.refresh_token);
-    localStorage.setItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
-    globalInitialized = true;
+    safeSetItem(AUTH_STATE_KEY, JSON.stringify({ user: data.user }));
 
     setState({
       user: data.user,
@@ -443,21 +421,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Logout
   const logout = useCallback(async () => {
-    // API Logout aufrufen (ignoriere Fehler)
     try {
       await authFetch('/auth/logout', { method: 'POST' });
     } catch {
       // Ignore
     }
 
-    // Timer stoppen
     if (refreshTimerRef.current) {
       clearInterval(refreshTimerRef.current);
     }
 
-    // State und Tokens clearen
     clearTokens();
-    globalInitialized = false;
 
     setState({
       ...initialState,
@@ -465,13 +439,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isInitialized: true,
     });
 
-    navigate('/admin/login');
-
     toast({
       title: "Abgemeldet",
       description: "Sie wurden erfolgreich abgemeldet.",
     });
-  }, [navigate]);
+  }, []);
 
   // Reset Password
   const resetPassword = useCallback(async (
@@ -489,7 +461,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Refresh auth manually
   const refreshAuth = useCallback(async () => {
-    globalInitialized = false;
     initializingRef.current = false;
     await initializeAuth();
   }, [initializeAuth]);
@@ -502,11 +473,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Initialize on mount
   useEffect(() => {
     mountedRef.current = true;
-
-    // Reset global flag if we're re-mounting fresh (e.g., after HMR)
-    if (!getAccessToken()) {
-      globalInitialized = false;
-    }
+    initializingRef.current = false; // Reset on mount
 
     initializeAuth();
     setupRefreshTimer();
@@ -530,7 +497,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('mousemove', handleActivity);
     window.addEventListener('scroll', handleActivity);
 
-    // Check timeout every minute
     const timeoutChecker = setInterval(checkSessionTimeout, 60000);
 
     return () => {
@@ -542,7 +508,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [state.isAuthenticated, updateActivity, checkSessionTimeout]);
 
-  // Context value
   const value: AuthContextType = {
     ...state,
     login,
@@ -569,7 +534,7 @@ export function useAuth(): AuthContextType {
   return context;
 }
 
-// Für Abwärtskompatibilität mit bestehendem Code
+// For backwards compatibility
 export function useAdminAuth() {
   const auth = useAuth();
   return {
