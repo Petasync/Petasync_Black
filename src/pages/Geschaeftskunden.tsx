@@ -110,8 +110,8 @@ export default function Geschaeftskunden() {
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src={geschaeftskundenHero} 
-            alt="" 
+            src={geschaeftskundenHero}
+            alt="IT-Service für Geschäftskunden"
             className="w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />

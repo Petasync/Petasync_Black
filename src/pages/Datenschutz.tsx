@@ -15,8 +15,8 @@ export default function Datenschutz() {
       <section className="relative min-h-[40vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src={datenschutzAbstract} 
-            alt="" 
+            src={datenschutzAbstract}
+            alt="Petasync Datenschutz" 
             className="w-full h-full object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />

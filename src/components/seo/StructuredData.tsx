@@ -80,11 +80,6 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
           "closes": "18:00"
         }
       ],
-      "sameAs": [
-        // Add social media profiles here when available
-        // "https://www.facebook.com/petasync",
-        // "https://www.instagram.com/petasync",
-      ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "IT Services",
@@ -138,13 +133,6 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
             }
           }
         ]
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "5.0",
-        "reviewCount": "500",
-        "bestRating": "5",
-        "worstRating": "1"
       }
     };
 

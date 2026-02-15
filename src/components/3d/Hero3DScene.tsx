@@ -1,7 +1,30 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, Component, ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
+
+class Canvas3DErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.warn('Hero 3D scene failed to render:', error.message);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 // Floating geometric elements - monochrome
 function FloatingElements({ mousePosition }: { mousePosition: { x: number; y: number } }) {
@@ -255,16 +278,18 @@ export function Hero3DScene() {
   };
 
   return (
-    <div className="absolute inset-0 z-0">
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        shadows
-      >
-        <MouseTracker onMouseMove={handleMouseMove} />
-        <Scene mousePosition={mousePositionRef.current} />
-      </Canvas>
-    </div>
+    <Canvas3DErrorBoundary>
+      <div className="absolute inset-0 z-0">
+        <Canvas
+          camera={{ position: [0, 0, 5], fov: 45 }}
+          dpr={[1, 2]}
+          gl={{ antialias: true, alpha: true }}
+          shadows
+        >
+          <MouseTracker onMouseMove={handleMouseMove} />
+          <Scene mousePosition={mousePositionRef.current} />
+        </Canvas>
+      </div>
+    </Canvas3DErrorBoundary>
   );
 }

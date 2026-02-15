@@ -127,8 +127,8 @@ export default function FAQ() {
       <section className="relative min-h-[50vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src={faqHero} 
-            alt="" 
+            src={faqHero}
+            alt="Häufig gestellte Fragen zu IT-Services"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
