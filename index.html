@@ -9,8 +9,9 @@
       /* Critical above-the-fold styles */
       body { margin: 0; background: #050505; color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       #root { min-height: 100vh; }
-      /* Loading spinner */
-      .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+      /* Loading spinner — lives OUTSIDE #root so React never touches it */
+      #loading-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; position: fixed; inset: 0; z-index: 9999; background: #050505; transition: opacity 0.3s; }
+      #loading-screen.hidden { opacity: 0; pointer-events: none; }
       .spinner { width: 48px; height: 48px; border: 2px solid rgba(255,255,255,0.1); border-top-color: rgba(255,255,255,0.6); border-radius: 50%; animation: spin 1s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -34,35 +35,13 @@
     <meta name="description" content="Petasync - Ihr IT-Partner für PC-Reparatur, IT-Support und Webdesign in Ansbach, Nürnberg und Umgebung" />
     <meta name="author" content="Petasync" />
 
-    <!-- Deferred Analytics - loads after page interactive -->
-    <script>
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(function() {
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-69WXXP8WMT';
-          document.head.appendChild(script);
-        });
-      } else {
-        setTimeout(function() {
-          var script = document.createElement('script');
-          script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-69WXXP8WMT';
-          document.head.appendChild(script);
-        }, 2000);
-      }
-    </script>
-
-    <!-- Cloudflare Turnstile - deferred -->
-    <script>
-      window.addEventListener('load', function() {
-        var script = document.createElement('script');
-        script.async = true;
-        script.defer = true;
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-        document.head.appendChild(script);
-      });
-    </script>
+    <!--
+      Analytics (GA4) and Turnstile are loaded via React:
+      - GA4/Clarity: src/lib/analytics.ts (initAnalytics) + CookieBanner consent
+      - Turnstile: loaded on-demand by Kontakt form
+      Removed inline scripts that conflicted with react-helmet-async
+      and caused "removeChild" DOM errors.
+    -->
 
     <!-- Social Meta Tags -->
     <meta property="og:title" content="Petasync - IT-Service & PC-Reparatur" />
@@ -75,12 +54,11 @@
   </head>
 
   <body>
-    <div id="root">
-      <!-- Instant loading indicator -->
-      <div class="loading">
-        <div class="spinner"></div>
-      </div>
+    <!-- Loading screen lives OUTSIDE #root so React never touches it -->
+    <div id="loading-screen">
+      <div class="spinner"></div>
     </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -63,6 +63,14 @@ export function Turnstile({ onVerify, onExpire, onError }: TurnstileProps) {
     if (window.turnstile) {
       renderWidget();
     } else {
+      // Load the Turnstile script on demand
+      if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        script.async = true;
+        document.head.appendChild(script);
+      }
+
       // Wait for script to load
       const checkInterval = setInterval(() => {
         if (window.turnstile) {
