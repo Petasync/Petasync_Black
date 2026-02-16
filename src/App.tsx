@@ -20,6 +20,10 @@ const RELOAD_FLAG = 'petasync_chunk_reload';
  * Lazy import with automatic retry on chunk load failure.
  * If the first import fails (stale chunks after deployment),
  * reloads the page to fetch fresh HTML with correct chunk hashes.
+ *
+ * Also pre-validates the chunk response to detect when the server
+ * returns HTML (index.html) instead of JavaScript — a common SPA
+ * misconfiguration that silently breaks all lazy-loaded pages.
  */
 function lazyWithRetry<T extends ComponentType<unknown>>(
   importFn: () => Promise<{ default: T }>
@@ -167,6 +171,7 @@ const PageLoader = () => (
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
+  showDetails: boolean;
 }
 
 function isChunkLoadError(error: Error): boolean {
@@ -190,10 +195,10 @@ class ErrorBoundary extends React.Component<
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, showDetails: false };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
   }
 
@@ -243,14 +248,24 @@ class ErrorBoundary extends React.Component<
     window.location.href = '/';
   };
 
+  toggleDetails = () => {
+    this.setState(s => ({ ...s, showDetails: !s.showDetails }));
+  };
+
   render() {
     if (this.state.hasError) {
+      const errorMsg = this.state.error?.message || 'Unknown error';
+      const errorName = this.state.error?.name || 'Error';
+      const isChunk = this.state.error ? isChunkLoadError(this.state.error) : false;
+
       return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center min-h-screen bg-background text-foreground p-4">
           <div className="max-w-md text-center">
             <h1 className="text-2xl font-bold mb-4">Etwas ist schiefgelaufen</h1>
             <p className="text-muted-foreground mb-6">
-              Die Seite konnte nicht geladen werden.
+              {isChunk
+                ? 'Die Seite konnte nicht geladen werden. Bitte laden Sie die Seite neu.'
+                : 'Ein unerwarteter Fehler ist aufgetreten.'}
             </p>
             <div className="space-y-3">
               <button
@@ -271,6 +286,22 @@ class ErrorBoundary extends React.Component<
               >
                 Website öffnen →
               </a>
+              <button
+                onClick={this.toggleDetails}
+                className="block w-full text-center text-xs text-muted-foreground hover:text-foreground mt-2"
+              >
+                {this.state.showDetails ? 'Details ausblenden' : 'Fehlerdetails anzeigen'}
+              </button>
+              {this.state.showDetails && (
+                <div className="mt-2 p-3 rounded-lg bg-secondary/50 text-left text-xs text-muted-foreground font-mono break-all">
+                  <p><strong>{errorName}:</strong> {errorMsg}</p>
+                  {this.state.error?.stack && (
+                    <pre className="mt-2 whitespace-pre-wrap text-[10px] opacity-70 max-h-40 overflow-auto">
+                      {this.state.error.stack}
+                    </pre>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -331,8 +362,8 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <RouteErrorBoundaryWrapper>
-                <AuthProvider>
+              <AuthProvider>
+                <RouteErrorBoundaryWrapper>
                   <AnalyticsWrapper>
                     <ScrollToTop />
                     <Suspense fallback={<PageLoader />}>
@@ -436,8 +467,8 @@ const App = () => {
                     </Suspense>
                     <CookieBanner />
                   </AnalyticsWrapper>
-                </AuthProvider>
-              </RouteErrorBoundaryWrapper>
+                </RouteErrorBoundaryWrapper>
+              </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
         </ThemeProvider>
