@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -25,10 +26,21 @@ export function CookieBanner() {
       // Small delay for better UX
       setTimeout(() => setIsVisible(true), 1000);
     } else {
-      // Apply saved consent
-      const parsed = JSON.parse(savedConsent) as ConsentState;
-      if (parsed.analytics) {
-        loadAnalytics();
+      try {
+        const parsed = JSON.parse(savedConsent) as ConsentState;
+        if (parsed && typeof parsed.analytics === 'boolean') {
+          if (parsed.analytics) {
+            loadAnalytics();
+          }
+        } else {
+          // Invalid shape — remove and re-show banner
+          localStorage.removeItem(COOKIE_CONSENT_KEY);
+          setTimeout(() => setIsVisible(true), 1000);
+        }
+      } catch {
+        // Corrupted value — remove and re-show banner
+        localStorage.removeItem(COOKIE_CONSENT_KEY);
+        setTimeout(() => setIsVisible(true), 1000);
       }
     }
   }, []);
@@ -212,19 +224,11 @@ export function CookieBanner() {
           </div>
           
           <div className="mt-4 pt-4 border-t border-white/5 flex gap-4 text-xs text-muted-foreground">
-            <a href="/datenschutz" className="hover:text-foreground transition-colors">Datenschutz</a>
-            <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
+            <Link to="/datenschutz" className="hover:text-foreground transition-colors">Datenschutz</Link>
+            <Link to="/impressum" className="hover:text-foreground transition-colors">Impressum</Link>
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-// Type declarations for window
-declare global {
-  interface Window {
-    dataLayer: unknown[];
-    clarity: unknown;
-  }
 }

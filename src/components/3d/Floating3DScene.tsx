@@ -1,7 +1,35 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, Component, ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
+
+/**
+ * Error boundary for WebGL/Three.js Canvas.
+ * Catches GPU crashes, missing WebGL support, etc. and renders nothing
+ * so the rest of the page still works.
+ */
+class Canvas3DErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.warn('3D scene failed to render:', error.message);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 function FloatingShape({ 
   position, 
@@ -123,28 +151,30 @@ export function Floating3DScene({ variant = "default", className = "" }: Floatin
   }, [variant]);
 
   return (
-    <div className={`absolute inset-0 ${className}`}>
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 50 }}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: "transparent" }}
-      >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[5, 5, 5]} intensity={0.5} />
-        
-        {shapes.map((shape, index) => (
-          <FloatingShape
-            key={index}
-            position={shape.position}
-            geometry={shape.geometry}
-            color={shape.color}
-            scale={shape.scale}
-            rotationSpeed={0.3 + index * 0.1}
-          />
-        ))}
-        
-        <Particles count={variant === "dense" ? 120 : variant === "minimal" ? 40 : 80} />
-      </Canvas>
-    </div>
+    <Canvas3DErrorBoundary>
+      <div className={`absolute inset-0 ${className}`}>
+        <Canvas
+          camera={{ position: [0, 0, 5], fov: 50 }}
+          gl={{ antialias: true, alpha: true }}
+          style={{ background: "transparent" }}
+        >
+          <ambientLight intensity={0.5} />
+          <pointLight position={[5, 5, 5]} intensity={0.5} />
+
+          {shapes.map((shape, index) => (
+            <FloatingShape
+              key={index}
+              position={shape.position}
+              geometry={shape.geometry}
+              color={shape.color}
+              scale={shape.scale}
+              rotationSpeed={0.3 + index * 0.1}
+            />
+          ))}
+
+          <Particles count={variant === "dense" ? 120 : variant === "minimal" ? 40 : 80} />
+        </Canvas>
+      </div>
+    </Canvas3DErrorBoundary>
   );
 }

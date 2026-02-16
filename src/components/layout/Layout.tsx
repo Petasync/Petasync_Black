@@ -15,7 +15,7 @@ export function Layout({ children }: LayoutProps) {
       <StructuredData type="LocalBusiness" />
       <ScrollProgress />
       <Header />
-      <main className="flex-1 pt-20">
+      <main id="main-content" className="flex-1 pt-20">
         {children}
       </main>
       <Footer />

@@ -106,8 +106,8 @@ export default function Privatkunden() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img 
-            src={privatkundenHero} 
-            alt="" 
+            src={privatkundenHero}
+            alt="IT-Service für Privatkunden"
             className="w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />

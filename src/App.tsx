@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ThemeProvider } from "next-themes";
 import { CookieBanner } from "@/components/CookieBanner";
@@ -301,6 +301,23 @@ const AnalyticsWrapper = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/**
+ * Route-aware ErrorBoundary wrapper.
+ *
+ * Uses location.pathname as key so the ErrorBoundary remounts on every
+ * route change. This clears stale error state automatically — without it,
+ * a single chunk-load or WebGL error would permanently trap the user on
+ * the "Etwas ist schiefgelaufen" screen until a full page reload.
+ */
+const RouteErrorBoundaryWrapper = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  return (
+    <ErrorBoundary key={location.pathname}>
+      {children}
+    </ErrorBoundary>
+  );
+};
+
 const App = () => {
   useEffect(() => {
     initAnalytics();
@@ -314,11 +331,12 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AuthProvider>
-                <AnalyticsWrapper>
-                  <ScrollToTop />
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
+              <RouteErrorBoundaryWrapper>
+                <AuthProvider>
+                  <AnalyticsWrapper>
+                    <ScrollToTop />
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/privatkunden" element={<Privatkunden />} />
                       <Route path="/geschaeftskunden" element={<Geschaeftskunden />} />
@@ -414,11 +432,12 @@ const App = () => {
                       <Route path="/admin/2fa-setup" element={<AdminProtectedRoute><AdminSetup2FA /></AdminProtectedRoute>} />
                       {/* Catch-all */}
                       <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  <CookieBanner />
-                </AnalyticsWrapper>
-              </AuthProvider>
+                      </Routes>
+                    </Suspense>
+                    <CookieBanner />
+                  </AnalyticsWrapper>
+                </AuthProvider>
+              </RouteErrorBoundaryWrapper>
             </BrowserRouter>
           </TooltipProvider>
         </ThemeProvider>

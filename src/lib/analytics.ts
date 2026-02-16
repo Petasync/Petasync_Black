@@ -12,15 +12,6 @@ export const ANALYTICS_CONFIG = {
   CLARITY_PROJECT_ID: 'uhkqz9yead',
 };
 
-// Google Analytics 4 Types
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    dataLayer?: any[];
-    clarity?: (...args: any[]) => void;
-  }
-}
-
 /**
  * Initialize Google Analytics 4
  */

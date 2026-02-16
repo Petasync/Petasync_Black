@@ -147,8 +147,8 @@ export default function Websites() {
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src={websitesHero} 
-            alt="" 
+            src={websitesHero}
+            alt="Professionelles Webdesign von Petasync"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
