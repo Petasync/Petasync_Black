@@ -1,8 +1,8 @@
-import { Helmet } from 'react-helmet-async';
-
 /**
  * Structured Data Component
  * Adds JSON-LD structured data for better SEO
+ * Renders <script> tags directly (no react-helmet-async needed —
+ * JSON-LD is valid anywhere in the document, not just <head>).
  */
 
 interface StructuredDataProps {
@@ -204,12 +204,14 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
   const structuredData = getStructuredData();
 
   return (
-    <Helmet>
+    <>
       {structuredData.map((data, index) => (
-        <script key={index} type="application/ld+json">
-          {JSON.stringify(data)}
-        </script>
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+        />
       ))}
-    </Helmet>
+    </>
   );
 }
