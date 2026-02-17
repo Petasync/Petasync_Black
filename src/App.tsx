@@ -190,16 +190,25 @@ function isChunkLoadError(error: Error): boolean {
 }
 
 class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+  { children: React.ReactNode; resetKey?: string },
   ErrorBoundaryState
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: React.ReactNode; resetKey?: string }) {
     super(props);
     this.state = { hasError: false, showDetails: false };
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
+  }
+
+  componentDidUpdate(prevProps: { children: React.ReactNode; resetKey?: string }) {
+    // When the route changes (resetKey), clear the error state so the user
+    // can navigate away from a broken page WITHOUT destroying the entire
+    // component tree (which would cause removeChild race conditions).
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false, error: undefined, showDetails: false });
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -335,15 +344,18 @@ const AnalyticsWrapper = ({ children }: { children: React.ReactNode }) => {
 /**
  * Route-aware ErrorBoundary wrapper.
  *
- * Uses location.pathname as key so the ErrorBoundary remounts on every
- * route change. This clears stale error state automatically — without it,
- * a single chunk-load or WebGL error would permanently trap the user on
- * the "Etwas ist schiefgelaufen" screen until a full page reload.
+ * Passes location.pathname as `resetKey` so the ErrorBoundary clears
+ * its error state on navigation via componentDidUpdate.
+ *
+ * IMPORTANT: We do NOT use `key={location.pathname}` because that
+ * destroys and recreates the entire subtree on every route change,
+ * causing removeChild race conditions with Three.js Canvas cleanup.
+ * The resetKey approach clears the error WITHOUT unmounting children.
  */
 const RouteErrorBoundaryWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   return (
-    <ErrorBoundary key={location.pathname}>
+    <ErrorBoundary resetKey={location.pathname}>
       {children}
     </ErrorBoundary>
   );
