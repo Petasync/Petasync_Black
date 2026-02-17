@@ -64,20 +64,33 @@ export function Turnstile({ onVerify, onExpire, onError }: TurnstileProps) {
       renderWidget();
     } else {
       // Load the Turnstile script on demand
-      if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+      const existingScript = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+      if (!existingScript) {
         const script = document.createElement('script');
         script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
         script.async = true;
+        script.onerror = () => {
+          console.warn('[Turnstile] Script failed to load');
+          handleError();
+        };
         document.head.appendChild(script);
       }
 
-      // Wait for script to load
+      // Wait for script to load with a timeout (15 seconds max)
+      const MAX_WAIT = 15_000;
+      const POLL_INTERVAL = 200;
+      let elapsed = 0;
       const checkInterval = setInterval(() => {
+        elapsed += POLL_INTERVAL;
         if (window.turnstile) {
           clearInterval(checkInterval);
           renderWidget();
+        } else if (elapsed >= MAX_WAIT) {
+          clearInterval(checkInterval);
+          console.warn('[Turnstile] Timed out waiting for script');
+          handleError();
         }
-      }, 100);
+      }, POLL_INTERVAL);
 
       return () => clearInterval(checkInterval);
     }

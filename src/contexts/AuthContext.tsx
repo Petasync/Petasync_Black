@@ -4,7 +4,7 @@
  * Zentrale Auth-Verwaltung ohne komplexe globale Flags
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -211,6 +211,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (result.success && result.data?.access_token) {
           safeSetItem(TOKEN_KEY, result.data.access_token);
+        } else if (!result.success) {
+          // Refresh failed — session is likely expired; log out gracefully
+          console.warn('[Auth] Token refresh failed:', result.error);
+          clearTokens();
+          if (mountedRef.current) {
+            setState({
+              ...initialState,
+              isLoading: false,
+              isInitialized: true,
+            });
+            toast({
+              title: "Session abgelaufen",
+              description: "Bitte melden Sie sich erneut an.",
+              variant: "destructive",
+            });
+          }
         }
       }
     }, TOKEN_REFRESH_INTERVAL);
@@ -508,7 +524,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [state.isAuthenticated, updateActivity, checkSessionTimeout]);
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({
     ...state,
     login,
     verify2FA,
@@ -516,7 +532,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
     refreshAuth,
     clearError,
-  };
+  }), [state, login, verify2FA, logout, resetPassword, refreshAuth, clearError]);
 
   return (
     <AuthContext.Provider value={value}>

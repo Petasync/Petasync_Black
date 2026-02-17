@@ -24,7 +24,9 @@ export default function AdminLogin() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string })?.from || '/admin';
+  // Validate redirect target — only allow internal /admin/* paths to prevent open redirects
+  const rawFrom = (location.state as { from?: string })?.from || '/admin';
+  const from = rawFrom.startsWith('/admin') ? rawFrom : '/admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

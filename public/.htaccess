@@ -17,7 +17,9 @@
 # Security Headers
 <IfModule mod_headers.c>
   # Content Security Policy
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://www.clarity.ms https://challenges.cloudflare.com https://*.petasync.de;"
+  # Note: unsafe-inline needed for Vite-injected styles and inline critical CSS.
+  # unsafe-eval needed for some third-party scripts (Clarity).
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://challenges.cloudflare.com https://www.clarity.ms; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://www.clarity.ms https://challenges.cloudflare.com https://api.petasync.de; frame-src https://challenges.cloudflare.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests;"
 
   # Strict Transport Security (HSTS)
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -125,11 +127,3 @@
   Header set Connection keep-alive
 </IfModule>
 
-# Force no-cache for HTML to prevent black screen issues
-<FilesMatch "\.html$">
-  <IfModule mod_headers.c>
-    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-  </IfModule>
-</FilesMatch>
