@@ -118,6 +118,8 @@ export function CookieBanner() {
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(consent));
     if (consent.analytics) {
       loadAnalytics();
+    } else {
+      removeAnalyticsCookies();
     }
     setIsVisible(false);
   };

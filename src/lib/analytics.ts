@@ -254,10 +254,13 @@ export const trackSearch = (searchTerm: string) => {
 };
 
 /**
- * Initialize Microsoft Clarity with SPA support
+ * Initialize Microsoft Clarity with SPA support.
+ * Only injects the script if not already present.
  */
 export const initClarity = () => {
   if (typeof window === 'undefined') return;
+  // Prevent duplicate script injection
+  if (document.querySelector('script[src*="clarity.ms/tag"]')) return;
 
   (function(c: any, l: any, a: any, r: any, i: any, t: any, y: any) {
     c[a] = c[a] || function() {
@@ -267,9 +270,8 @@ export const initClarity = () => {
     t.async = 1;
     t.src = "https://www.clarity.ms/tag/" + i;
     y = l.getElementsByTagName(r)[0];
-    y.parentNode.insertBefore(t, y);
+    y?.parentNode?.insertBefore(t, y);
   })(window, document, "clarity", "script", ANALYTICS_CONFIG.CLARITY_PROJECT_ID);
-
 };
 
 /**
