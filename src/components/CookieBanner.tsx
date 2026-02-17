@@ -46,25 +46,28 @@ export function CookieBanner() {
   }, []);
 
   const loadAnalytics = () => {
-    // Google Analytics
+    // Google Analytics — only inject the script tag once
     const gaId = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
-    if (gaId) {
+    if (gaId && !document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
       const gaScript = document.createElement("script");
       gaScript.async = true;
       gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
       document.head.appendChild(gaScript);
 
       window.dataLayer = window.dataLayer || [];
-      function gtag(...args: unknown[]) {
-        window.dataLayer.push(args);
-      }
-      gtag("js", new Date());
-      gtag("config", gaId);
+      window.gtag = function gtag() {
+        window.dataLayer?.push(arguments);
+      };
+      window.gtag("js", new Date());
+      window.gtag("config", gaId, {
+        send_page_view: false,
+        cookie_flags: 'SameSite=None;Secure',
+      });
     }
 
-    // Microsoft Clarity
+    // Microsoft Clarity — only inject once
     const clarityId = import.meta.env.VITE_MICROSOFT_CLARITY_ID;
-    if (clarityId) {
+    if (clarityId && !document.querySelector(`script[src*="clarity.ms/tag"]`)) {
       (function(c: Window, l: Document, a: string, r: string, i: string) {
         (c as unknown as Record<string, unknown>)[a] = (c as unknown as Record<string, unknown>)[a] || function() {
           ((c as unknown as Record<string, unknown>)[a] as { q: unknown[] }).q = ((c as unknown as Record<string, unknown>)[a] as { q?: unknown[] }).q || [];
@@ -77,6 +80,31 @@ export function CookieBanner() {
         y?.parentNode?.insertBefore(t, y);
       })(window, document, "clarity", "script", clarityId);
     }
+  };
+
+  /** Remove analytics cookies when user declines (GDPR compliance). */
+  const removeAnalyticsCookies = () => {
+    const cookiesToDelete = ['_ga', '_gid', '_gat', '_ga_', '_gcl_au'];
+    const hostname = window.location.hostname;
+    const domains = [hostname, `.${hostname}`, `.${hostname.split('.').slice(-2).join('.')}`];
+
+    for (const name of cookiesToDelete) {
+      for (const domain of domains) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
+      }
+      // Also try without domain
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    }
+    // Also delete any cookie starting with _ga (GA4 creates _ga_XXXXX cookies)
+    document.cookie.split(';').forEach(c => {
+      const name = c.trim().split('=')[0];
+      if (name.startsWith('_ga') || name.startsWith('_gid') || name.startsWith('_gcl')) {
+        for (const domain of domains) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
+        }
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      }
+    });
   };
 
   const acceptAll = () => {
@@ -97,6 +125,7 @@ export function CookieBanner() {
   const declineAll = () => {
     const minimalConsent = { necessary: true, analytics: false, marketing: false };
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(minimalConsent));
+    removeAnalyticsCookies();
     setIsVisible(false);
   };
 

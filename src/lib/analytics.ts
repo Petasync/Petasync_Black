@@ -13,21 +13,33 @@ export const ANALYTICS_CONFIG = {
 };
 
 /**
- * Initialize Google Analytics 4
+ * Check if the user has given analytics consent (cookie banner).
+ */
+function hasAnalyticsConsent(): boolean {
+  try {
+    const raw = localStorage.getItem('petasync_cookie_consent');
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed?.analytics === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Initialize Google Analytics 4.
+ * Only sets up the dataLayer stub — the actual script tag is loaded
+ * by CookieBanner after explicit user consent.
  */
 export const initGA4 = () => {
   if (typeof window === 'undefined') return;
 
+  // Only set up the stub so trackPageView etc. don't crash.
+  // The real GA script is loaded by CookieBanner on consent.
   window.dataLayer = window.dataLayer || [];
   window.gtag = function gtag() {
     window.dataLayer?.push(arguments);
   };
-
-  window.gtag('js', new Date());
-  window.gtag('config', ANALYTICS_CONFIG.GA4_MEASUREMENT_ID, {
-    send_page_view: false, // We'll handle this manually for SPA
-    cookie_flags: 'SameSite=None;Secure',
-  });
 };
 
 /**
@@ -47,7 +59,6 @@ export const trackPageView = (path: string, title?: string) => {
     window.clarity('set', 'page', path);
   }
 
-  console.log('[Analytics] Page view tracked:', path);
 };
 
 /**
@@ -71,7 +82,6 @@ export const trackEvent = (
     ...eventParams,
   });
 
-  console.log('[Analytics] Event tracked:', eventName, eventParams);
 };
 
 /**
@@ -260,13 +270,23 @@ export const initClarity = () => {
     y.parentNode.insertBefore(t, y);
   })(window, document, "clarity", "script", ANALYTICS_CONFIG.CLARITY_PROJECT_ID);
 
-  console.log('[Clarity] Initialized with SPA support');
 };
 
 /**
- * Initialize all analytics
+ * Initialize analytics.
+ *
+ * Sets up the dataLayer stub so tracking helpers (trackPageView, etc.)
+ * work without errors.  The actual GA4 script tag and Clarity snippet
+ * are loaded ONLY after the user gives explicit consent via
+ * CookieBanner — this ensures GDPR/DSGVO compliance.
  */
 export const initAnalytics = () => {
+  // Always set up the stub so calls don't throw
   initGA4();
-  initClarity();
+
+  // Only boot Clarity if the user already consented in a previous session.
+  // First-time visitors will get analytics loaded via CookieBanner.acceptAll()
+  if (hasAnalyticsConsent()) {
+    initClarity();
+  }
 };
