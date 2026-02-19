@@ -338,7 +338,7 @@ const queryClient = new QueryClient({
 const AnalyticsWrapper = ({ children }: { children: React.ReactNode }) => {
   usePageTracking();
   useScrollTracking();
-  return <>{children}</>;
+  return <div>{children}</div>;
 };
 
 /**

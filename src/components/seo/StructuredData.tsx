@@ -204,7 +204,7 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
   const structuredData = getStructuredData();
 
   return (
-    <>
+    <div data-structured-data style={{display:'none'}}>
       {structuredData.map((data, index) => (
         <script
           key={index}
@@ -212,6 +212,6 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
           dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
         />
       ))}
-    </>
+    </div>
   );
 }

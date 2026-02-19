@@ -121,5 +121,5 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   }
 
   // Autorisiert -> Content rendern
-  return <>{children}</>;
+  return <div>{children}</div>;
 }
