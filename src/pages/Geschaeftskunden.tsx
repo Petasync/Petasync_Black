@@ -149,7 +149,7 @@ export default function Geschaeftskunden() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Beratungsgespräch vereinbaren
+                  IT-Check anfragen (kostenlos)
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -330,7 +330,7 @@ export default function Geschaeftskunden() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Kostenlose Erstberatung
+                  Kostenlosen IT-Check anfragen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

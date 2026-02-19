@@ -75,8 +75,8 @@ export function Hero() {
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-xl mb-8 leading-relaxed animate-fade-in-up mx-auto lg:mx-0" style={{ animationDelay: "100ms" }}>
-            Für Privat- und Geschäftskunden. Reparatur, Netzwerk, Webdesign – 
-            alles aus einer Hand. Inkl. kostenlosem Leih-PC.
+            PC-Probleme, IT-Betreuung oder neue Website? Wir lösen das –
+            persönlich, transparent und mit kostenlosem Leih-PC.
           </p>
 
           {/* Key benefits inline */}

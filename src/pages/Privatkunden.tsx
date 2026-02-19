@@ -146,7 +146,7 @@ export default function Privatkunden() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Termin vereinbaren
+                  PC-Problem melden
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -228,7 +228,7 @@ export default function Privatkunden() {
                   
                   <Button variant="ghost" className="text-muted-foreground hover:text-foreground group" asChild>
                     <Link to={service.href}>
-                      Mehr erfahren
+                      Preise & Details
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
@@ -311,7 +311,7 @@ export default function Privatkunden() {
               Bereit für professionelle IT-Hilfe?
             </h2>
             <p className="text-xl text-muted-foreground mb-10">
-              Kontaktieren Sie uns noch heute für eine kostenlose Erstberatung.
+              Schildern Sie uns Ihr Problem – wir finden die Lösung. Kostenlose Erstberatung.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>

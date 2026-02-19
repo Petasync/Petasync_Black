@@ -78,15 +78,20 @@ export default function WebsiteTemplate() {
               <span className="gradient-text">Template</span>
             </h1>
             
+            <div className="mb-6">
+              <span className="text-5xl font-bold">490€</span>
+              <span className="text-xl text-muted-foreground ml-2">einmalig</span>
+            </div>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Professionell aussehen ohne großes Budget? Unsere Template-Websites basieren auf 
+              Professionell aussehen ohne großes Budget? Unsere Template-Websites basieren auf
               bewährten Designs und werden mit Ihren Inhalten individualisiert – schnell, günstig, effektiv.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Jetzt anfragen
+                  Template-Paket buchen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

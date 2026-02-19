@@ -82,8 +82,13 @@ export default function WebsiteEnterprise() {
               <span className="gradient-text">Enterprise</span>
             </h1>
             
+            <div className="mb-6">
+              <span className="text-5xl font-bold">ab 3.990€</span>
+              <span className="text-xl text-muted-foreground ml-2">projektbasiert</span>
+            </div>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Maßgeschneiderte Lösungen für anspruchsvolle Projekte. E-Commerce, 
+              Maßgeschneiderte Lösungen für anspruchsvolle Projekte. E-Commerce,
               individuelle Funktionen, API-Integrationen – alles ist möglich.
             </p>
             
