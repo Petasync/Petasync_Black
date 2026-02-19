@@ -94,18 +94,26 @@ export function Turnstile({ onVerify, onExpire, onError }: TurnstileProps) {
 
       return () => {
         clearInterval(checkInterval);
-        if (widgetIdRef.current && window.turnstile) {
-          window.turnstile.remove(widgetIdRef.current);
-          widgetIdRef.current = null;
+        try {
+          if (widgetIdRef.current && window.turnstile) {
+            window.turnstile.remove(widgetIdRef.current);
+          }
+        } catch {
+          // Cloudflare widget cleanup may race with React unmount
         }
+        widgetIdRef.current = null;
       };
     }
 
     return () => {
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
+      try {
+        if (widgetIdRef.current && window.turnstile) {
+          window.turnstile.remove(widgetIdRef.current);
+        }
+      } catch {
+        // Cloudflare widget cleanup may race with React unmount
       }
+      widgetIdRef.current = null;
     };
   }, [handleVerify, handleExpire, handleError]);
 

@@ -89,9 +89,7 @@ export function EPCQRCode({ open, onOpenChange, invoiceNumber, amount }: EPCQRCo
     const link = document.createElement('a');
     link.download = `EPC_QR_${invoiceNumber}.png`;
     link.href = qrCodeUrl;
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
     toast.success('QR-Code heruntergeladen');
   };
 

@@ -379,7 +379,7 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
   const { subtotal, discountAmount, total } = calculateTotals();
 
   return (
-    <>
+    <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -693,6 +693,6 @@ export function InvoiceEditor({ invoice, open, onOpenChange, onSave }: InvoiceEd
         open={showGoogleReviewQR}
         onOpenChange={setShowGoogleReviewQR}
       />
-    </>
+    </div>
   );
 }
