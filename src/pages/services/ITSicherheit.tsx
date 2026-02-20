@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
   { icon: AlertTriangle, title: "Virenentfernung", description: "Gründliche Entfernung von Viren, Trojanern und anderer Schadsoftware.", price: "ab 45€" },
@@ -48,6 +49,7 @@ const threats = [
 ];
 
 export default function ITSicherheit() {
+  useSEO(SEO_PAGES.itSicherheit);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();

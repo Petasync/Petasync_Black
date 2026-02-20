@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Crown, Check, ArrowRight, Infinity, ShoppingCart, Plug, Gauge, HeadphonesIcon, Code2 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Komplett individuelles Design & Entwicklung",
@@ -54,6 +55,7 @@ const capabilities = [
 ];
 
 export default function WebsiteEnterprise() {
+  useSEO(SEO_PAGES.websiteEnterprise);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: capabilitiesRef, isRevealed: capabilitiesRevealed } = useScrollReveal();
 
@@ -82,8 +84,13 @@ export default function WebsiteEnterprise() {
               <span className="gradient-text">Enterprise</span>
             </h1>
             
+            <div className="mb-6">
+              <span className="text-5xl font-bold">ab 3.990€</span>
+              <span className="text-xl text-muted-foreground ml-2">projektbasiert</span>
+            </div>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Maßgeschneiderte Lösungen für anspruchsvolle Projekte. E-Commerce, 
+              Maßgeschneiderte Lösungen für anspruchsvolle Projekte. E-Commerce,
               individuelle Funktionen, API-Integrationen – alles ist möglich.
             </p>
             

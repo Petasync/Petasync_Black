@@ -21,6 +21,7 @@ import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import websitesHero from "@/assets/websites-hero.png";
 import { TEMPLATE_LIST } from "@/lib/constants/template-config";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const webServices = [
   {
@@ -52,6 +53,8 @@ const webServices = [
 const packages = [
   {
     name: "Template",
+    price: "490",
+    priceNote: "einmalig",
     description: "Schnell & günstig: Professionelles Design auf Basis bewährter Templates",
     features: [
       "Fertige Design-Vorlage",
@@ -67,6 +70,8 @@ const packages = [
   },
   {
     name: "Starter",
+    price: "990",
+    priceNote: "einmalig",
     description: "Ideal für Selbstständige und kleine Unternehmen",
     features: [
       "Individuelles Design",
@@ -81,6 +86,8 @@ const packages = [
   },
   {
     name: "Business",
+    price: "1.990",
+    priceNote: "einmalig",
     description: "Für wachsende Unternehmen mit mehr Anforderungen",
     features: [
       "Premium Design",
@@ -97,6 +104,8 @@ const packages = [
   },
   {
     name: "Enterprise",
+    price: "3.990",
+    priceNote: "ab, projektbasiert",
     description: "Individuelle Lösungen für anspruchsvolle Projekte",
     features: [
       "Komplett individuell",
@@ -136,6 +145,7 @@ const processSteps = [
 ];
 
 export default function Websites() {
+  useSEO(SEO_PAGES.websites);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
@@ -253,7 +263,7 @@ export default function Websites() {
               Website-Pakete
             </h2>
             <p className="text-muted-foreground mt-4">
-              Transparente Leistungen – individuelle Preise auf Anfrage.
+              Transparente Festpreise – von der einfachen Visitenkarte bis zur komplexen Weblösung.
             </p>
           </div>
 
@@ -285,7 +295,11 @@ export default function Websites() {
                     {pkg.badge}
                   </span>
                 )}
-                <h3 className="text-xl font-bold mb-2">{pkg.name}</h3>
+                <h3 className="text-xl font-bold mb-1">{pkg.name}</h3>
+                <div className="mb-3">
+                  <span className="text-3xl font-bold">{pkg.price}€</span>
+                  <span className="text-sm text-muted-foreground ml-1">{pkg.priceNote}</span>
+                </div>
                 <p className="text-sm text-muted-foreground mb-5">
                   {pkg.description}
                 </p>
@@ -297,16 +311,16 @@ export default function Websites() {
                     </div>
                   ))}
                 </div>
-                <Button 
+                <Button
                   className={cn(
                     "w-full rounded-full",
-                    pkg.highlight 
-                      ? "bg-foreground text-background hover:bg-foreground/90" 
+                    pkg.highlight
+                      ? "bg-foreground text-background hover:bg-foreground/90"
                       : "bg-white/5 hover:bg-white/10 border border-white/10"
                   )}
                   asChild
                 >
-                  <Link to="/kontakt">Anfragen</Link>
+                  <Link to={pkg.href}>Paket wählen</Link>
                 </Button>
               </div>
             ))}

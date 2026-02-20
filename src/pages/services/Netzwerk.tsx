@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const packages = [
   {
@@ -80,6 +81,7 @@ const benefits = [
 ];
 
 export default function Netzwerk() {
+  useSEO(SEO_PAGES.netzwerk);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();

@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
   {
@@ -50,6 +51,7 @@ const packages = [
 ];
 
 export default function Webdesign() {
+  useSEO(SEO_PAGES.webdesign);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();

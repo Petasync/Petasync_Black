@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
   {
@@ -100,6 +101,7 @@ const advantages = [
 ];
 
 export default function Geschaeftskunden() {
+  useSEO(SEO_PAGES.geschaeftskunden);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: advantagesRef, isRevealed: advantagesRevealed } = useScrollReveal();
@@ -149,7 +151,7 @@ export default function Geschaeftskunden() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Beratungsgespräch vereinbaren
+                  IT-Check anfragen (kostenlos)
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -330,7 +332,7 @@ export default function Geschaeftskunden() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Kostenlose Erstberatung
+                  Kostenlosen IT-Check anfragen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
