@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Building2, Check, ArrowRight, Star, Zap, BarChart3, Edit3, Search, Users } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Premium individuelles Design",
@@ -44,6 +45,7 @@ const highlights = [
 ];
 
 export default function WebsiteBusiness() {
+  useSEO(SEO_PAGES.websiteBusiness);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: highlightsRef, isRevealed: highlightsRevealed } = useScrollReveal();
 

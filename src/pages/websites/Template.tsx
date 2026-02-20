@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FileText, Check, ArrowRight, Clock, Palette, Globe, Smartphone } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Fertige Design-Vorlage aus unserer Sammlung",
@@ -50,6 +51,7 @@ const templates = [
 ];
 
 export default function WebsiteTemplate() {
+  useSEO(SEO_PAGES.websiteTemplate);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal();
 

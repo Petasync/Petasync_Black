@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const managedPackages = [
   {
@@ -62,6 +63,7 @@ const cloudPackages = [
 ];
 
 export default function ITInfrastruktur() {
+  useSEO(SEO_PAGES.itInfrastruktur);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: managedRef, isRevealed: managedRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import kontaktHero from "@/assets/kontakt-hero.png";
 import { trackContactFormSubmit, trackFormSubmission, trackPhoneClick, trackEmailClick } from "@/lib/analytics";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 // API URL for contact form - uses relative path for same-domain or full URL for production
 const CONTACT_API_URL = import.meta.env.PROD
@@ -50,6 +51,7 @@ const contactInfo = [
 ];
 
 export default function Kontakt() {
+  useSEO(SEO_PAGES.kontakt);
   const { toast } = useToast();
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: formRef, isRevealed: formRevealed } = useScrollReveal();

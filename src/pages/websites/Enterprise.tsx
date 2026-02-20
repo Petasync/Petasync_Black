@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Crown, Check, ArrowRight, Infinity, ShoppingCart, Plug, Gauge, HeadphonesIcon, Code2 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Komplett individuelles Design & Entwicklung",
@@ -54,6 +55,7 @@ const capabilities = [
 ];
 
 export default function WebsiteEnterprise() {
+  useSEO(SEO_PAGES.websiteEnterprise);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: capabilitiesRef, isRevealed: capabilitiesRevealed } = useScrollReveal();
 

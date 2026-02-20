@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Palette, Check, ArrowRight, Sparkles, Code, Layers, Rocket } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Individuelles, maßgeschneidertes Design",
@@ -51,6 +52,7 @@ const process = [
 ];
 
 export default function WebsiteStarter() {
+  useSEO(SEO_PAGES.websiteStarter);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal();
 

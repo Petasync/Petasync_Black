@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const dataRecoveryTypes = [
   {
@@ -72,6 +73,7 @@ const packages = [
 ];
 
 export default function Datenrettung() {
+  useSEO(SEO_PAGES.datenrettung);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
   const { ref: typesRef, isRevealed: typesRevealed } = useScrollReveal();

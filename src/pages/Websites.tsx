@@ -21,6 +21,7 @@ import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import websitesHero from "@/assets/websites-hero.png";
 import { TEMPLATE_LIST } from "@/lib/constants/template-config";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const webServices = [
   {
@@ -144,6 +145,7 @@ const processSteps = [
 ];
 
 export default function Websites() {
+  useSEO(SEO_PAGES.websites);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();

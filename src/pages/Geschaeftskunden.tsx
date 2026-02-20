@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
   {
@@ -100,6 +101,7 @@ const advantages = [
 ];
 
 export default function Geschaeftskunden() {
+  useSEO(SEO_PAGES.geschaeftskunden);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
   const { ref: advantagesRef, isRevealed: advantagesRevealed } = useScrollReveal();

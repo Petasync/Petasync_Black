@@ -6,6 +6,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const benefits = [
   {
@@ -46,6 +47,7 @@ const faq = [
 ];
 
 export default function LeihPC() {
+  useSEO(SEO_PAGES.leihPc);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: benefitsRef, isRevealed: benefitsRevealed } = useScrollReveal();
   const { ref: faqRef, isRevealed: faqRevealed } = useScrollReveal();

@@ -682,3 +682,257 @@ Die drei wichtigsten Hebel fuer sofortige Verbesserung:
 3. **Entscheidungshilfe bieten** - Wizard statt "suchen Sie sich was aus"
 
 Die vorgeschlagene Restrukturierung reduziert die Komplexitaet um ca. 60% bei gleichem Leistungsumfang. Der Kunde sieht weniger, versteht mehr und entscheidet schneller.
+
+---
+
+## 12. SEO & LOCAL SEO – TIEFENANALYSE
+
+### Aktuelle SEO-Infrastruktur: Bewertung
+
+| Bereich | Status | Bewertung (1-10) | Kritisch? |
+|---------|--------|-------------------|-----------|
+| Structured Data (JSON-LD) | Vorhanden (LocalBusiness, Organization, Website) | 6/10 | Mittel |
+| Sitemap.xml | Vorhanden (90+ URLs) | 4/10 | Ja - veraltet |
+| robots.txt | Vorhanden | 7/10 | Nein |
+| Per-Page Meta Tags (title, description) | **FEHLT KOMPLETT** | 1/10 | **KRITISCH** |
+| Canonical URLs | **FEHLT** | 0/10 | **KRITISCH** |
+| Open Graph per Page | **FEHLT** (nur index.html) | 2/10 | Hoch |
+| FAQ Schema | **FEHLT** (FAQ-Seite ohne Markup) | 0/10 | Hoch |
+| Service Schema mit Preisen | **FEHLT** | 0/10 | Hoch |
+| Breadcrumb-Navigation (UI) | **FEHLT** | 0/10 | Mittel |
+| Service-Area-Landingpages | **FEHLT** | 0/10 | **KRITISCH** fuer Local SEO |
+| Google Analytics (GA4) | Vorhanden (G-69WXXP8WMT) | 8/10 | Nein |
+| Microsoft Clarity | Vorhanden | 8/10 | Nein |
+| Mobile Performance | 43/100 Lighthouse | 3/10 | **KRITISCH** |
+| NAP-Konsistenz | Konsistent auf allen Seiten | 8/10 | Nein |
+| Geo-Koordinaten | Im Schema vorhanden | 7/10 | Nein |
+| hreflang | Nicht noetig (nur DE) | N/A | Nein |
+| Alt-Tags | Teilweise vorhanden | 6/10 | Mittel |
+| Interne Verlinkung | Grundstruktur vorhanden | 5/10 | Mittel |
+| Blog/Content-Marketing | **FEHLT KOMPLETT** | 0/10 | Hoch (langfristig) |
+
+**Gesamt-SEO-Score: 3.8/10** - Erheblicher Handlungsbedarf
+
+---
+
+### A) KRITISCH: Keine seitenspezifischen Meta-Tags
+
+**Aktuell:**
+Alle 30+ Seiten teilen sich EINE einzige Meta-Beschreibung aus `index.html`:
+```
+<title>Petasync - IT-Service & PC-Reparatur</title>
+<meta name="description" content="Petasync - Ihr IT-Partner fuer PC-Reparatur, IT-Support und Webdesign in Ansbach, Nuernberg und Umgebung" />
+```
+
+**Problem:**
+- Google zeigt fuer JEDE Seite denselben Titel und dieselbe Beschreibung
+- Service-Seiten wie "PC Reinigung" oder "Datenrettung" haben keine eigenen Meta-Tags
+- Kein Keyword-Targeting pro Seite moeglich
+- Click-Through-Rate in Google-Ergebnissen massiv reduziert
+- `document.title` wird nie geaendert (Analytics trackt immer denselben Titel)
+
+**Loesung: SEO-Hook implementieren**
+
+Jede Seite braucht individuelle:
+- `<title>` - Max. 60 Zeichen, Keyword + Brand
+- `<meta name="description">` - Max. 155 Zeichen, Keyword + Handlungsaufforderung
+- `<link rel="canonical">` - Selbstreferenzierend
+- `og:title`, `og:description`, `og:url` - Fuer Social Sharing
+
+**Empfohlene Seitentitel und Beschreibungen:**
+
+| Seite | Title-Tag | Meta-Description |
+|-------|-----------|------------------|
+| Homepage | Petasync – IT-Service & PC-Reparatur Ansbach & Nuernberg | Professioneller IT-Service in Ansbach & Nuernberg. PC-Reparatur, IT-Support, Webdesign. Kostenloser Leih-PC. Faire Festpreise. Jetzt anfragen! |
+| Privatkunden | PC-Reparatur & IT-Hilfe fuer Privatkunden | Petasync | PC kaputt? Wir helfen! Reparatur ab 29EUR, kostenloser Leih-PC, Datenrettung & mehr. Vor-Ort-Service in Ansbach & Nuernberg. |
+| Geschaeftskunden | IT-Service fuer Unternehmen – Petasync Ansbach | Zuverlaessige IT-Betreuung fuer KMU. Managed Services ab 35EUR/User, IT-Support, Netzwerk & Cloud. Ihr lokaler IT-Partner. |
+| Websites | Webdesign Ansbach & Nuernberg – ab 490EUR | Petasync | Professionelle Websites ab 490EUR. Template, Starter, Business oder Enterprise. Festpreise, SEO inklusive, mobil-optimiert. |
+| PC-Reparatur | PC & Laptop Reparatur Ansbach – ab 29EUR | Petasync | Schnelle PC-Reparatur in Ansbach & Umgebung. Festpreise ab 29EUR. Kostenlose Diagnose bei Auftrag. Leih-PC gratis. |
+| Datenrettung | Datenrettung Ansbach – Professionell ab 89EUR | Petasync | Daten verloren? Professionelle Datenrettung ab 89EUR. HDD, SSD, USB. Kostenlose Analyse. Schnelle Hilfe in Ansbach & Nuernberg. |
+| IT-Sicherheit | Virenentfernung & IT-Sicherheit ab 45EUR | Petasync | Virus auf dem PC? Professionelle Virenentfernung ab 45EUR. Firewall, Antivirus, Backup-Einrichtung. Sofortige Hilfe. |
+| IT-Support | IT-Support fuer Unternehmen ab 99EUR/Monat | Petasync | Professioneller IT-Support mit Helpdesk. Remote & Vor-Ort. SLA bis 2h. Flexibel ab 99EUR/Monat. Jetzt IT-Check anfragen. |
+| Netzwerk | Netzwerk & WLAN Einrichtung – Petasync Ansbach | Enterprise-WLAN, VPN, strukturierte Verkabelung. Netzwerk-Setup ab 299EUR. Professionelle Planung & Installation. |
+| PC-Reinigung | PC Reinigung & Wartung ab 25EUR | Petasync | Professionelle PC-Reinigung ab 25EUR. Staub entfernen, Waermeleitpaste erneuern, Leistung optimieren. In Ansbach & Umgebung. |
+| PC-Zusammenbau | Gaming-PC & Workstation Zusammenbau | Petasync | Individueller PC-Zusammenbau ab 69EUR. Gaming, Office, Workstation. Professionelle Beratung & 12 Monate Garantie. |
+| PC-Aufruestung | PC-Aufruestung & Upgrade ab 25EUR | Petasync | SSD, RAM, GPU Upgrade ab 25EUR Einbau. Mehr Leistung fuer Ihren PC. Beratung, Einbau & Test inklusive. |
+| Diagnose | Kostenlose PC-Diagnose | Petasync Ansbach | Kostenlose PC-Diagnose bei Reparaturauftrag. Hardware-Check, Software-Analyse, Fehlerprotokoll. Schnell & zuverlaessig. |
+| Leih-PC | Kostenloser Leih-PC bei Reparatur | Petasync | Einzigartiger Service: Kostenloser Leih-PC waehrend Ihrer Reparatur. Keine Ausfallzeit. Daten-Transfer inklusive. |
+| IT-Infrastruktur | IT-Infrastruktur & Managed Services | Petasync | Server, Netzwerk, Cloud fuer Unternehmen. Managed Workplace ab 35EUR/User/Monat. Alles aus einer Hand. |
+| IT-Beratung | IT-Beratung & Strategie fuer Unternehmen | Petasync | Strategische IT-Beratung: Digitalisierung, DSGVO, IT-Audit. Workshop 499EUR/Tag oder 89EUR/h. Praxisnah & herstellerunabhaengig. |
+| Webdesign Service | Webdesign & Entwicklung | Petasync Ansbach | Moderne Websites fuer Unternehmen. Individuelles Design, SEO, CMS. Von der Visitenkarte bis zum Online-Shop. |
+| FAQ | Haeufige Fragen zu IT-Service & Reparatur | Petasync | Antworten auf die haeufigsten Fragen: Kosten, Dauer, Leih-PC, Webdesign, Hausbesuche. Alles ueber unseren IT-Service. |
+| Kontakt | Kontakt & Termin – Petasync IT-Service | Kontaktieren Sie uns: Tel. 0163 711 7198. Mo-Fr 8-20 Uhr, Sa 10-18 Uhr. Kostenlose Erstberatung. Ansbach & Nuernberg. |
+| Website Template | Template-Website ab 490EUR – in 5-7 Tagen online | Petasync | Guenstige Template-Website ab 490EUR. Professionelles Design, 5 Seiten, mobil-optimiert. In nur 5-7 Tagen online. |
+| Website Starter | Individuelle Website ab 990EUR | Petasync | Ihr massgeschneiderter Webauftritt ab 990EUR. Individuelles Design, SEO, 1 Monat Support. Ideal fuer Selbstaendige. |
+| Website Business | Business-Website mit CMS ab 1.990EUR | Petasync | Premium Website ab 1.990EUR. CMS, Blog, erweiterte SEO, 10 Seiten. 3 Monate Support. Fuer wachsende Unternehmen. |
+| Website Enterprise | Enterprise-Website & Online-Shop | Petasync | Massgeschneiderte Webloesungen ab 3.990EUR. E-Commerce, API, unbegrenzte Seiten. 12 Monate Support. |
+
+---
+
+### B) KRITISCH: Keine Service-Area-Landingpages (Local SEO)
+
+**Aktuell:**
+Die Staedte Ansbach, Nuernberg, Fuerth, Erlangen, Oberasbach werden nur als Text erwaehnt, aber es gibt **keine dedizierten Landingpages** dafuer.
+
+**Problem:**
+Ein Nutzer der googelt "PC Reparatur Nuernberg" findet Petasync nicht, weil:
+- Keine Seite existiert, die auf "PC Reparatur Nuernberg" optimiert ist
+- Google kann den lokalen Bezug nicht pro Stadt zuordnen
+- Wettbewerber mit stadtspezifischen Seiten ranken hoeher
+
+**Empfohlene Service-Area-Pages (Prioritaet HOCH):**
+
+Fuer die 3 wichtigsten Suchbegriff-Kombinationen:
+
+| URL | Target Keyword | Monatl. Suchvolumen (geschaetzt) |
+|-----|---------------|----------------------------------|
+| /pc-reparatur-ansbach | PC Reparatur Ansbach | 100-200 |
+| /pc-reparatur-nuernberg | PC Reparatur Nuernberg | 500-1.000 |
+| /it-service-ansbach | IT Service Ansbach | 50-150 |
+| /it-service-nuernberg | IT Service Nuernberg | 200-500 |
+| /webdesign-ansbach | Webdesign Ansbach | 100-300 |
+| /webdesign-nuernberg | Webdesign Nuernberg | 300-600 |
+| /pc-reparatur-fuerth | PC Reparatur Fuerth | 100-200 |
+| /pc-reparatur-erlangen | PC Reparatur Erlangen | 100-200 |
+
+**Seitenstruktur pro Service-Area-Page:**
+1. H1: "PC-Reparatur in [Stadt]" mit lokalem Bezug
+2. Lokaler Introtext (150-300 Woerter) mit Stadt-spezifischen Details
+3. Service-Pakete (gleiche wie Hauptseite)
+4. "Warum Petasync in [Stadt]?" - Lokale Vorteile
+5. Google Maps Embed fuer die Stadt
+6. Kontakt-CTA mit Telefon
+7. FAQ-Section mit lokalen Fragen
+
+**Wichtig:** Kein Duplicate Content! Jede Seite muss einzigartigen lokalen Content haben.
+
+---
+
+### C) KRITISCH: FAQ ohne Schema-Markup
+
+**Aktuell:** 19 Fragen/Antworten auf der FAQ-Seite, aber KEIN `FAQPage` Schema.
+
+**Impact:** Google koennte FAQ-Ergebnisse direkt in den SERPs anzeigen (Rich Snippets), was die Klickrate um 20-40% erhoehen kann.
+
+**Loesung:** `FAQPage` JSON-LD Schema fuer alle Fragen auf der FAQ-Seite implementieren.
+
+---
+
+### D) Structured Data: Fehlende Service-Schemas mit Preisen
+
+**Aktuell:** Die OfferCatalog im LocalBusiness-Schema listet Services ohne Preise.
+
+**Empfehlung:** Jede Service-Seite braucht eigenes `Service`-Schema mit:
+- `name` - Service-Name
+- `description` - Beschreibung
+- `provider` - Referenz auf Petasync
+- `areaServed` - Staedte
+- `offers` mit `price`, `priceCurrency`, `priceSpecification`
+
+**Beispiel fuer PC-Reparatur:**
+```json
+{
+  "@type": "Service",
+  "name": "PC & Laptop Reparatur",
+  "provider": { "@id": "https://petasync.de/#organization" },
+  "areaServed": ["Ansbach", "Nuernberg", "Fuerth"],
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "29",
+    "highPrice": "149",
+    "priceCurrency": "EUR"
+  }
+}
+```
+
+Google kann diese Preisinformationen direkt in den Suchergebnissen anzeigen.
+
+---
+
+### E) Sitemap veraltet
+
+**Aktuell:** `lastmod` auf allen Seiten: `2025-01-03` (ueber 1 Jahr alt)
+
+**Probleme:**
+- Google denkt, die Seite wird nicht gepflegt
+- Neue/geaenderte Seiten werden langsamer indexiert
+- Keine automatische Sitemap-Generierung
+
+**Loesung:**
+- Sitemap-Datum aktualisieren
+- Neue Service-Area-Pages hinzufuegen
+- Langfristig: Automatische Sitemap-Generierung beim Build
+
+---
+
+### F) Performance: Mobile Score 43/100
+
+**Direkter SEO-Impact:** Google nutzt Mobile-First-Indexierung. Ein Score von 43 bestraft das Ranking.
+
+**Hauptproblem:** Three.js 3D-Szenen (810 KB) auf Mobile geladen
+
+**Quick Wins:**
+- 3D-Szenen auf Mobile komplett deaktivieren (bereits teilweise umgesetzt)
+- Bilder in WebP/AVIF konvertieren
+- Font-Loading optimieren (nur 2 Gewichte statt 4)
+- Kritische CSS inline, Rest async
+
+---
+
+### G) Interne Verlinkung
+
+**Aktuell:**
+- Navigation verlinkt auf Hauptseiten
+- Service-Cards verlinken auf Detail-Seiten
+- Footer hat 5 Service-Links
+
+**Fehlend:**
+- Keine Cross-Links zwischen verwandten Services (z.B. "PC-Reparatur" -> "Datenrettung")
+- Keine "Verwandte Services"-Section am Ende jeder Service-Seite
+- Keine kontextuelle Verlinkung in Texten
+- Breadcrumbs fehlen komplett (Schema existiert, UI nicht)
+
+**Empfehlung:** Jede Service-Seite braucht:
+1. Breadcrumb-Navigation (Home > Privatkunden > PC-Reparatur)
+2. "Das koennte Sie auch interessieren"-Section mit 2-3 verwandten Services
+3. Kontextuelle Links im Fliesstext zu relevanten Seiten
+
+---
+
+## 13. SEO-OPTIMIERTE TO-DO-LISTE (PRIORISIERT)
+
+### Phase 1: Sofort (kritischer SEO-Impact)
+
+| # | Aufgabe | SEO-Impact |
+|---|---------|-----------|
+| S1.1 | **useSEO-Hook implementieren** - Per-Page title, description, canonical, OG-Tags | Kritisch: Alle 30+ Seiten bekommen individuelle Meta-Tags |
+| S1.2 | **Seitentitel fuer alle Seiten setzen** (nach Tabelle oben) | Kritisch: Google kann Seiten korrekt indexieren |
+| S1.3 | **FAQ-Schema implementieren** (FAQPage JSON-LD) | Hoch: Rich Snippets in Google |
+| S1.4 | **Sitemap-Datum aktualisieren** auf 2026-02-19 | Mittel: Google sieht aktive Pflege |
+| S1.5 | **Canonical URLs setzen** auf allen Seiten | Hoch: Duplicate Content vermeiden |
+
+### Phase 2: Kurzfristig (1-2 Wochen)
+
+| # | Aufgabe | SEO-Impact |
+|---|---------|-----------|
+| S2.1 | **Service-Schemas mit Preisen** fuer alle Service-Seiten | Hoch: Preise in Google-Ergebnissen |
+| S2.2 | **Breadcrumb UI + Schema** auf allen Unterseiten | Mittel: Bessere Navigation fuer Google |
+| S2.3 | **Geo-Meta-Tags** (geo.region, geo.placename, geo.position) | Mittel: Lokale Zuordnung |
+| S2.4 | **"Verwandte Services"-Section** am Ende jeder Service-Seite | Mittel: Bessere interne Verlinkung |
+
+### Phase 3: Mittelfristig (3-4 Wochen)
+
+| # | Aufgabe | SEO-Impact |
+|---|---------|-----------|
+| S3.1 | **4 Service-Area-Landingpages** (Ansbach, Nuernberg, Fuerth, Erlangen) | Sehr hoch: Local SEO Keywords |
+| S3.2 | **LocalSEO-Section erweitern** mit mehr Stadt-Content und Google Maps | Mittel: Lokale Relevanz |
+| S3.3 | **Mobile Performance auf 70+** optimieren | Hoch: Mobile-First Index |
+
+### Phase 4: Langfristig (1-2 Monate)
+
+| # | Aufgabe | SEO-Impact |
+|---|---------|-----------|
+| S4.1 | **Blog-Infrastruktur** aufbauen (IT-Tipps, lokale News) | Hoch langfristig: Content-Marketing |
+| S4.2 | **Google Business Profile** vollstaendig einrichten & optimieren | Hoch: Local Pack Ranking |
+| S4.3 | **Backlink-Strategie**: Lokale Verzeichnisse, Partnerschaften | Hoch: Domain Authority |
+| S4.4 | **Review-Schema** fuer Google-Bewertungen integrieren | Mittel: Sterne in Suchergebnissen |

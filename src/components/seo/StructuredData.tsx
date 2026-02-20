@@ -6,29 +6,30 @@
  */
 
 interface StructuredDataProps {
-  type?: 'LocalBusiness' | 'Service' | 'WebPage' | 'Article';
+  type?: 'LocalBusiness' | 'Service' | 'WebPage' | 'Article' | 'FAQPage';
   customData?: Record<string, any>;
 }
 
+const BASE_URL = 'https://petasync.de';
+
 export function StructuredData({ type = 'LocalBusiness', customData }: StructuredDataProps) {
   const getStructuredData = () => {
-    const baseUrl = 'https://petasync.de';
 
     // Local Business Schema (for homepage and main pages)
     const localBusinessSchema = {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "@id": `${baseUrl}/#organization`,
+      "@id": `${BASE_URL}/#organization`,
       "name": "Petasync",
       "description": "Professioneller IT-Service für Privat- und Geschäftskunden in Ansbach, Nürnberg und Umgebung. PC-Reparatur, IT-Support, Webdesign und mehr.",
-      "url": baseUrl,
+      "url": BASE_URL,
       "telephone": "+491637117198",
       "email": "service@petasync.de",
       "priceRange": "€€",
-      "image": `${baseUrl}/og-image.png`,
+      "image": `${BASE_URL}/og-image.png`,
       "logo": {
         "@type": "ImageObject",
-        "url": `${baseUrl}/favicon.svg`,
+        "url": `${BASE_URL}/favicon.svg`,
         "width": "512",
         "height": "512"
       },
@@ -45,26 +46,13 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
         "longitude": "10.5783"
       },
       "areaServed": [
-        {
-          "@type": "City",
-          "name": "Ansbach"
-        },
-        {
-          "@type": "City",
-          "name": "Oberasbach"
-        },
-        {
-          "@type": "City",
-          "name": "Nürnberg"
-        },
-        {
-          "@type": "City",
-          "name": "Fürth"
-        },
-        {
-          "@type": "City",
-          "name": "Erlangen"
-        }
+        { "@type": "City", "name": "Ansbach" },
+        { "@type": "City", "name": "Oberasbach" },
+        { "@type": "City", "name": "Nürnberg" },
+        { "@type": "City", "name": "Fürth" },
+        { "@type": "City", "name": "Erlangen" },
+        { "@type": "City", "name": "Dietenhofen" },
+        { "@type": "City", "name": "Neustadt an der Aisch" }
       ],
       "openingHoursSpecification": [
         {
@@ -89,7 +77,15 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
             "itemOffered": {
               "@type": "Service",
               "name": "PC & Laptop Reparatur",
-              "description": "Professionelle Reparatur von Computern und Laptops"
+              "description": "Professionelle Reparatur von Computern und Laptops aller Marken",
+              "url": `${BASE_URL}/services/pc-reparatur`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "price": "29",
+              "minPrice": "29",
+              "maxPrice": "149",
+              "priceCurrency": "EUR"
             }
           },
           {
@@ -97,15 +93,58 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
             "itemOffered": {
               "@type": "Service",
               "name": "Leih-PC Service",
-              "description": "Kostenloser Leih-PC während der Reparatur"
+              "description": "Kostenloser Leih-PC während der Reparatur",
+              "url": `${BASE_URL}/services/leih-pc`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "price": "0",
+              "priceCurrency": "EUR"
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "IT-Sicherheit",
-              "description": "Virenschutz, Datensicherung und Cyber-Schutz"
+              "name": "Datenrettung",
+              "description": "Professionelle Datenrettung von defekten Speichermedien",
+              "url": `${BASE_URL}/services/datenrettung`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "39",
+              "maxPrice": "199",
+              "priceCurrency": "EUR"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "IT-Sicherheit & Virenentfernung",
+              "description": "Virenschutz, Firewall-Setup und Cyber-Schutz",
+              "url": `${BASE_URL}/services/it-sicherheit`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "45",
+              "maxPrice": "89",
+              "priceCurrency": "EUR"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "PC Reinigung & Wartung",
+              "description": "Professionelle PC-Reinigung für bessere Leistung",
+              "url": `${BASE_URL}/services/pc-reinigung`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "25",
+              "maxPrice": "69",
+              "priceCurrency": "EUR"
             }
           },
           {
@@ -113,15 +152,28 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
             "itemOffered": {
               "@type": "Service",
               "name": "Netzwerk & WLAN",
-              "description": "Einrichtung und Optimierung von Heimnetzwerken"
+              "description": "Einrichtung und Optimierung von Netzwerken",
+              "url": `${BASE_URL}/services/netzwerk`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "45",
+              "priceCurrency": "EUR"
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "IT für Unternehmen",
-              "description": "Professionelle IT-Infrastruktur und Support"
+              "name": "IT-Support für Unternehmen",
+              "description": "Professioneller IT-Support mit Helpdesk",
+              "url": `${BASE_URL}/services/it-support`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "99",
+              "priceCurrency": "EUR",
+              "unitText": "MONTH"
             }
           },
           {
@@ -129,7 +181,14 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
             "itemOffered": {
               "@type": "Service",
               "name": "Webdesign",
-              "description": "Moderne, responsive Websites"
+              "description": "Moderne, responsive Websites für Unternehmen",
+              "url": `${BASE_URL}/websites`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": "490",
+              "maxPrice": "3990",
+              "priceCurrency": "EUR"
             }
           }
         ]
@@ -140,10 +199,10 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
     const organizationSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "@id": `${baseUrl}/#organization`,
+      "@id": `${BASE_URL}/#organization`,
       "name": "Petasync",
-      "url": baseUrl,
-      "logo": `${baseUrl}/favicon.svg`,
+      "url": BASE_URL,
+      "logo": `${BASE_URL}/favicon.svg`,
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+491637117198",
@@ -158,18 +217,18 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
     const websiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "@id": `${baseUrl}/#website`,
-      "url": baseUrl,
-      "name": "Petasync - IT-Service & PC-Reparatur",
-      "description": "Professioneller IT-Service für Privat- und Geschäftskunden",
+      "@id": `${BASE_URL}/#website`,
+      "url": BASE_URL,
+      "name": "Petasync - IT-Service & PC-Reparatur Ansbach & Nürnberg",
+      "description": "Professioneller IT-Service für Privat- und Geschäftskunden in Ansbach, Nürnberg und Umgebung",
       "publisher": {
-        "@id": `${baseUrl}/#organization`
+        "@id": `${BASE_URL}/#organization`
       },
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": `${baseUrl}/?s={search_term_string}`
+          "urlTemplate": `${BASE_URL}/?s={search_term_string}`
         },
         "query-input": "required name=search_term_string"
       }
@@ -184,7 +243,7 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": baseUrl
+          "item": BASE_URL
         }
       ]
     };
@@ -196,6 +255,8 @@ export function StructuredData({ type = 'LocalBusiness', customData }: Structure
         return [organizationSchema, customData || {}];
       case 'WebPage':
         return [organizationSchema, breadcrumbSchema, customData || {}];
+      case 'FAQPage':
+        return [organizationSchema, customData || {}];
       default:
         return [localBusinessSchema, organizationSchema];
     }
