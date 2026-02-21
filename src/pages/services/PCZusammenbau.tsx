@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Wrench, ArrowRight, CheckCircle2, Phone, Briefcase, Gamepad2, Monitor, Clapperboard } from "lucide-react";
+import { Wrench, ArrowRight, CheckCircle2, Phone, Briefcase, Gamepad2, Monitor, Clapperboard, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const buildTypes = [
@@ -173,6 +174,11 @@ export default function PCZusammenbau() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "PC-Aufrüstung", href: "/services/pc-aufruestung", price: "ab 25€", icon: Wrench },
+        { title: "PC Reinigung", href: "/services/pc-reinigung", price: "ab 25€", icon: Sparkles },
+      ]} />
 
       <section className="section-padding relative">
         <div className="container-tight">

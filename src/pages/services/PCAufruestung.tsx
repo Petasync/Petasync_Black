@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Zap, ArrowRight, CheckCircle2, Phone, Cpu, MemoryStick, HardDrive as HardDriveIcon, Gamepad2 } from "lucide-react";
+import { Zap, ArrowRight, CheckCircle2, Phone, Cpu, MemoryStick, HardDrive as HardDriveIcon, Gamepad2, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const upgradeServices = [
@@ -143,6 +144,11 @@ export default function PCAufruestung() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "PC Zusammenbau", href: "/services/pc-zusammenbau", price: "ab 69€", icon: Cpu },
+        { title: "PC Reinigung", href: "/services/pc-reinigung", price: "ab 25€", icon: Sparkles },
+      ]} />
 
       <section className="section-padding relative">
         <div className="container-tight">

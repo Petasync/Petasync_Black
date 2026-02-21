@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Database, ArrowRight, CheckCircle2, Phone, HardDrive, Smartphone, Usb, Server } from "lucide-react";
+import { Database, ArrowRight, CheckCircle2, Phone, HardDrive, Smartphone, Usb, Server, Shield, Monitor } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const dataRecoveryTypes = [
@@ -180,6 +181,11 @@ export default function Datenrettung() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "IT-Sicherheit", href: "/services/it-sicherheit", price: "ab 45€", icon: Shield },
+        { title: "PC-Reparatur", href: "/services/pc-reparatur", price: "ab 29€", icon: Monitor },
+      ]} />
 
       <section className="section-padding relative">
         <div className="container-tight">

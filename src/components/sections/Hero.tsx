@@ -3,6 +3,7 @@ import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Suspense, lazy, useState, useEffect } from "react";
 import { trackCTAClick } from "@/lib/analytics";
+import { DecisionWizard } from "@/components/DecisionWizard";
 
 // Lazy load 3D scene for better initial page load (only on desktop)
 const Hero3DSceneLazy = lazy(() => import("@/components/3d/Hero3DScene").then(module => ({
@@ -95,26 +96,27 @@ export function Hero() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: "200ms" }}>
-            <Button
-              size="lg"
-              asChild
-              className="h-12 px-6 text-sm font-medium bg-foreground text-background hover:bg-foreground/90 rounded-full"
-            >
-              <Link to="/kontakt" onClick={() => trackCTAClick('Kostenlose Beratung', 'Hero Section Primary')}>
-                Kostenlose Beratung
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
+            <DecisionWizard
+              trigger={
+                <Button
+                  size="lg"
+                  className="h-12 px-6 text-sm font-medium bg-foreground text-background hover:bg-foreground/90 rounded-full"
+                  onClick={() => trackCTAClick('Was brauchen Sie?', 'Hero Section Primary')}
+                >
+                  Was brauchen Sie?
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              }
+            />
             <Button
               size="lg"
               variant="ghost"
               asChild
               className="h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-transparent"
             >
-              <Link to="/privatkunden" onClick={() => trackCTAClick('Für Privatkunden', 'Hero Section Secondary')}>
-                Für Privatkunden
-                <ArrowRight className="w-4 h-4 ml-2 opacity-50" />
-              </Link>
+              <a href="tel:+491637117198" onClick={() => trackCTAClick('Sofort anrufen', 'Hero Section Secondary')}>
+                Sofort anrufen: 0163 711 7198
+              </a>
             </Button>
           </div>
 

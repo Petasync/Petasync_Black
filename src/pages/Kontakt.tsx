@@ -4,7 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState, Suspense, useCallback } from "react";
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, MessageCircle, HelpCircle } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Turnstile } from "@/components/Turnstile";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -428,6 +434,78 @@ export default function Kontakt() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="section-padding relative">
+        <div className="container-tight relative">
+          <div className="divider-glow mb-20" />
+
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-5 mx-auto">
+                <HelpCircle className="w-6 h-6 text-foreground" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                Häufig gestellte{" "}
+                <span className="gradient-text">Fragen</span>
+              </h2>
+              <p className="text-muted-foreground">
+                Hier finden Sie Antworten auf die wichtigsten Fragen zu unserem Service.
+              </p>
+            </div>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              {[
+                {
+                  q: "In welchem Gebiet sind Sie tätig?",
+                  a: "Wir bieten unsere IT-Services in Dietenhofen und der gesamten Region an, inklusive Ansbach, Nürnberg, Neustadt an der Aisch, Oberasbach und weiteren Orten im Umkreis von ca. 50 km. Für Webdesign-Projekte arbeiten wir auch deutschlandweit.",
+                },
+                {
+                  q: "Bieten Sie auch Hausbesuche an?",
+                  a: "Ja! Wir kommen gerne zu Ihnen nach Hause oder in Ihr Büro. Vor-Ort-Service ist einer unserer Kernvorteile.",
+                },
+                {
+                  q: "Wie schnell können Sie helfen?",
+                  a: "In dringenden Fällen versuchen wir, noch am selben Tag zu helfen. Reguläre Termine können meist innerhalb von 1-3 Werktagen vereinbart werden.",
+                },
+                {
+                  q: "Was ist der Leih-PC Service?",
+                  a: "Wenn Ihr PC zur Reparatur muss, erhalten Sie kostenlos einen Ersatz-PC. So können Sie ohne Unterbrechung weiterarbeiten, während wir Ihr Gerät reparieren.",
+                },
+                {
+                  q: "Ist der Leih-PC wirklich kostenlos?",
+                  a: "Ja, der Leih-PC ist bei Reparaturaufträgen für Privatkunden komplett kostenlos. Sie zahlen nur die eigentliche Reparatur.",
+                },
+                {
+                  q: "Was kostet eine Reparatur?",
+                  a: "Wir arbeiten mit transparenten Festpreisen. PC-Service ab 49€, Daten & Sicherheit ab 59€. Wir erstellen immer zuerst einen kostenlosen Kostenvoranschlag.",
+                },
+                {
+                  q: "Bieten Sie auch Website-Erstellung an?",
+                  a: "Ja! Von einfachen Template-Websites ab 490€ bis hin zu komplexen Enterprise-Lösungen ab 3.990€. Alle Pakete mit Festpreis und ohne versteckte Kosten.",
+                },
+                {
+                  q: "Wie funktioniert die IT-Betreuung für Unternehmen?",
+                  a: "Wir bieten drei monatliche Pakete: Starter (149€/Mo), Business (349€/Mo) und Enterprise (699€/Mo). Jedes Paket beinhaltet Support, Monitoring und Leih-PC-Service.",
+                },
+              ].map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`faq-${index}`}
+                  className="border border-white/5 rounded-xl px-6 data-[state=open]:bg-white/[0.02]"
+                >
+                  <AccordionTrigger className="text-left text-foreground hover:no-underline py-5">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-5">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>
