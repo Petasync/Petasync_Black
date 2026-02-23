@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Monitor, Building2, Globe, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Monitor, Building2, Globe, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,85 +11,30 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-interface WizardResult {
-  name: string;
-  price: string;
+interface NavigationOption {
+  id: string;
+  label: string;
+  description: string;
   href: string;
-  features: string[];
 }
 
-const resultMap: Record<string, WizardResult> = {
-  "privat-pc": {
-    name: "PC Reparatur Komplett",
-    price: "99€",
-    href: "/privatkunden",
-    features: ["Diagnose & Fehleranalyse", "Software-Reparatur & Updates", "Reinigung & Optimierung", "Kostenloser Leih-PC"],
-  },
-  "privat-daten": {
-    name: "Daten-Rettung",
-    price: "129€",
-    href: "/privatkunden",
-    features: ["Analyse & Datenrettung", "Bis 500 GB", "Backup-Einrichtung", "Datenträger-Prüfung"],
-  },
-  "privat-netzwerk": {
-    name: "PC nach Maß",
-    price: "99€ + Hardware",
-    href: "/privatkunden",
-    features: ["Persönliche Beratung", "Zusammenbau & Installation", "Windows & Treiber", "12 Monate Garantie"],
-  },
-  "business-betreuung": {
-    name: "IT-Betreuung Business",
-    price: "349€/Monat",
-    href: "/geschaeftskunden",
-    features: ["8h Support pro Monat", "Vor-Ort 2x/Monat inkl.", "Server-Monitoring", "4h Reaktionszeit"],
-  },
-  "business-projekt": {
-    name: "Einmalige IT-Projekte",
-    price: "ab 490€",
-    href: "/geschaeftskunden",
-    features: ["Netzwerk-Setup", "Cloud-Migration", "Server-Einrichtung", "Festpreis-Angebot"],
-  },
-  "business-beratung": {
-    name: "IT-Beratung & Strategie",
-    price: "Auf Anfrage",
-    href: "/kontakt",
-    features: ["IT-Strategie Workshop", "Digitalisierungsberatung", "DSGVO-Audit", "Herstellerunabhängig"],
-  },
-  "website-einfach": {
-    name: "Template-Website",
-    price: "490€",
-    href: "/websites/template",
-    features: ["Fertiges Design", "5 Seiten", "Mobil-optimiert", "In 5-7 Tagen online"],
-  },
-  "website-individuell": {
-    name: "Business-Website",
-    price: "1.990€",
-    href: "/websites/business",
-    features: ["Premium-Design", "10 Seiten + CMS", "SEO inklusive", "3 Monate Support"],
-  },
-  "website-komplex": {
-    name: "Enterprise-Website",
-    price: "ab 3.990€",
-    href: "/websites/enterprise",
-    features: ["Komplett individuell", "E-Commerce möglich", "API-Anbindung", "12 Monate Support"],
-  },
-};
-
-const step2Options = {
+const step2Options: Record<string, NavigationOption[]> = {
   privat: [
-    { id: "pc", label: "Mein PC ist langsam oder kaputt", description: "Reparatur, Reinigung, Updates" },
-    { id: "daten", label: "Daten verloren oder Virus", description: "Datenrettung, Sicherheit, Backup" },
-    { id: "netzwerk", label: "Neuer PC oder WLAN-Problem", description: "Zusammenbau, Netzwerk, Setup" },
+    { id: "pc-kaputt", label: "Mein PC startet nicht / ist kaputt", description: "Reparatur, Diagnose, Fehlerbehebung", href: "/privatkunden#reparatur" },
+    { id: "pc-langsam", label: "Mein PC ist langsam", description: "Reinigung, Optimierung, Aufrüstung", href: "/privatkunden#reinigung" },
+    { id: "daten", label: "Ich brauche Datensicherung", description: "Datenrettung, Backup, Virenentfernung", href: "/privatkunden#datensicherheit" },
+    { id: "neuer-pc", label: "Ich will einen neuen PC", description: "Zusammenbau, Beratung, Installation", href: "/privatkunden#zusammenbau" },
+    { id: "wlan", label: "Mein WLAN ist schlecht", description: "Netzwerk-Setup, Router, Mesh-WLAN", href: "/privatkunden#netzwerk" },
   ],
   business: [
-    { id: "betreuung", label: "Laufende IT-Betreuung", description: "Monatlicher Support & Monitoring" },
-    { id: "projekt", label: "Einmaliges Projekt", description: "Server, Netzwerk, Cloud-Migration" },
-    { id: "beratung", label: "IT-Beratung & Strategie", description: "Digitalisierung, DSGVO, Audit" },
+    { id: "betreuung", label: "Laufende IT-Betreuung", description: "Monatlicher Support & Monitoring", href: "/geschaeftskunden" },
+    { id: "projekt", label: "Einmaliges Projekt", description: "Netzwerk, Cloud, Server-Einrichtung", href: "/geschaeftskunden#zusatzmodule" },
+    { id: "beratung", label: "IT-Beratung & Strategie", description: "Digitalisierung, DSGVO, Audit", href: "/kontakt" },
   ],
   website: [
-    { id: "einfach", label: "Einfach & günstig", description: "Fertige Vorlage, schnell online" },
-    { id: "individuell", label: "Individuell für mein Business", description: "Eigenes Design, CMS, SEO" },
-    { id: "komplex", label: "Komplex mit Shop/Funktionen", description: "E-Commerce, API, Spezialfunktionen" },
+    { id: "einfach", label: "Einfach & günstig", description: "Fertige Vorlage, ab 490€, schnell online", href: "/websites/template" },
+    { id: "individuell", label: "Individuell für mein Business", description: "Eigenes Design, CMS, SEO ab 1.990€", href: "/websites/business" },
+    { id: "komplex", label: "Komplex mit Shop/Funktionen", description: "E-Commerce, API, ab 3.990€", href: "/websites/enterprise" },
   ],
 };
 
@@ -101,12 +46,11 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState<"privat" | "business" | "website" | null>(null);
-  const [choice, setChoice] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const reset = () => {
     setStep(1);
     setUserType(null);
-    setChoice(null);
   };
 
   const handleTypeSelect = (type: "privat" | "business" | "website") => {
@@ -114,12 +58,19 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
     setStep(2);
   };
 
-  const handleChoiceSelect = (id: string) => {
-    setChoice(id);
-    setStep(3);
+  const handleOptionSelect = (href: string) => {
+    setOpen(false);
+    reset();
+    // Navigate and scroll to hash if present
+    const [path, hash] = href.split("#");
+    navigate(path);
+    if (hash) {
+      // Small delay to let the page render before scrolling
+      setTimeout(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
   };
-
-  const result = userType && choice ? resultMap[`${userType}-${choice}`] : null;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
@@ -138,13 +89,12 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
             {step === 2 && userType === "privat" && "Was ist das Problem?"}
             {step === 2 && userType === "business" && "Was brauchen Sie?"}
             {step === 2 && userType === "website" && "Was für eine Website?"}
-            {step === 3 && "Unser Vorschlag für Sie"}
           </DialogTitle>
         </DialogHeader>
 
         {/* Progress */}
         <div className="flex items-center justify-center gap-2 my-4">
-          {[1, 2, 3].map((s) => (
+          {[1, 2].map((s) => (
             <div
               key={s}
               className={cn(
@@ -159,7 +109,7 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
         {step === 1 && (
           <div className="grid gap-3 py-4">
             {[
-              { type: "privat" as const, icon: Monitor, label: "Privatperson", desc: "PC-Problem, Daten, Sicherheit" },
+              { type: "privat" as const, icon: Monitor, label: "Privatperson", desc: "PC-Reparatur, Daten, Sicherheit" },
               { type: "business" as const, icon: Building2, label: "Unternehmen", desc: "IT-Betreuung für Ihre Firma" },
               { type: "website" as const, icon: Globe, label: "Website", desc: "Neue Website für Ihr Business" },
             ].map((option) => (
@@ -181,14 +131,14 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
           </div>
         )}
 
-        {/* Step 2: What do you need? */}
+        {/* Step 2: Navigate directly */}
         {step === 2 && userType && (
           <div className="py-4">
             <div className="grid gap-3">
               {step2Options[userType].map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => handleChoiceSelect(option.id)}
+                  onClick={() => handleOptionSelect(option.href)}
                   className="flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-left"
                 >
                   <div>
@@ -208,59 +158,6 @@ export function DecisionWizard({ trigger }: DecisionWizardProps) {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
-          </div>
-        )}
-
-        {/* Step 3: Result */}
-        {step === 3 && result && (
-          <div className="py-4">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-6">
-              <h3 className="text-lg font-bold text-foreground mb-1">{result.name}</h3>
-              <div className="text-3xl font-bold text-foreground mb-4">{result.price}</div>
-
-              <ul className="space-y-2 mb-6">
-                {result.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full"
-                asChild
-                onClick={() => setOpen(false)}
-              >
-                <Link to={`/kontakt?service=${encodeURIComponent(result.name)}`}>
-                  Jetzt anfragen
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                className="text-muted-foreground"
-                onClick={() => { setStep(2); setChoice(null); }}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="text-muted-foreground"
-                asChild
-                onClick={() => setOpen(false)}
-              >
-                <Link to={result.href}>
-                  Alle Pakete ansehen
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
           </div>
         )}
       </DialogContent>
