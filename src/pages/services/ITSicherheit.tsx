@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, ArrowRight, CheckCircle2, Phone, Lock, Eye, AlertTriangle, FileCheck, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Shield, ArrowRight, CheckCircle2, Phone, Lock, Eye, AlertTriangle, FileCheck, ShieldAlert, ShieldCheck, HardDrive, Wifi } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
@@ -177,6 +178,11 @@ export default function ITSicherheit() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "Datenrettung", href: "/services/datenrettung", price: "ab 89€", icon: HardDrive },
+        { title: "Netzwerk & WLAN", href: "/services/netzwerk", price: "ab 45€", icon: Wifi },
+      ]} />
 
       <section className="section-padding relative">
         <div className="container-tight">

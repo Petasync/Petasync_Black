@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, Server, Shield, Headphones, Globe, Laptop, ArrowRight, CheckCircle2, Phone, Clock, Users, Cpu, Search } from "lucide-react";
+import { Building2, Shield, Clock, Laptop, ArrowRight, CheckCircle2, Phone, Server, Globe, FileSearch } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
@@ -9,72 +9,99 @@ import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
-const services = [
+interface Feature {
+  label: string;
+  starter: string;
+  business: string;
+  enterprise: string;
+}
+
+const features: Feature[] = [
+  { label: "Mitarbeiter", starter: "1–5", business: "5–15", enterprise: "15+" },
+  { label: "Support-Stunden", starter: "3h/Monat", business: "8h/Monat", enterprise: "Unlimitiert" },
+  { label: "Reaktionszeit", starter: "24h", business: "4h", enterprise: "2h (SLA)" },
+  { label: "Remote-Support", starter: "check", business: "check", enterprise: "check" },
+  { label: "Vor-Ort-Support", starter: "Nach Bedarf", business: "2x/Monat inkl.", enterprise: "Unlimitiert" },
+  { label: "Monitoring", starter: "Basis", business: "Erweitert", enterprise: "24/7" },
+  { label: "Backup-Management", starter: "dash", business: "check", enterprise: "check" },
+  { label: "Leih-PC", starter: "check", business: "check", enterprise: "check" },
+  { label: "Managed Workplace", starter: "dash", business: "+35€/User", enterprise: "Inklusive" },
+  { label: "Dedizierter Kontakt", starter: "dash", business: "dash", enterprise: "check" },
+];
+
+const packages = [
   {
-    icon: Headphones,
-    title: "IT-Support & Helpdesk",
-    description: "Zuverlässiger Support für Ihr Unternehmen – vor Ort oder remote.",
-    features: ["Support-Flatrates", "Remote 50€/h", "Vor-Ort 75€/h"],
-    href: "/services/it-support",
-    price: "ab 99€/Monat",
-    highlight: true
+    name: "Starter",
+    price: "149",
+    priceNote: "/Monat",
+    target: "1–5 Mitarbeiter",
+    description: "Grundlegende IT-Betreuung für kleine Teams",
+    highlights: [
+      "3h Support pro Monat",
+      "Remote & Vor-Ort nach Bedarf",
+      "Basis-Monitoring",
+      "Kostenloser Leih-PC",
+      "Ticket-System",
+    ],
   },
+  {
+    name: "Business",
+    price: "349",
+    priceNote: "/Monat",
+    target: "5–15 Mitarbeiter",
+    description: "Vollständige IT-Betreuung für wachsende Unternehmen",
+    highlight: true,
+    highlights: [
+      "8h Support pro Monat",
+      "Vor-Ort-Support 2x/Monat inkl.",
+      "Server & Netzwerk-Monitoring",
+      "Backup-Management",
+      "4h Reaktionszeit",
+      "Cloud-Dienste Setup",
+    ],
+  },
+  {
+    name: "Enterprise",
+    price: "699",
+    priceNote: "/Monat",
+    target: "15+ Mitarbeiter",
+    description: "Premium-IT mit dediziertem Ansprechpartner",
+    highlights: [
+      "Unlimitierter Support",
+      "Unlimitiert Vor-Ort-Besuche",
+      "24/7 Monitoring",
+      "Dedizierter Ansprechpartner",
+      "SLA mit 2h Reaktionszeit",
+      "Security-Audits & Quartals-Checks",
+    ],
+  },
+];
+
+const addOns = [
   {
     icon: Server,
-    title: "Managed Services",
-    description: "Komplette IT-Betreuung als monatliche Flatrate. Rundum sorglos.",
-    features: ["PC-Verwaltung", "Server-Monitoring", "Proaktive Wartung"],
-    href: "/services/it-infrastruktur",
-    price: "ab 35€/User/Monat"
-  },
-  {
-    icon: Server,
-    title: "IT-Infrastruktur",
-    description: "Server, Netzwerk und Cloud-Lösungen für Ihr Unternehmen.",
-    features: ["Server-Setup", "Netzwerk", "Cloud-Migration"],
-    href: "/services/it-infrastruktur",
-    price: "ab 299€"
-  },
-  {
-    icon: Shield,
-    title: "IT-Sicherheit",
-    description: "Umfassender Schutz für Ihre Unternehmensdaten und Systeme.",
-    features: ["Firewall-Setup", "Security-Audit", "Endpoint-Protection"],
-    href: "/services/it-sicherheit",
-    price: "ab 299€"
+    title: "Netzwerk-Setup",
+    price: "599€",
+    description: "Bis 10 Arbeitsplätze, inkl. WLAN",
   },
   {
     icon: Globe,
-    title: "Cloud-Services",
-    description: "Office 365, Cloud-Server und Hybrid-Cloud-Lösungen.",
-    features: ["Office 365", "Cloud-Server", "Backup"],
-    href: "/services/it-infrastruktur",
-    price: "ab 49€/User"
+    title: "Cloud-Migration",
+    price: "490€",
+    description: "Office 365, bis 10 User",
   },
   {
-    icon: Laptop,
-    title: "Netzwerk & WLAN",
-    description: "Enterprise-Netzwerke, VPN und strukturierte Verkabelung.",
-    features: ["WLAN-Setup", "VPN-Lösungen", "Verkabelung"],
-    href: "/services/netzwerk",
-    price: "ab 299€"
+    icon: Shield,
+    title: "Security-Audit",
+    price: "899€",
+    description: "Vollständige Sicherheitsanalyse",
   },
   {
-    icon: Users,
-    title: "IT-Beratung",
-    description: "Strategische IT-Beratung für Digitalisierung und Optimierung.",
-    features: ["IT-Strategie", "Digitalisierung", "DSGVO"],
-    href: "/services/beratung",
-    price: "89€/h"
+    icon: FileSearch,
+    title: "DSGVO-Beratung",
+    price: "599€",
+    description: "Beratung & Dokumentation",
   },
-  {
-    icon: Cpu,
-    title: "Hardware & Workstations",
-    description: "Business-PCs, Laptops und Workstations inkl. Setup.",
-    features: ["Volumen-Rabatte", "Windows Pro", "Installation"],
-    href: "/services/pc-zusammenbau",
-    price: "ab 69€"
-  }
 ];
 
 const advantages = [
@@ -103,30 +130,30 @@ const advantages = [
 export default function Geschaeftskunden() {
   useSEO(SEO_PAGES.geschaeftskunden);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
-  const { ref: servicesRef, isRevealed: servicesRevealed } = useScrollReveal();
+  const { ref: packagesRef, isRevealed: packagesRevealed } = useScrollReveal();
+  const { ref: addOnsRef, isRevealed: addOnsRevealed } = useScrollReveal();
   const { ref: advantagesRef, isRevealed: advantagesRevealed } = useScrollReveal();
 
   return (
     <Layout>
-      {/* Hero Section - Centered */}
+      {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img 
+          <img
             src={geschaeftskundenHero}
             alt="IT-Service für Geschäftskunden"
             className="w-full h-full object-cover opacity-40"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
-        
-        {/* 3D Scene */}
+
         <Suspense fallback={null}>
           <Floating3DScene variant="dense" className="opacity-40" />
         </Suspense>
-        
+
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
-        
-        <div 
+
+        <div
           ref={heroRef}
           className={cn(
             "container-tight relative z-10 py-32 transition-all duration-1000",
@@ -137,17 +164,17 @@ export default function Geschaeftskunden() {
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-6 block">
               Für Unternehmen
             </span>
-            
+
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
-              IT-Lösungen für{" "}
+              IT-Betreuung für{" "}
               <span className="gradient-text">Ihr Unternehmen</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
-              Professionelle IT-Betreuung für kleine und mittlere Unternehmen in der Region. 
-              Persönlich, zuverlässig und immer erreichbar.
+              Drei klare Pakete statt komplizierter Einzelleistungen.
+              Monatliche Flatrate, persönlicher Ansprechpartner, keine versteckten Kosten.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
@@ -166,75 +193,187 @@ export default function Geschaeftskunden() {
         </div>
       </section>
 
-      {/* Services Section - Card Grid */}
+      {/* Packages Section - 3 Tier Cards */}
       <section className="section-padding relative">
         <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
-        
+
         <div className="container-tight relative">
           <div className="mb-16 text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
-              Leistungen
+              Monatliche Pakete
             </span>
-            <h2 className="text-4xl sm:text-5xl font-bold gradient-text">
-              Unsere Leistungen für Unternehmen
+            <h2 className="text-4xl sm:text-5xl font-bold gradient-text mb-6">
+              Wählen Sie Ihr IT-Paket
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Alle Pakete beinhalten Leih-PC-Service, Ticket-System und persönlichen Support. Monatlich kündbar.
+            </p>
+          </div>
+
+          <div
+            ref={packagesRef}
+            className={cn(
+              "grid md:grid-cols-3 gap-6 mb-16 transition-all duration-1000",
+              packagesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            )}
+          >
+            {packages.map((pkg, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "relative rounded-2xl p-8 transition-all hover:scale-[1.02]",
+                  pkg.highlight
+                    ? "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/30"
+                    : "bg-gradient-to-br from-white/[0.04] to-transparent border border-white/10"
+                )}
+              >
+                {pkg.highlight && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-semibold px-4 py-1 rounded-full bg-primary text-primary-foreground">
+                    Beliebt
+                  </span>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-1">{pkg.name}</h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent font-medium">
+                    {pkg.target}
+                  </span>
+                  <p className="text-sm text-muted-foreground mt-2">{pkg.description}</p>
+                </div>
+
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-foreground">{pkg.price}€</span>
+                  <span className="text-sm text-muted-foreground ml-1">{pkg.priceNote}</span>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {pkg.highlights.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  className={cn(
+                    "w-full rounded-full",
+                    pkg.highlight
+                      ? "bg-foreground text-background hover:bg-foreground/90"
+                      : "bg-white/10 text-foreground hover:bg-white/20"
+                  )}
+                  asChild
+                >
+                  <Link to={`/kontakt?service=${encodeURIComponent(`IT-Betreuung ${pkg.name}`)}`}>
+                    {pkg.name} anfragen
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {/* Feature Comparison Table (Desktop) */}
+          <div className="hidden lg:block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+            <div className="grid grid-cols-4 gap-0">
+              {/* Header */}
+              <div className="p-4 border-b border-white/10 font-medium text-muted-foreground text-sm">
+                Leistung
+              </div>
+              {["Starter", "Business", "Enterprise"].map((name, i) => (
+                <div
+                  key={name}
+                  className={cn(
+                    "p-4 border-b border-white/10 text-center font-semibold text-sm",
+                    i === 1 && "bg-primary/5"
+                  )}
+                >
+                  {name}
+                </div>
+              ))}
+
+              {/* Rows */}
+              {features.map((feature, index) => (
+                <>
+                  <div
+                    key={`label-${index}`}
+                    className="p-4 border-b border-white/5 text-sm text-muted-foreground"
+                  >
+                    {feature.label}
+                  </div>
+                  {(["starter", "business", "enterprise"] as const).map((tier, i) => {
+                    const value = feature[tier];
+                    return (
+                      <div
+                        key={`${tier}-${index}`}
+                        className={cn(
+                          "p-4 border-b border-white/5 text-center text-sm",
+                          i === 1 && "bg-primary/5"
+                        )}
+                      >
+                        {value === "check" ? (
+                          <CheckCircle2 className="w-4 h-4 text-primary mx-auto" />
+                        ) : value === "dash" ? (
+                          <span className="text-muted-foreground/40">—</span>
+                        ) : (
+                          <span className="text-foreground">{value}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Add-on Modules */}
+      <section className="section-padding relative">
+        <div className="container-tight relative">
+          <div className="divider-glow mb-20" />
+
+          <div className="mb-12 text-center">
+            <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
+              Einmalige Projekte
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              Zusatzmodule mit{" "}
+              <span className="gradient-text">Festpreis</span>
             </h2>
           </div>
 
-          <div 
-            ref={servicesRef}
+          <div
+            ref={addOnsRef}
             className={cn(
-              "grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-1000",
-              servicesRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              "grid md:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-1000",
+              addOnsRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             )}
           >
-            {services.map((service, index) => (
-              <Link
+            {addOns.map((addon, index) => (
+              <div
                 key={index}
-                to={service.href}
-                className="group relative p-8 rounded-2xl border border-white/5 hover:border-white/10 bg-gradient-to-br from-white/[0.02] to-transparent transition-all hover:scale-[1.02]"
-                style={{ transitionDelay: `${index * 50}ms` }}
+                className="p-6 rounded-xl border border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent hover:border-white/10 transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                  <service.icon className="w-6 h-6 text-foreground" />
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                  <addon.icon className="w-5 h-5 text-foreground" />
                 </div>
-                
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
-                  {service.price && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent font-medium">
-                      {service.price}
-                    </span>
-                  )}
-                </div>
-                <p className="text-muted-foreground text-sm mb-4">{service.description}</p>
-                
-                <div className="flex flex-wrap gap-2">
-                  {service.features.slice(0, 2).map((feature, idx) => (
-                    <span key={idx} className="text-xs px-2 py-1 rounded-full bg-white/5 text-muted-foreground">
-                      {feature}
-                    </span>
-                  ))}
-                  {service.features.length > 2 && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/5 text-muted-foreground">
-                      +{service.features.length - 2}
-                    </span>
-                  )}
-                </div>
-                
-                <ArrowRight className="absolute top-8 right-8 w-5 h-5 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-              </Link>
+                <h3 className="text-lg font-semibold text-foreground mb-1">{addon.title}</h3>
+                <span className="text-sm font-medium text-primary">{addon.price}</span>
+                <p className="text-sm text-muted-foreground mt-2">{addon.description}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Advantages Section - Centered Grid */}
+      {/* Advantages Section */}
       <section className="section-padding relative overflow-hidden">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
-        
+
         <div className="container-tight relative">
           <div className="divider-glow mb-20" />
-          
+
           <div className="mb-16 text-center">
             <span className="text-sm text-muted-foreground tracking-widest uppercase mb-4 block">
               Vorteile
@@ -244,8 +383,8 @@ export default function Geschaeftskunden() {
               <span className="gradient-text">Petasync</span>
             </h2>
           </div>
-          
-          <div 
+
+          <div
             ref={advantagesRef}
             className={cn(
               "grid md:grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000",
@@ -253,8 +392,8 @@ export default function Geschaeftskunden() {
             )}
           >
             {advantages.map((advantage, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="text-center group"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
@@ -269,13 +408,13 @@ export default function Geschaeftskunden() {
         </div>
       </section>
 
-      {/* Leih-PC Highlight - Alternating */}
+      {/* Leih-PC Highlight */}
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="relative py-16 px-8 md:px-16 rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
             <div className="absolute inset-0 border border-white/10 rounded-3xl" />
-            
+
             <div className="relative grid lg:grid-cols-2 gap-12 items-center">
               <div className="lg:order-2 lg:text-right">
                 <span className="text-sm text-primary tracking-widest uppercase mb-4 block">
@@ -285,10 +424,10 @@ export default function Geschaeftskunden() {
                   Leih-PC Service für Unternehmen
                 </h2>
                 <p className="text-muted-foreground text-lg mb-8">
-                  Kein Produktivitätsverlust durch defekte Hardware: Wir stellen Ihren Mitarbeitern 
+                  Kein Produktivitätsverlust durch defekte Hardware: Wir stellen Ihren Mitarbeitern
                   während der Reparatur Leihgeräte zur Verfügung – inklusive Datenübertragung.
                 </p>
-                
+
                 <div className="space-y-3">
                   {[
                     "Sofortige Verfügbarkeit von Ersatzgeräten",
@@ -303,7 +442,7 @@ export default function Geschaeftskunden() {
                   ))}
                 </div>
               </div>
-              
+
               <div className="lg:order-1 flex justify-center">
                 <div className="relative">
                   <Laptop className="w-32 h-32 text-primary" />
@@ -321,7 +460,7 @@ export default function Geschaeftskunden() {
       <section className="section-padding relative">
         <div className="container-tight">
           <div className="divider-glow mb-20" />
-          
+
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-4xl sm:text-5xl font-bold mb-6 gradient-text">
               Lassen Sie uns über Ihre IT sprechen

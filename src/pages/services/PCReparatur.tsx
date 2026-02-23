@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Monitor, ArrowRight, CheckCircle2, Phone, Wrench, HardDrive, Cpu, Battery, Laptop } from "lucide-react";
+import { Monitor, ArrowRight, CheckCircle2, Phone, Wrench, HardDrive, Cpu, Battery, Laptop, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const services = [
@@ -301,6 +302,12 @@ export default function PCReparatur() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "PC Reinigung", href: "/services/pc-reinigung", price: "ab 25€", icon: Sparkles },
+        { title: "Datenrettung", href: "/services/datenrettung", price: "ab 89€", icon: HardDrive },
+        { title: "Leih-PC Service", href: "/services/leih-pc", price: "Kostenlos", icon: Laptop },
+      ]} />
 
       {/* Leih-PC CTA */}
       <section className="section-padding relative">

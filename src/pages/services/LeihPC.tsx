@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Laptop, ArrowRight, CheckCircle2, Phone, Clock, Shield, Zap, DollarSign } from "lucide-react";
+import { Laptop, ArrowRight, CheckCircle2, Phone, Clock, Shield, Zap, DollarSign, Monitor, Cpu } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const benefits = [
@@ -183,6 +184,11 @@ export default function LeihPC() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "PC-Reparatur", href: "/services/pc-reparatur", price: "ab 29€", icon: Monitor },
+        { title: "PC Zusammenbau", href: "/services/pc-zusammenbau", price: "ab 69€", icon: Cpu },
+      ]} />
 
       {/* CTA */}
       <section className="section-padding relative">

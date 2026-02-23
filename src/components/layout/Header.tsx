@@ -13,7 +13,6 @@ const navItems = [
   { name: "Geschäftskunden", href: "/geschaeftskunden" },
   { name: "Websites", href: "/websites" },
   { name: "Kontakt", href: "/kontakt" },
-  { name: "FAQ", href: "/faq" },
 ];
 
 export function Header() {

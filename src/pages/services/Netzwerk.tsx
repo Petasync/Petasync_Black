@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Wifi, ArrowRight, Phone, Router, Signal, Network, Settings, CheckCircle2, Cable, Lock, Zap } from "lucide-react";
+import { Wifi, ArrowRight, Phone, Router, Signal, Network, Settings, CheckCircle2, Cable, Lock, Zap, Shield, Headphones } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const packages = [
@@ -233,6 +234,11 @@ export default function Netzwerk() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "IT-Sicherheit", href: "/services/it-sicherheit", price: "ab 45€", icon: Shield },
+        { title: "IT-Support", href: "/services/it-support", price: "ab 99€/Mo", icon: Headphones },
+      ]} />
 
       {/* CTA */}
       <section className="section-padding relative">

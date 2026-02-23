@@ -1,11 +1,12 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, ArrowRight, CheckCircle2, Phone, Thermometer, HardDrive, Activity, AlertCircle } from "lucide-react";
+import { Search, ArrowRight, CheckCircle2, Phone, Thermometer, HardDrive, Activity, AlertCircle, Monitor, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
+import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const diagnosticServices = [
@@ -272,6 +273,11 @@ export default function Diagnose() {
           </div>
         </div>
       </section>
+
+      <RelatedServices services={[
+        { title: "PC-Reparatur", href: "/services/pc-reparatur", price: "ab 29€", icon: Monitor },
+        { title: "PC Reinigung", href: "/services/pc-reinigung", price: "ab 25€", icon: Sparkles },
+      ]} />
 
       {/* CTA */}
       <section className="section-padding relative">
