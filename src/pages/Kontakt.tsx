@@ -481,7 +481,7 @@ export default function Kontakt() {
                 },
                 {
                   q: "Was kostet eine Reparatur?",
-                  a: "Wir arbeiten mit transparenten Festpreisen. PC-Service ab 49€, Daten & Sicherheit ab 59€. Wir erstellen immer zuerst einen kostenlosen Kostenvoranschlag.",
+                  a: "PC-Reparaturen kosten 39€ pro Stunde – transparent und fair. Die Diagnose ist bei Reparaturauftrag kostenlos (ohne Auftrag: 29€). Ersatzteile werden separat nach Kostenvoranschlag berechnet.",
                 },
                 {
                   q: "Bieten Sie auch Website-Erstellung an?",

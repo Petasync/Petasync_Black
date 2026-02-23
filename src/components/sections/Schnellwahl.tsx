@@ -8,7 +8,7 @@ const cards = [
     icon: Monitor,
     title: "Privatperson",
     subtitle: "PC kaputt oder langsam?",
-    price: "Festpreise ab 49€",
+    price: "Reparatur ab 39€/h",
     href: "/privatkunden",
     cta: "Pakete ansehen",
   },

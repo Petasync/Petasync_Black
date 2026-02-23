@@ -96,8 +96,8 @@ export const SEO_PAGES = {
     description: "Professioneller IT-Service in Ansbach & Nürnberg. PC-Reparatur, IT-Support, Webdesign. Kostenloser Leih-PC. Faire Festpreise. Jetzt anfragen!",
   },
   privatkunden: {
-    title: `PC-Reparatur & IT-Hilfe für Privatkunden | ${BRAND}`,
-    description: "PC kaputt? Wir helfen! Reparatur ab 29€, kostenloser Leih-PC, Datenrettung & mehr. Vor-Ort-Service in Ansbach & Nürnberg.",
+    title: `PC-Reparatur & IT-Service für Privatkunden | ${BRAND} Ansbach`,
+    description: "PC-Reparatur ab 39€/h. Kostenlose Diagnose bei Reparatur. Leih-PC gratis. Datenrettung, Virenentfernung, WLAN-Setup in Ansbach & Nürnberg.",
   },
   geschaeftskunden: {
     title: `IT-Service für Unternehmen – ${BRAND} Ansbach`,
