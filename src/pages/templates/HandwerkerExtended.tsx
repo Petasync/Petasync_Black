@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RotatingToolbox, FloatingTools } from "@/components/3d/HandwerkerModels";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF6B35",
@@ -74,6 +75,7 @@ const blogPosts = [
 ];
 
 export default function HandwerkerTemplateExtended() {
+  useSEO(SEO_PAGES.handwerkerTemplate);
   const [showNotdienst, setShowNotdienst] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(0);

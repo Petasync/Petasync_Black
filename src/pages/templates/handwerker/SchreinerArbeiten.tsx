@@ -6,6 +6,7 @@ import {
   Hammer, CheckCircle2, Phone, Calendar, ChevronRight, Home,
   Table, DoorOpen, BookOpen, Box
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF6B35",
@@ -16,6 +17,7 @@ const theme = {
 };
 
 export default function SchreinerArbeiten() {
+  useSEO(templateSubpageSEO("Handwerker", "SchreinerArbeiten"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 shadow-md">

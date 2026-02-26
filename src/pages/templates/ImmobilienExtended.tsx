@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloorPlanViewer } from "@/components/3d/FloorPlanViewer";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#2C3E50",
@@ -48,6 +49,7 @@ const testimonials = [
 ];
 
 export default function ImmobilienTemplateExtended() {
+  useSEO(SEO_PAGES.immobilienTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);

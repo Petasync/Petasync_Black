@@ -7,6 +7,7 @@ import {
   Scissors, ChevronRight, Calendar, Clock, Euro, Star, Sparkles, Heart,
   Palette, Crown, Users, Phone, Mail, MapPin
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF1493",
@@ -28,6 +29,7 @@ const services = [
 ];
 
 export default function FriseurServices() {
+  useSEO(templateSubpageSEO("Friseur", "Services"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       {/* Navigation */}

@@ -6,6 +6,7 @@ import {
   Home, ChevronRight, Maximize, RotateCw, ZoomIn, Layers, Download, Share2
 } from "lucide-react";
 import { FloorPlanViewer } from "@/components/3d/FloorPlanViewer";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#2C3E50",
@@ -16,6 +17,7 @@ const theme = {
 };
 
 export default function Immobilien3DRundgang() {
+  useSEO(templateSubpageSEO("Immobilien", "Grundriss3D"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       {/* Navigation */}

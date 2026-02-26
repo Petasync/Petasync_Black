@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home, Scissors, ChevronRight, Calendar, Clock, Euro, Sparkles, Heart, Palette, Crown } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF1493",
@@ -75,6 +76,7 @@ const priceCategories = [
 ];
 
 export default function FriseurPreise() {
+  useSEO(templateSubpageSEO("Friseur", "Preise"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 shadow-sm">

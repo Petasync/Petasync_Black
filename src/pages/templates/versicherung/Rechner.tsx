@@ -8,6 +8,7 @@ import {
   Shield, ChevronRight, Calculator, Users, Heart, Car, Home, Briefcase,
   Euro, CheckCircle2, AlertCircle, TrendingDown
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#0066CC",
@@ -61,6 +62,7 @@ const insuranceTypes = {
 };
 
 export default function VersicherungRechner() {
+  useSEO(templateSubpageSEO("Versicherung", "Rechner"));
   const [selectedType, setSelectedType] = useState<keyof typeof insuranceTypes>("kranken");
   const [factors, setFactors] = useState<Record<string, string>>({});
 

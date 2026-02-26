@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, ChevronRight, UtensilsCrossed } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 export default function RestaurantVorspeisen() {
+  useSEO(templateSubpageSEO("Restaurant", "Vorspeisen"));
   return (
     <div className="min-h-screen bg-amber-50">
       <nav className="fixed top-0 w-full bg-white z-50 shadow">

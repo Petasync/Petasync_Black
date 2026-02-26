@@ -3,21 +3,7 @@
 
 User-agent: *
 Allow: /
-
-# Disallow admin and API areas
 Disallow: /admin/
-Disallow: /admin/*
 Disallow: /api/
 
-# Allow all public pages explicitly
-Allow: /privatkunden
-Allow: /geschaeftskunden
-Allow: /websites
-Allow: /websites/
-Allow: /kontakt
-Allow: /faq
-Allow: /services/
-Allow: /templates/
-
-# Sitemap location
 Sitemap: https://petasync.de/sitemap.xml

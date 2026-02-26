@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dumbbell, ChevronRight, Clock, Users, Flame, Zap, Calendar, Target
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#00FF00",
@@ -62,6 +63,7 @@ const getLevelColor = (level: string) => {
 };
 
 export default function FitnessKursplan() {
+  useSEO(templateSubpageSEO("Fitness", "Kursplan"));
   const [selectedDay, setSelectedDay] = useState("montag");
 
   const days = [
