@@ -1,6 +1,15 @@
 import { settings, type Quote, type Invoice, type Customer, type QuoteItem, type InvoiceItem } from '@/lib/api-client';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import QRCode from 'qrcode';
+
+const generateQRCodeDataURL = async (data: string): Promise<string> => {
+  try {
+    return await QRCode.toDataURL(data, { width: 120, margin: 1 });
+  } catch {
+    return '';
+  }
+};
 
 interface CompanyInfo {
   name: string;
@@ -244,6 +253,19 @@ export const generateInvoicePDF = async (
   items: InvoiceItem[],
   companyInfo: CompanyInfo = defaultCompanyInfo
 ): Promise<Blob> => {
+  // Generate QR codes locally instead of using external API
+  const epcQRDataURL = await generateQRCodeDataURL(generateEPCQRCode(invoice, companyInfo));
+
+  const paypalQRDataURL = companyInfo.paypalEnabled && companyInfo.paypalLink
+    ? await generateQRCodeDataURL(
+        companyInfo.paypalLink.startsWith('http') ? companyInfo.paypalLink : 'https://paypal.me/' + companyInfo.paypalLink
+      )
+    : '';
+
+  const googleReviewQRDataURL = companyInfo.googleReviewUrl
+    ? await generateQRCodeDataURL(companyInfo.googleReviewUrl)
+    : '';
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -383,7 +405,7 @@ export const generateInvoicePDF = async (
           <!-- EPC QR Code (GiroCode für Banking) -->
           <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">Überweisung</h4>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(generateEPCQRCode(invoice, companyInfo))}"
+            <img src="${epcQRDataURL}"
                  alt="EPC QR Code"
                  style="width: 120px; height: 120px; margin: 0 auto;"/>
             <p style="font-size: 7pt; color: #666; margin-top: 4px;">Scannen zum Bezahlen</p>
@@ -393,7 +415,7 @@ export const generateInvoicePDF = async (
           ${companyInfo.paypalEnabled && companyInfo.paypalLink ? `
           <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">PayPal</h4>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(companyInfo.paypalLink.startsWith('http') ? companyInfo.paypalLink : 'https://paypal.me/' + companyInfo.paypalLink)}"
+            <img src="${paypalQRDataURL}"
                  alt="PayPal QR Code"
                  style="width: 120px; height: 120px; margin: 0 auto;"/>
             <p style="font-size: 7pt; color: #666; margin-top: 4px;">Mit PayPal zahlen</p>
@@ -404,7 +426,7 @@ export const generateInvoicePDF = async (
           ${companyInfo.googleReviewUrl ? `
           <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">Bewerten Sie uns!</h4>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(companyInfo.googleReviewUrl)}"
+            <img src="${googleReviewQRDataURL}"
                  alt="Google Review QR Code"
                  style="width: 120px; height: 120px; margin: 0 auto;"/>
             <p style="font-size: 7pt; color: #666; margin-top: 4px;">Google Bewertung</p>
