@@ -3,9 +3,11 @@ import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 
 const serviceLinks = [
-  { name: "PC Reparatur", href: "/privatkunden" },
-  { name: "Leih-PC Service", href: "/privatkunden#leih-pc" },
-  { name: "Netzwerk & WLAN", href: "/privatkunden" },
+  { name: "PC Reparatur", href: "/services/pc-reparatur" },
+  { name: "Leih-PC Service", href: "/services/leih-pc" },
+  { name: "Datenrettung", href: "/services/datenrettung" },
+  { name: "IT-Sicherheit", href: "/services/it-sicherheit" },
+  { name: "Netzwerk & WLAN", href: "/services/netzwerk" },
   { name: "IT für Unternehmen", href: "/geschaeftskunden" },
   { name: "Webdesign", href: "/websites" },
 ];

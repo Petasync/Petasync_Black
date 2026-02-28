@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtectionShield, NetworkNodes } from "@/components/3d/VersicherungModels";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#1E3A8A",
@@ -69,6 +70,7 @@ const partners = [
 ];
 
 export default function VersicherungTemplateExtended() {
+  useSEO(SEO_PAGES.versicherungTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const { scrollY } = useScroll();
