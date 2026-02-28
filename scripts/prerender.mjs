@@ -10,8 +10,14 @@
  *
  * Result: Google sees complete HTML with content, meta tags, JSON-LD
  * on the very first request — no JavaScript execution required.
+ *
+ * USAGE:
+ *   npm install puppeteer   # one-time, install locally
+ *   npm run build            # vite build + prerender
+ *
+ * Puppeteer is NOT in package.json to keep CI clean.
+ * If puppeteer is not installed, the script skips gracefully.
  */
-import { launch } from 'puppeteer';
 import { createServer } from 'http';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, extname } from 'path';
@@ -81,6 +87,18 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf',
   '.webmanifest': 'application/manifest+json',
 };
+
+/**
+ * Try to import puppeteer. Returns null if not installed.
+ */
+async function loadPuppeteer() {
+  try {
+    const mod = await import('puppeteer');
+    return mod.default || mod;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Start a simple static file server for the dist/ directory.
@@ -206,12 +224,21 @@ async function main() {
     process.exit(1);
   }
 
+  // Try to load puppeteer
+  const puppeteer = await loadPuppeteer();
+  if (!puppeteer) {
+    console.log('  ⚠ Puppeteer not installed. Skipping prerendering.');
+    console.log('  To enable prerendering, run: npm install puppeteer');
+    console.log('  (Puppeteer is intentionally not in package.json to keep CI builds fast.)\n');
+    process.exit(0);
+  }
+
   // Start static server
   const server = await startServer();
 
   // Launch browser
   console.log('  Launching headless browser...');
-  const browser = await launch({
+  const browser = await puppeteer.launch({
     headless: 'new',
     args: [
       '--no-sandbox',
