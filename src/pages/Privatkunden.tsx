@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
   Monitor, Shield, Wifi, ArrowRight, CheckCircle2, Phone,
-  Laptop, Wrench, HardDrive, Cpu, Clock, Star, Users,
-  ChevronDown, X as XIcon, Sparkles, Lock, Database
+  Laptop, Wrench, Cpu, Clock, Star, Users, ChevronDown
 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
@@ -780,6 +779,9 @@ export default function Privatkunden() {
           </div>
         </div>
       </section>
+
+      {/* Spacer for sticky CTA on mobile */}
+      <div className="h-16 lg:hidden" />
 
       {/* ─── STICKY CTA (Mobile) ─── */}
       <div
