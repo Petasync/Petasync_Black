@@ -105,6 +105,19 @@ const AdminServiceCatalog = lazyWithRetry(() => import("./pages/admin/ServiceCat
 const AdminJobs = lazyWithRetry(() => import("./pages/admin/Jobs"));
 const AdminRecurringInvoices = lazyWithRetry(() => import("./pages/admin/RecurringInvoices"));
 
+// New pages: Blog, About, References, City landing pages
+const Blog = lazyWithRetry(() => import("./pages/Blog"));
+const BlogArticle = lazyWithRetry(() => import("./pages/blog/BlogArticle"));
+const UeberUns = lazyWithRetry(() => import("./pages/UeberUns"));
+const Referenzen = lazyWithRetry(() => import("./pages/Referenzen"));
+const StandortNuernberg = lazyWithRetry(() => import("./pages/standorte/Nuernberg"));
+const StandortFuerth = lazyWithRetry(() => import("./pages/standorte/Fuerth"));
+const StandortErlangen = lazyWithRetry(() => import("./pages/standorte/Erlangen"));
+const StandortOberasbach = lazyWithRetry(() => import("./pages/standorte/Oberasbach"));
+const StandortDietenhofen = lazyWithRetry(() => import("./pages/standorte/Dietenhofen"));
+const StandortNeustadtAisch = lazyWithRetry(() => import("./pages/standorte/NeustadtAisch"));
+const StandortSchwabach = lazyWithRetry(() => import("./pages/standorte/Schwabach"));
+
 // Template pages
 const TemplatesShowcase = lazyWithRetry(() => import("./pages/TemplatesShowcase"));
 const HandwerkerTemplate = lazyWithRetry(() => import("./pages/templates/HandwerkerExtended"));
@@ -406,6 +419,19 @@ const App = () => {
                       <Route path="/services/it-infrastruktur" element={<ITInfrastruktur />} />
                       <Route path="/services/it-support" element={<ITSupport />} />
                       <Route path="/services/beratung" element={<Beratung />} />
+                      {/* New Pages */}
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:slug" element={<BlogArticle />} />
+                      <Route path="/ueber-uns" element={<UeberUns />} />
+                      <Route path="/referenzen" element={<Referenzen />} />
+                      {/* City Landing Pages */}
+                      <Route path="/standorte/nuernberg" element={<StandortNuernberg />} />
+                      <Route path="/standorte/fuerth" element={<StandortFuerth />} />
+                      <Route path="/standorte/erlangen" element={<StandortErlangen />} />
+                      <Route path="/standorte/oberasbach" element={<StandortOberasbach />} />
+                      <Route path="/standorte/dietenhofen" element={<StandortDietenhofen />} />
+                      <Route path="/standorte/neustadt-aisch" element={<StandortNeustadtAisch />} />
+                      <Route path="/standorte/schwabach" element={<StandortSchwabach />} />
                       {/* Template Routes */}
                       <Route path="/templates" element={<TemplatesShowcase />} />
                       <Route path="/templates/handwerker" element={<HandwerkerTemplate />} />
