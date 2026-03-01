@@ -219,7 +219,7 @@ export const generateQuotePDF = async (
           </div>
         ` : ''}
 
-        <div class="footer" data-no-break>
+        <div class="footer">
           <div class="footer-columns">
             <div>
               ${companyInfo.name}<br>
@@ -400,10 +400,10 @@ export const generateInvoicePDF = async (
           </div>
         ` : ''}
 
-        <!-- QR Codes Section -->
-        <div data-no-break style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+        <!-- QR Codes Section - page-break-inside: avoid prevents splitting across pages -->
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px; page-break-inside: avoid; break-inside: avoid;">
           <!-- EPC QR Code (GiroCode für Banking) -->
-          <div style="flex: 1; min-width: 140px; text-align: center;">
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">Überweisung</h4>
             <img src="${epcQRDataURL}"
                  alt="EPC QR Code"
@@ -413,7 +413,7 @@ export const generateInvoicePDF = async (
 
           <!-- PayPal QR Code (falls aktiviert und Link vorhanden) -->
           ${companyInfo.paypalEnabled && companyInfo.paypalLink ? `
-          <div style="flex: 1; min-width: 140px; text-align: center;">
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">PayPal</h4>
             <img src="${paypalQRDataURL}"
                  alt="PayPal QR Code"
@@ -424,7 +424,7 @@ export const generateInvoicePDF = async (
 
           <!-- Google Review QR Code (falls vorhanden) -->
           ${companyInfo.googleReviewUrl ? `
-          <div style="flex: 1; min-width: 140px; text-align: center;">
+          <div style="flex: 1; min-width: 140px; text-align: center; page-break-inside: avoid; break-inside: avoid;">
             <h4 style="margin-bottom: 8px; font-size: 10pt;">Bewerten Sie uns!</h4>
             <img src="${googleReviewQRDataURL}"
                  alt="Google Review QR Code"
@@ -434,7 +434,7 @@ export const generateInvoicePDF = async (
           ` : ''}
         </div>
 
-        <div class="footer" data-no-break>
+        <div class="footer">
           <div class="footer-columns">
             <div>
               ${companyInfo.name}<br>
@@ -530,44 +530,9 @@ export const htmlToPdfBlob = async (htmlContent: string): Promise<Blob> => {
 
     // Get the container element
     const container = iframeDoc.querySelector('.container') || iframeDoc.body;
-    const containerEl = container as HTMLElement;
-
-    // Prevent page breaks through protected elements (marked with data-no-break).
-    // html2canvas renders everything into one continuous image which is then sliced
-    // at 297mm intervals. CSS page-break rules have no effect here, so we manually
-    // detect elements that would be split and push them to the next page via margin.
-    const pageHeightPx = containerEl.scrollWidth * (297 / 210); // A4 aspect ratio
-
-    // Run up to 3 passes to handle cascading shifts (e.g. QR push also moves footer)
-    for (let pass = 0; pass < 3; pass++) {
-      let adjusted = false;
-      const noBreakEls = iframeDoc.querySelectorAll('[data-no-break]');
-
-      noBreakEls.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        const containerRect = containerEl.getBoundingClientRect();
-        const elRect = htmlEl.getBoundingClientRect();
-
-        const relTop = elRect.top - containerRect.top;
-        const relBottom = relTop + elRect.height;
-
-        // Which page does the element start on?
-        const pageBottom = (Math.floor(relTop / pageHeightPx) + 1) * pageHeightPx;
-
-        // If element extends past the page bottom, push it to next page
-        if (relBottom > pageBottom && relTop < pageBottom) {
-          const gap = pageBottom - relTop + 5; // +5px safety buffer
-          const currentMargin = parseFloat(getComputedStyle(htmlEl).marginTop) || 0;
-          htmlEl.style.marginTop = `${currentMargin + gap}px`;
-          adjusted = true;
-        }
-      });
-
-      if (!adjusted) break;
-    }
 
     // Convert to canvas
-    const canvas = await html2canvas(containerEl, {
+    const canvas = await html2canvas(container as HTMLElement, {
       scale: 2,
       useCORS: true,
       logging: false,
