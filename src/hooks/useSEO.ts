@@ -199,4 +199,54 @@ export const SEO_PAGES = {
     title: `Enterprise-Website & Online-Shop | ${BRAND}`,
     description: "Maßgeschneiderte Weblösungen ab 3.990€. E-Commerce, API, unbegrenzte Seiten. 12 Monate Support.",
   },
+  // Templates Showcase
+  templatesShowcase: {
+    title: `Website-Templates & Branchen-Demos | ${BRAND}`,
+    description: "Professionelle Website-Templates für Handwerker, Restaurants, Friseure, Fitness, Immobilien & mehr. Live-Demos ansehen. Ab 490€.",
+  },
+  // Template Main Pages
+  handwerkerTemplate: {
+    title: `Handwerker-Website Template – Demo | ${BRAND} Webdesign`,
+    description: "Live-Demo: Professionelle Handwerker-Website mit 3D-Effekten, Online-Terminbuchung, Kostenrechner. Für Elektriker, Klempner, Schreiner.",
+  },
+  versicherungTemplate: {
+    title: `Versicherungsberater-Website Template – Demo | ${BRAND}`,
+    description: "Live-Demo: Seriöse Versicherungsberater-Website mit Rechner, PDF-Ratgeber, Video-Testimonials. Modern & vertrauensvoll.",
+  },
+  restaurantTemplate: {
+    title: `Restaurant-Website Template – Demo | ${BRAND} Webdesign`,
+    description: "Live-Demo: Elegante Restaurant-Website mit Online-Reservierung, Speisekarte, Instagram-Feed. Für Gastronomie & Cafés.",
+  },
+  fitnessTemplate: {
+    title: `Fitness-Studio Website Template – Demo | ${BRAND}`,
+    description: "Live-Demo: Energiegeladene Fitness-Website mit Kursplan, Online-Anmeldung, BMI-Rechner. Für Gyms & Personal Trainer.",
+  },
+  immobilienTemplate: {
+    title: `Immobilien-Website Template – Demo | ${BRAND} Webdesign`,
+    description: "Live-Demo: Luxuriöse Immobilien-Website mit 3D-Grundriss, Objektsuche, virtuellen Rundgängen. Für Makler & Hausverwaltungen.",
+  },
+  fotografTemplate: {
+    title: `Fotograf-Website Template – Demo | ${BRAND}`,
+    description: "Live-Demo: Kreative Fotograf-Website mit Portfolio-Galerie, Lightbox, Buchungssystem. Für Fotografen & Kreative.",
+  },
+  friseurTemplate: {
+    title: `Friseur-Website Template – Demo | ${BRAND} Webdesign`,
+    description: "Live-Demo: Stylische Friseur-Website mit Online-Buchung, Galerie, Preisliste. Für Salons & Beauty-Studios.",
+  },
+  autowerkstattTemplate: {
+    title: `Autowerkstatt-Website Template – Demo | ${BRAND}`,
+    description: "Live-Demo: Professionelle Autowerkstatt-Website mit Preisrechner, TÜV-Erinnerung, Online-Termin. Für KFZ-Werkstätten.",
+  },
 } as const;
+
+/**
+ * Generate noindex SEO config for template sub-pages (demo content).
+ * These pages exist as showcases, not as indexable content.
+ */
+export function templateSubpageSEO(templateName: string, pageName: string): SEOConfig {
+  return {
+    title: `${pageName} – ${templateName} Template Demo | ${BRAND}`,
+    description: `Demo-Seite: ${pageName} der ${templateName}-Website-Vorlage von ${BRAND} Webdesign.`,
+    noindex: true,
+  };
+}

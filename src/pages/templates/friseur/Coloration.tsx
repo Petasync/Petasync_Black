@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Palette } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 export default function FriseurColoration() {
+  useSEO(templateSubpageSEO("Friseur", "Coloration"));
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
       <nav className="fixed top-0 w-full bg-white z-50 shadow">

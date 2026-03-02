@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Home, ChevronRight, Award, Phone, Mail, Linkedin, TrendingUp, Users
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#2C3E50",
@@ -62,6 +63,7 @@ const team = [
 ];
 
 export default function ImmobilienTeam() {
+  useSEO(templateSubpageSEO("Immobilien", "Team"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       {/* Navigation */}

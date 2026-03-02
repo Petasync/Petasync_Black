@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Scissors, ChevronRight, X, Calendar, Sparkles } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF1493",
@@ -33,6 +34,7 @@ const galleryImages = [
 ];
 
 export default function FriseurGalerie() {
+  useSEO(templateSubpageSEO("Friseur", "Galerie"));
   const [selectedCategory, setSelectedCategory] = useState("Alle");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 

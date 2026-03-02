@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Scissors } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 export default function FriseurHaarschnitt() {
+  useSEO(templateSubpageSEO("Friseur", "Haarschnitt"));
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-purple-50">
       <nav className="fixed top-0 w-full bg-white z-50 shadow">

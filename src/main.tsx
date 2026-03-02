@@ -14,3 +14,6 @@ if (loadingScreen) {
   loadingScreen.classList.add('hidden');
   setTimeout(() => loadingScreen.remove(), 400);
 }
+
+// Signal for prerender script that React has finished mounting
+(window as any).__PRERENDER_READY = true;

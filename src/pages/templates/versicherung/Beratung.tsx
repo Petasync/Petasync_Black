@@ -8,6 +8,7 @@ import {
   Shield, ChevronRight, Calendar, Clock, User, Mail, Phone, MapPin,
   CheckCircle2, MessageSquare, Video, Users, Star, Sparkles
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#0066CC",
@@ -89,6 +90,7 @@ const consultationTypes = [
 ];
 
 export default function VersicherungBeratung() {
+  useSEO(templateSubpageSEO("Versicherung", "Beratung"));
   const [selectedAdvisor, setSelectedAdvisor] = useState("");
   const [selectedType, setSelectedType] = useState("video");
   const [formData, setFormData] = useState({

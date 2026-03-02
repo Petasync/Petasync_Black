@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dumbbell as DumbbellModel, EnergyParticles } from "@/components/3d/FitnessModels";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#00FF00",
@@ -53,6 +54,7 @@ const plans = [
 ];
 
 export default function FitnessTemplateExtended() {
+  useSEO(SEO_PAGES.fitnessTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);

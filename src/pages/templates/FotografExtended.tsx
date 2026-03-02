@@ -12,6 +12,7 @@ import {
   Facebook, Instagram, Youtube, ChevronRight, MessageCircle, Aperture, Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#000000",
@@ -56,6 +57,7 @@ const testimonials = [
 ];
 
 export default function FotografTemplateExtended() {
+  useSEO(SEO_PAGES.fotografTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<"hochzeit" | "portrait" | "events">("hochzeit");
   const { scrollY } = useScroll();

@@ -12,10 +12,16 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# FTP Credentials (aus .env oder hier eintragen)
-FTP_HOST="www361.your-server.de"
-FTP_USER="petasy"
-FTP_PASS="BzquQPL3kFTgj9Nn"
+# FTP Credentials — set via environment variables or source from .env
+# Example: export FTP_HOST="your-server.de" FTP_USER="user" FTP_PASS="pass"
+if [ -f .env ]; then
+  export $(grep -E '^FTP_(HOST|USER|PASS)=' .env | xargs)
+fi
+
+if [ -z "$FTP_HOST" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then
+    echo -e "${RED}✗ FTP credentials not set! Set FTP_HOST, FTP_USER, FTP_PASS as env vars or in .env${NC}"
+    exit 1
+fi
 
 # 1. Build erstellen
 echo -e "${YELLOW}[1/3]${NC} Building project..."

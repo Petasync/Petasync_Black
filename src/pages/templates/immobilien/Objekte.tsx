@@ -8,6 +8,7 @@ import {
   Home, Search, MapPin, Bed, Bath, Square, Heart, Filter,
   ArrowLeft, TrendingUp, Euro, Building2, ChevronRight
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#2C3E50",
@@ -33,6 +34,7 @@ const allProperties = [
 ];
 
 export default function ImmobilienObjekte() {
+  useSEO(templateSubpageSEO("Immobilien", "Objekte"));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("alle");
   const [priceRange, setPriceRange] = useState("alle");

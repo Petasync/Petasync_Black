@@ -8,6 +8,7 @@ import {
   Scissors, ChevronRight, Calendar as CalendarIcon, Clock, User, Mail, Phone,
   CheckCircle2, ArrowRight, Sparkles
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF1493",
@@ -40,6 +41,7 @@ const services = [
 ];
 
 export default function FriseurOnlineBuchung() {
+  useSEO(templateSubpageSEO("Friseur", "OnlineBuchung"));
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState("");
   const [selectedStylist, setSelectedStylist] = useState("");
