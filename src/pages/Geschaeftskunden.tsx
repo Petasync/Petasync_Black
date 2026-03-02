@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Building2, Shield, Clock, Laptop, ArrowRight, CheckCircle2, Phone, Server, Globe, FileSearch } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
-import { Suspense } from "react";
+import { Suspense, Fragment } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import geschaeftskundenHero from "@/assets/geschaeftskunden-hero.png";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
@@ -294,9 +294,8 @@ export default function Geschaeftskunden() {
 
               {/* Rows */}
               {features.map((feature, index) => (
-                <>
+                <Fragment key={`row-${index}`}>
                   <div
-                    key={`label-${index}`}
                     className="p-4 border-b border-white/5 text-sm text-muted-foreground"
                   >
                     {feature.label}
@@ -321,7 +320,7 @@ export default function Geschaeftskunden() {
                       </div>
                     );
                   })}
-                </>
+                </Fragment>
               ))}
             </div>
           </div>

@@ -101,7 +101,7 @@ export const SEO_PAGES = {
   },
   geschaeftskunden: {
     title: `IT-Service für Unternehmen – ${BRAND} Ansbach`,
-    description: "Zuverlässige IT-Betreuung für KMU. Managed Services ab 35€/User, IT-Support, Netzwerk & Cloud. Ihr lokaler IT-Partner.",
+    description: "Zuverlässige IT-Betreuung für KMU ab 149€/Monat. IT-Support, Netzwerk, Cloud & Managed Services. Ihr lokaler IT-Partner in Ansbach.",
   },
   websites: {
     title: `Webdesign Ansbach & Nürnberg – ab 490€ | ${BRAND}`,
@@ -135,8 +135,8 @@ export const SEO_PAGES = {
     description: "Professionelle PC-Reinigung ab 25€. Staub entfernen, Wärmeleitpaste erneuern, Leistung optimieren. In Ansbach & Umgebung.",
   },
   pcReparatur: {
-    title: `PC & Laptop Reparatur Ansbach – ab 29€ | ${BRAND}`,
-    description: "Schnelle PC-Reparatur in Ansbach & Umgebung. Festpreise ab 29€. Kostenlose Diagnose bei Auftrag. Leih-PC gratis.",
+    title: `PC & Laptop Reparatur Ansbach – 39€/h | ${BRAND}`,
+    description: "Schnelle PC-Reparatur in Ansbach & Umgebung. 39€/Stunde, transparent & fair. Kostenlose Diagnose bei Auftrag. Leih-PC gratis.",
   },
   datenrettung: {
     title: `Datenrettung Ansbach – Professionell ab 89€ | ${BRAND}`,
