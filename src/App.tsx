@@ -202,6 +202,21 @@ function isChunkLoadError(error: Error): boolean {
   );
 }
 
+/**
+ * Detects DOM manipulation errors caused by browser extensions,
+ * third-party scripts, or Cloudflare injecting/removing nodes
+ * that React tries to manage. These are harmless and recoverable.
+ */
+function isDomManipulationError(error: Error): boolean {
+  const msg = (error.message || '').toLowerCase();
+  return (
+    msg.includes('removechild') ||
+    msg.includes('insertbefore') ||
+    msg.includes('the node to be removed is not a child') ||
+    msg.includes('not a child of this node')
+  );
+}
+
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode; resetKey?: string },
   ErrorBoundaryState
@@ -226,6 +241,15 @@ class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught error:', error, errorInfo);
+
+    // DOM manipulation errors (browser extensions, third-party scripts):
+    // silently recover by clearing the error state — the monkey-patch
+    // in index.html prevents future occurrences
+    if (isDomManipulationError(error)) {
+      console.warn('Recovered from DOM manipulation error (likely browser extension)');
+      this.setState({ hasError: false, error: undefined, showDetails: false });
+      return;
+    }
 
     // For chunk loading errors: auto-reload once to get fresh assets
     if (isChunkLoadError(error)) {
