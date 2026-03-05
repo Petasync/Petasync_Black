@@ -541,11 +541,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Fallback value returned when AuthProvider is missing from the tree.
+ * This can happen when browser extensions corrupt React's component tree
+ * (removeChild / insertBefore errors). Instead of crashing, we return
+ * a safe "not authenticated" state so the page can still render.
+ */
+const authFallback: AuthContextType = {
+  user: null,
+  isAuthenticated: false,
+  isAdmin: false,
+  isLoading: false,
+  isInitialized: true,
+  requires2FA: false,
+  tempToken: null,
+  error: 'AuthProvider missing — please reload the page',
+  login: async () => ({ success: false, error: 'AuthProvider not available' }),
+  verify2FA: async () => ({ success: false, error: 'AuthProvider not available' }),
+  logout: async () => { window.location.href = '/admin/login'; },
+  resetPassword: async () => ({ success: false, error: 'AuthProvider not available' }),
+  refreshAuth: async () => { window.location.reload(); },
+  clearError: () => {},
+};
+
 // Hook to use auth context
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.warn('useAuth: AuthProvider missing from component tree — using fallback');
+    return authFallback;
   }
   return context;
 }

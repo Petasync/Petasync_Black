@@ -20,10 +20,32 @@ export default function AdminLogin() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  
-  const { login } = useAuth();
+
+  const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // If AuthProvider context is missing (DOM corruption), show reload prompt
+  if (auth.error === 'AuthProvider missing — please reload the page') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-xl font-bold mb-4">Seite konnte nicht geladen werden</h1>
+          <p className="text-muted-foreground mb-6">
+            Ein Browser-Plugin oder Netzwerkfehler hat das Laden verhindert.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90"
+          >
+            Seite neu laden
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { login } = auth;
   // Validate redirect target — only allow internal /admin/* paths to prevent open redirects
   const rawFrom = (location.state as { from?: string })?.from || '/admin';
   const from = rawFrom.startsWith('/admin') ? rawFrom : '/admin';
