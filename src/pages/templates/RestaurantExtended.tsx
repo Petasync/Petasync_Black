@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FoodPlate, WineGlass } from "@/components/3d/RestaurantModels";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#8B1538",
@@ -84,6 +85,7 @@ const events = [
 ];
 
 export default function RestaurantTemplateExtended() {
+  useSEO(SEO_PAGES.restaurantTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<"vorspeisen" | "hauptgerichte" | "desserts">("hauptgerichte");
   const { scrollY } = useScroll();

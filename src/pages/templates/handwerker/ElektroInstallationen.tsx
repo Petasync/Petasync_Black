@@ -6,6 +6,7 @@ import {
   Zap, CheckCircle2, ArrowRight, Phone, Mail, Calendar, Shield,
   Clock, Award, ChevronRight, Home, Lightbulb, Plug, Cable
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF6B35",
@@ -16,6 +17,7 @@ const theme = {
 };
 
 export default function ElektroInstallationen() {
+  useSEO(templateSubpageSEO("Handwerker", "ElektroInstallationen"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       {/* Navigation */}

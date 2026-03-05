@@ -25,12 +25,12 @@ export function CTASection() {
           )}
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 gradient-text">
-            Bereit für IT ohne Kopfschmerzen?
+            Bereit? Wir kümmern uns um den Rest.
           </h2>
 
           <p className="text-lg sm:text-xl text-muted-foreground mb-12 leading-relaxed">
-            Lassen Sie uns gemeinsam Ihre IT-Herausforderungen lösen. 
-            <span className="text-foreground"> Kostenlose Erstberatung – unverbindlich und ohne Risiko.</span>
+            Schildern Sie uns Ihr Anliegen – wir melden uns innerhalb von 24h mit einer Lösung.
+            <span className="text-foreground"> Kostenlose Erstberatung – garantiert unverbindlich.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -39,9 +39,9 @@ export function CTASection() {
               asChild
               className="h-14 px-8 text-base bg-foreground text-background hover:bg-foreground/90 rounded-full"
             >
-              <Link to="/kontakt" onClick={() => trackCTAClick('Jetzt Kontakt aufnehmen', 'CTA Section Primary')}>
+              <Link to="/kontakt" onClick={() => trackCTAClick('Jetzt unverbindlich anfragen', 'CTA Section Primary')}>
                 <Phone className="w-4 h-4 mr-2" />
-                Jetzt Kontakt aufnehmen
+                Jetzt unverbindlich anfragen
               </Link>
             </Button>
             <Button

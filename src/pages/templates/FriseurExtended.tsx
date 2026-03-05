@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Scissors, Sparkles, Heart, Award, Clock, Star, Menu, X, Calendar, Phone, Mail, MapPin, Instagram, Facebook, Users, Palette, Droplets, Crown } from "lucide-react";
 import { useState, Suspense } from "react";
 import { ProductBottles } from "@/components/3d/ProductBottles";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF1493",
@@ -32,6 +33,7 @@ const AnimatedSphere = () => {
 };
 
 const FriseurExtended = () => {
+  useSEO(SEO_PAGES.friseurTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("alle");
   const [selectedService, setSelectedService] = useState("damenschnitt");

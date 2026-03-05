@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Wrench, Car, Settings, Zap, Shield, Clock, Menu, X, Phone, Mail, MapPin, Award, CheckCircle2, Star, Users, Gauge, Cog } from "lucide-react";
 import { useState, Suspense } from "react";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#DC2626",
@@ -32,6 +33,7 @@ const AnimatedCar = () => {
 };
 
 const AutowerkstattExtended = () => {
+  useSEO(SEO_PAGES.autowerkstattTemplate);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("alle");
   const [selectedCarType, setSelectedCarType] = useState("pkw");

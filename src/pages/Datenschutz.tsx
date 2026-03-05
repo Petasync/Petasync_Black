@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import datenschutzAbstract from "@/assets/datenschutz-abstract.png";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 export default function Datenschutz() {
+  useSEO(SEO_PAGES.datenschutz);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
 
   return (

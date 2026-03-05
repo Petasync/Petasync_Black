@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, ChevronRight, Heart, Download, Share2, ZoomIn, X } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#000000",
@@ -40,6 +41,7 @@ const portfolioImages = {
 };
 
 export default function FotografPortfolio() {
+  useSEO(templateSubpageSEO("Fotograf", "Portfolio"));
   const [selectedCategory, setSelectedCategory] = useState<"hochzeit" | "portrait" | "events">("hochzeit");
   const [lightboxImage, setLightboxImage] = useState<number | null>(null);
 

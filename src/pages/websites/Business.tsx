@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Building2, Check, ArrowRight, Star, Zap, BarChart3, Edit3, Search, Users } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Premium individuelles Design",
@@ -44,6 +45,7 @@ const highlights = [
 ];
 
 export default function WebsiteBusiness() {
+  useSEO(SEO_PAGES.websiteBusiness);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: highlightsRef, isRevealed: highlightsRevealed } = useScrollReveal();
 
@@ -72,15 +74,20 @@ export default function WebsiteBusiness() {
               <span className="gradient-text">Business</span>
             </h1>
             
+            <div className="mb-6">
+              <span className="text-5xl font-bold">1.990€</span>
+              <span className="text-xl text-muted-foreground ml-2">einmalig</span>
+            </div>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Für wachsende Unternehmen, die mehr wollen: CMS-System, Blog-Funktion und 
+              Für wachsende Unternehmen, die mehr wollen: CMS-System, Blog-Funktion und
               erweiterte SEO – alles für Ihren professionellen Online-Auftritt.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Jetzt anfragen
+                  Business-Paket buchen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

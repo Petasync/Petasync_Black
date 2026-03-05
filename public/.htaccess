@@ -6,11 +6,16 @@
   ModPagespeed off
 </IfModule>
 
+# Prefer prerendered index.html inside subdirectories
+DirectoryIndex index.html
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
   # Handle existing files and directories
+  # With prerendering, directories like /privatkunden/ contain index.html
+  # Apache's DirectoryIndex handles these automatically via !-d check
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   # WICHTIG: API-Anfragen NICHT an index.html weiterleiten
@@ -18,7 +23,7 @@
   # Static assets (JS/CSS/fonts/images) should 404, not return index.html
   RewriteCond %{REQUEST_URI} !\.(js|css|mjs|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|avif|ico|map|json|webmanifest)$ [NC]
 
-  # Redirect all requests to index.html for SPA routing
+  # Fallback to root index.html for non-prerendered SPA routes
   RewriteRule ^ index.html [QSA,L]
 </IfModule>
 
@@ -114,6 +119,7 @@
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-XSS-Protection "1; mode=block"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=()"
 
   # Remove server signature
   Header unset Server
@@ -134,4 +140,3 @@
 <IfModule mod_headers.c>
   Header set Connection keep-alive
 </IfModule>
-

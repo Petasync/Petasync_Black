@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import legalAbstract from "@/assets/legal-abstract.png";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 export default function Impressum() {
+  useSEO(SEO_PAGES.impressum);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
 
   return (

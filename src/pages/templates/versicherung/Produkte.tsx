@@ -6,6 +6,7 @@ import {
   Shield, ChevronRight, Heart, Car, Home, Briefcase, Users, Plane,
   CheckCircle2, Star, ArrowRight, Building, Bike, Dog
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#0066CC",
@@ -179,6 +180,7 @@ const products = [
 ];
 
 export default function VersicherungProdukte() {
+  useSEO(templateSubpageSEO("Versicherung", "Produkte"));
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background, color: theme.text }}>
       {/* Navigation */}

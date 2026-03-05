@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, Users, Home, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = { primary: "#8B1538", accent: "#D4AF37", background: "#1A1A1A", text: "#F4E4C1" };
 
 export default function RestaurantReservierung() {
+  useSEO(templateSubpageSEO("Restaurant", "Reservierung"));
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", date: "", time: "", guests: "2", notes: "" });
 
   return (

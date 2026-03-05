@@ -3,22 +3,31 @@ import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { trackPhoneClick, trackEmailClick } from "@/lib/analytics";
 
 const serviceLinks = [
-  { name: "PC Reparatur", href: "/privatkunden" },
-  { name: "Leih-PC Service", href: "/privatkunden#leih-pc" },
-  { name: "Netzwerk & WLAN", href: "/privatkunden" },
+  { name: "PC Reparatur", href: "/services/pc-reparatur" },
+  { name: "Leih-PC Service", href: "/services/leih-pc" },
+  { name: "Datenrettung", href: "/services/datenrettung" },
+  { name: "IT-Sicherheit", href: "/services/it-sicherheit" },
+  { name: "Netzwerk & WLAN", href: "/services/netzwerk" },
   { name: "IT für Unternehmen", href: "/geschaeftskunden" },
   { name: "Webdesign", href: "/websites" },
 ];
 
 const infoLinks = [
+  { name: "Über uns", href: "/ueber-uns" },
+  { name: "Referenzen", href: "/referenzen" },
+  { name: "Blog", href: "/blog" },
   { name: "FAQ", href: "/faq" },
   { name: "Kontakt", href: "/kontakt" },
   { name: "Impressum", href: "/impressum" },
   { name: "Datenschutz", href: "/datenschutz" },
 ];
 
-const serviceAreas = [
-  "Ansbach", "Oberasbach", "Nürnberg", "Fürth", "Erlangen"
+const serviceAreaLinks = [
+  { name: "Nürnberg", href: "/standorte/nuernberg" },
+  { name: "Fürth", href: "/standorte/fuerth" },
+  { name: "Erlangen", href: "/standorte/erlangen" },
+  { name: "Oberasbach", href: "/standorte/oberasbach" },
+  { name: "Schwabach", href: "/standorte/schwabach" },
 ];
 
 export function Footer() {
@@ -108,13 +117,14 @@ export function Footer() {
           <div>
             <h4 className="font-semibold text-foreground mb-6">Einsatzgebiet</h4>
             <div className="flex flex-wrap gap-2 mb-6">
-              {serviceAreas.map((area) => (
-                <span
-                  key={area}
-                  className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground"
+              {serviceAreaLinks.map((area) => (
+                <Link
+                  key={area.href}
+                  to={area.href}
+                  className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
                 >
-                  {area}
-                </span>
+                  {area.name}
+                </Link>
               ))}
             </div>
             <div className="flex items-start gap-3 text-sm text-muted-foreground">

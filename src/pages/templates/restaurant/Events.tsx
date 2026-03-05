@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, ChevronRight, Calendar, Users, Wine, Music } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = { primary: "#8B1538", accent: "#D4AF37", background: "#1A1A1A", text: "#F4E4C1" };
 
 export default function RestaurantEvents() {
+  useSEO(templateSubpageSEO("Restaurant", "Events"));
   const events = [
     { title: "Weinverkostung", date: "Jeden Freitag", time: "19:00 - 22:00 Uhr", price: "85€ p.P.", desc: "5-Gänge-Menü mit korrespondierenden Weinen", image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&h=400&fit=crop", icon: Wine },
     { title: "Live Jazz", date: "Jeden Samstag", time: "20:00 - 23:00 Uhr", price: "Kein Aufpreis", desc: "Jazz-Quartett begleitet Ihr Dinner", image: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&h=400&fit=crop", icon: Music },

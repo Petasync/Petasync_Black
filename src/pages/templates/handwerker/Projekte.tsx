@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wrench, ChevronRight, MapPin, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#FF6B35",
@@ -83,6 +84,7 @@ const projects = [
 ];
 
 export default function HandwerkerProjekte() {
+  useSEO(templateSubpageSEO("Handwerker", "Projekte"));
   const [filter, setFilter] = useState("alle");
 
   const categories = ["alle", "Sanitär", "Elektrik", "Schreiner", "Boden", "Heizung", "Fassade"];

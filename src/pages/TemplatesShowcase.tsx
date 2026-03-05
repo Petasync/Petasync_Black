@@ -14,6 +14,7 @@ import {
 import { TEMPLATE_LIST } from "@/lib/constants/template-config";
 import { cn } from "@/lib/utils";
 import { Suspense, useState } from "react";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,6 +41,7 @@ const itemVariants = {
 const categories = ['Alle', 'Handwerk', 'Beratung', 'Gastronomie', 'Sport & Gesundheit', 'Immobilien', 'Kreativ', 'Beauty & Wellness', 'Automotive'];
 
 export default function TemplatesShowcase() {
+  useSEO(SEO_PAGES.templatesShowcase);
   const [selectedCategory, setSelectedCategory] = useState('Alle');
 
   const filteredTemplates = selectedCategory === 'Alle'

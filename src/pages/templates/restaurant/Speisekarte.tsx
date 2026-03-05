@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   UtensilsCrossed, ChevronRight, Leaf, Flame, Star, Wine, Coffee, IceCream, Download
 } from "lucide-react";
+import { useSEO, templateSubpageSEO } from "@/hooks/useSEO";
 
 const theme = {
   primary: "#8B1538",
@@ -40,6 +41,7 @@ const menu = {
 };
 
 export default function RestaurantSpeisekarte() {
+  useSEO(templateSubpageSEO("Restaurant", "Speisekarte"));
   const [selectedCategory, setSelectedCategory] = useState("vorspeisen");
 
   return (

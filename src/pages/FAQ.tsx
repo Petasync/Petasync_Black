@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import faqHero from "@/assets/faq-hero.png";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
+import { StructuredData } from "@/components/seo/StructuredData";
 
 const faqCategories = [
   {
@@ -119,10 +121,28 @@ const faqCategories = [
 ];
 
 export default function FAQ() {
+  useSEO(SEO_PAGES.faq);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
+
+  // Build FAQ schema from all categories
+  const faqSchemaData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqCategories.flatMap(category =>
+      category.questions.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    )
+  };
 
   return (
     <Layout>
+      <StructuredData type="FAQPage" customData={faqSchemaData} />
       {/* Hero Section */}
       <section className="relative min-h-[50vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">

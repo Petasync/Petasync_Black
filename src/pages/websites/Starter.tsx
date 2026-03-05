@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Palette, Check, ArrowRight, Sparkles, Code, Layers, Rocket } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
+import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const features = [
   "Individuelles, maßgeschneidertes Design",
@@ -51,6 +52,7 @@ const process = [
 ];
 
 export default function WebsiteStarter() {
+  useSEO(SEO_PAGES.websiteStarter);
   const { ref: heroRef, isRevealed: heroRevealed } = useScrollReveal();
   const { ref: processRef, isRevealed: processRevealed } = useScrollReveal();
 
@@ -79,15 +81,20 @@ export default function WebsiteStarter() {
               <span className="gradient-text">Starter</span>
             </h1>
             
+            <div className="mb-6">
+              <span className="text-5xl font-bold">990€</span>
+              <span className="text-xl text-muted-foreground ml-2">einmalig</span>
+            </div>
+
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Ihr individueller Webauftritt – maßgeschneidert für Ihr Unternehmen. 
+              Ihr individueller Webauftritt – maßgeschneidert für Ihr Unternehmen.
               Perfekt für den professionellen Start im Internet mit einem Design, das zu Ihnen passt.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full" asChild>
                 <Link to="/kontakt">
-                  Jetzt anfragen
+                  Starter-Paket buchen
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
