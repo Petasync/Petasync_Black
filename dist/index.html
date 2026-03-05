@@ -54,7 +54,12 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@petasync" />
     <meta name="twitter:image" content="https://petasync.de/og-image.png" />
-  </head>
+    <script type="module" crossorigin src="/assets/index-BWFY4Y8g.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-DGarKnNZ.js">
+    <link rel="modulepreload" crossorigin href="/assets/three-vendor-BDLB0auZ.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-BmXVAmJl.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BOfw2yJp.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 
   <body>
     <!-- Loading screen lives OUTSIDE #root so React never touches it -->
@@ -63,12 +68,8 @@
     </div>
     <div id="root"></div>
     <!--
-      Fix for React "removeChild" / "insertBefore" crashes.
-      Browser extensions (ad blockers, password managers, translators) and
-      third-party scripts (GTM, Clarity) can modify the DOM that React owns.
-      When React then tries to remove/move those nodes, it throws
-      "NotFoundError: Failed to execute 'removeChild' on 'Node'".
-      This patch makes those operations safe by checking parentage first.
+      Fix for React "removeChild" / "insertBefore" crashes caused by
+      browser extensions or third-party scripts modifying React's DOM.
       Must run BEFORE React loads (synchronous, non-module script).
       See: https://github.com/facebook/react/issues/11538
     -->
@@ -93,6 +94,5 @@
       };
     })();
     </script>
-    <script data-cfasync="false" type="module" src="/src/main.tsx"></script>
   </body>
 </html>
