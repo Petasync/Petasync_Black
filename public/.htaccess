@@ -1,3 +1,11 @@
+# Disable mod_pagespeed — it rewrites JS filenames and breaks chunk loading
+<IfModule pagespeed_module>
+  ModPagespeed off
+</IfModule>
+<IfModule mod_pagespeed.c>
+  ModPagespeed off
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
