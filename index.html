@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Disable Cloudflare Rocket Loader — it rewrites type="module" scripts
+         and breaks React's Suspense/lazy-loading, causing removeChild crashes -->
+    <meta http-equiv="x-cf-rocket-loader" content="off" />
 
     <!-- Critical inline CSS for instant render -->
     <style>
@@ -59,6 +62,6 @@
       <div class="spinner"></div>
     </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script data-cfasync="false" type="module" src="/src/main.tsx"></script>
   </body>
 </html>
