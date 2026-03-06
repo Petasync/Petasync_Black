@@ -34,12 +34,12 @@ const milestones = [
   { year: "Idee", text: "Einführung des kostenlosen Leih-PC-Service – damit niemand ohne Computer dastehen muss." },
   { year: "Wachstum", text: "Erweiterung auf Geschäftskunden mit Managed Services. IT-Betreuung für lokale Unternehmen." },
   { year: "Webdesign", text: "Aufbau des Webdesign-Arms. Professionelle Websites für lokale Betriebe – von Handwerkern bis Restaurants." },
-  { year: "Heute", text: "500+ zufriedene Kunden, 5.0 Google-Bewertung, Servicegebiet über Mittelfranken." },
+  { year: "Heute", text: "Wachsendes Kundenvertrauen in Ansbach, Nürnberg, Fürth, Erlangen und ganz Mittelfranken." },
 ];
 
 const stats = [
-  { value: "500+", label: "Zufriedene Kunden" },
-  { value: "5.0", label: "Google-Bewertung" },
+  { value: "0€", label: "Leih-PC bei Reparatur" },
+  { value: "39€/h", label: "Transparenter Festpreis" },
   { value: "50km", label: "Serviceradius" },
   { value: "24h", label: "Reaktionszeit" },
 ];
@@ -105,7 +105,7 @@ export default function UeberUns() {
                   Unser Versprechen: Faire Preise, ehrliche Diagnosen und ein kostenloser Leih-PC, damit Sie während der Reparatur nie ohne Computer dastehen. Kein anderer IT-Service in der Region bietet das.
                 </p>
                 <p>
-                  Heute betreuen wir über 500 Privat- und Geschäftskunden in Ansbach, Nürnberg, Fürth, Erlangen und ganz Mittelfranken. Vom PC-Problem des Studenten bis zur IT-Infrastruktur des Mittelständlers – wir sind da.
+                  Heute betreuen wir Privat- und Geschäftskunden in Ansbach, Nürnberg, Fürth, Erlangen und ganz Mittelfranken. Vom PC-Problem des Studenten bis zur IT-Infrastruktur des Mittelständlers – wir sind da.
                 </p>
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function UeberUns() {
                 "Kostenlose Diagnose bei Reparaturauftrag",
                 "Persönlicher Techniker – kein Call-Center",
                 "Vor-Ort-Service in ganz Mittelfranken",
-                "5.0 Google-Bewertung – 100% zufriedene Kunden",
+                "Persönlicher Techniker – immer derselbe Ansprechpartner",
               ].map((item, index) => (
                 <div key={index} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0">
                   <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
