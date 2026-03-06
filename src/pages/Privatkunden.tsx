@@ -245,12 +245,12 @@ export default function Privatkunden() {
             {/* Trust-Indikatoren */}
             <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                5.0 Google
+                <Shield className="w-4 h-4 text-primary" />
+                Kostenloser Leih-PC
               </span>
               <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4" />
-                500+ Kunden
+                <Clock className="w-4 h-4" />
+                24h Reaktionszeit
               </span>
             </div>
           </div>
@@ -669,13 +669,13 @@ export default function Privatkunden() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {[
-                { icon: Star, value: "5.0", label: "Google Bewertung" },
-                { icon: Users, value: "500+", label: "Zufriedene Kunden" },
-                { icon: Clock, value: "24h", label: "Express-Service" },
                 { icon: Laptop, value: "0€", label: "Leih-PC bei Reparatur" },
+                { icon: Wrench, value: "39€/h", label: "Transparenter Festpreis" },
+                { icon: Clock, value: "24h", label: "Reaktionszeit" },
+                { icon: Shield, value: "50km", label: "Vor-Ort-Service Radius" },
               ].map((stat, i) => (
                 <div key={i} className="text-center p-6 rounded-2xl border border-white/5 bg-white/[0.02]">
-                  <stat.icon className={cn("w-8 h-8 mx-auto mb-3", i === 0 ? "text-yellow-500" : "text-primary")} />
+                  <stat.icon className="w-8 h-8 mx-auto mb-3 text-primary" />
                   <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </div>
