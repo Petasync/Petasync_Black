@@ -1,0 +1,6 @@
+# Petasync IT-Service - Security Policy
+# https://securitytxt.org/ | RFC 9116
+
+Contact: mailto:master@petasync.de
+Preferred-Languages: de, en
+Expires: 2027-03-06T00:00:00.000Z
