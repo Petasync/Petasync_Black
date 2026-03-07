@@ -42,8 +42,8 @@ export function Header() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled
-          ? "py-4 bg-background/80 backdrop-blur-xl border-b border-border/50"
+        isScrolled || isMobileMenuOpen
+          ? "py-4 bg-background/95 backdrop-blur-xl border-b border-border/50"
           : "py-6 bg-transparent"
       )}
     >
@@ -135,7 +135,7 @@ export function Header() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-6 pb-6 animate-fade-in">
+          <div className="lg:hidden mt-6 pb-6 animate-fade-in bg-background/95 backdrop-blur-sm rounded-2xl px-4 border border-border/30">
             <div className="space-y-1">
               {navItems.map((item) => (
                 <Link
