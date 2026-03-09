@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Laptop, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Laptop, CheckCircle2, Monitor, Building2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Suspense, lazy, useState, useEffect } from "react";
 import { trackCTAClick } from "@/lib/analytics";
@@ -120,16 +120,21 @@ export function Hero() {
             </Button>
           </div>
 
-          {/* Trust indicators */}
-          <div className="flex flex-wrap justify-center lg:justify-start gap-6 mt-12 animate-fade-in" style={{ animationDelay: "400ms" }}>
+          {/* Service highlights */}
+          <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-12 animate-fade-in" style={{ animationDelay: "400ms" }}>
             {[
-              "24h Express",
-              "500+ Kunden",
-              "5.0 ★ Google",
-            ].map((item) => (
-              <span key={item} className="text-sm text-muted-foreground">
-                {item}
-              </span>
+              { icon: Monitor, label: "PC & IT-Reparatur", href: "/privatkunden" },
+              { icon: Building2, label: "IT-Betreuung", href: "/geschaeftskunden" },
+              { icon: Globe, label: "Webentwicklung", href: "/websites" },
+            ].map(({ icon: Icon, label, href }) => (
+              <Link
+                key={label}
+                to={href}
+                className="flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-all duration-200"
+              >
+                <Icon className="w-3.5 h-3.5 text-primary" />
+                {label}
+              </Link>
             ))}
           </div>
         </div>

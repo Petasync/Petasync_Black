@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { PhoneCallButton } from "@/components/PhoneCallButton";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { SEOBreadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -29,6 +30,7 @@ export function Layout({ children }: LayoutProps) {
         {children}
       </main>
       <Footer />
+      <PhoneCallButton />
       <WhatsAppButton />
     </div>
   );
