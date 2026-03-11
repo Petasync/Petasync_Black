@@ -517,13 +517,43 @@ export default function RecurringInvoices() {
                         <Label className="text-xs">Beschreibung</Label>
                         <div className="flex gap-2">
                           <Select onValueChange={(v) => selectService(index, v)}>
-                            <SelectTrigger className="w-24 text-xs">
-                              <SelectValue placeholder="Katalog" />
+                            <SelectTrigger className="w-36 text-xs">
+                              <SelectValue placeholder="Aus Katalog..." />
                             </SelectTrigger>
-                            <SelectContent>
-                              {services.map((s) => (
-                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                              ))}
+                            <SelectContent className="max-h-80">
+                              {(() => {
+                                const grouped: Record<string, typeof services> = {};
+                                for (const s of services) {
+                                  const cat = s.category || 'Sonstiges';
+                                  if (!grouped[cat]) grouped[cat] = [];
+                                  grouped[cat].push(s);
+                                }
+                                const order = ['Privatkunden', 'Geschäftskunden', 'Webdesign', 'Sonstiges'];
+                                const sorted = Object.keys(grouped).sort((a, b) => {
+                                  const iA = order.indexOf(a);
+                                  const iB = order.indexOf(b);
+                                  return (iA === -1 ? 999 : iA) - (iB === -1 ? 999 : iB);
+                                });
+                                return sorted.map(cat => (
+                                  <div key={cat}>
+                                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+                                      {cat}
+                                    </div>
+                                    {grouped[cat].map(service => (
+                                      <SelectItem key={service.id} value={service.id} className="text-xs">
+                                        <span className="flex items-center justify-between gap-2 w-full">
+                                          <span className="truncate">{service.name}</span>
+                                          <span className="text-muted-foreground shrink-0 ml-2">
+                                            {Number(service.default_price) > 0
+                                              ? `${Number(service.default_price).toFixed(0)}€/${service.unit || 'Stk.'}`
+                                              : 'kostenlos'}
+                                          </span>
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </div>
+                                ));
+                              })()}
                             </SelectContent>
                           </Select>
                           <Input
