@@ -91,6 +91,14 @@ class Auth
             throw new Exception("Account gesperrt. Versuche es in $remaining Minuten erneut.");
         }
 
+        // Lockout abgelaufen → Counter zurücksetzen
+        if ($user['locked_until'] && strtotime($user['locked_until']) <= time()) {
+            Database::execute(
+                "UPDATE admin_profiles SET failed_login_attempts = 0, locked_until = NULL WHERE user_id = :id",
+                ['id' => $user['id']]
+            );
+        }
+
         // Passwort prüfen
         if (!password_verify($password, $user['password_hash'])) {
             self::incrementFailedAttempts($user['id']);

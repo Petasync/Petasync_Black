@@ -53,6 +53,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    auth.clearError();
 
     // Validate
     const result = loginSchema.safeParse({ email, password });
@@ -106,6 +107,11 @@ export default function AdminLogin() {
           
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {auth.error && (
+                <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive text-center">
+                  {auth.error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">E-Mail</Label>
                 <div className="relative">
