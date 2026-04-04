@@ -147,8 +147,8 @@ export const SEO_PAGES = {
     description: "Virus auf dem PC? Professionelle Virenentfernung ab 45€. Firewall, Antivirus, Backup-Einrichtung. Sofortige Hilfe.",
   },
   pcAufruestung: {
-    title: `PC-Aufrüstung & Upgrade ab 25€ | ${BRAND}`,
-    description: "SSD, RAM, GPU Upgrade ab 25€ Einbau. Mehr Leistung für Ihren PC. Beratung, Einbau & Test inklusive.",
+    title: `PC-Aufrüstung & Upgrade ab 15€ | ${BRAND}`,
+    description: "SSD, RAM, GPU Upgrade ab 15€ Einbau. Mehr Leistung für Ihren PC. Beratung, Einbau & Test inklusive.",
   },
   netzwerk: {
     title: `Netzwerk & WLAN Einrichtung – ${BRAND} Ansbach`,

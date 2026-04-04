@@ -29,10 +29,11 @@ INSERT INTO public.service_catalog (name, description, category, default_price, 
 ('IT-Sicherheit & Virenentfernung', 'Gründliche Entfernung von Schadsoftware und Einrichtung eines effektiven Schutzes. Malware-Entfernung, Ransomware-Hilfe, Antivirus-Setup, Firewall-Konfiguration.', 'Privatkunden', 45.00, 'pauschal', true, 6),
 
 -- PC-Aufrüstung
-('PC-Aufrüstung', 'Mehr Leistung für Ihren Computer durch gezielte Hardware-Upgrades. SSD-Upgrade, RAM-Erweiterung, Grafikkarten-Einbau, CPU-Wechsel.', 'Privatkunden', 25.00, 'Stunde', true, 7),
-('SSD-Upgrade', 'Austausch Ihrer alten Festplatte gegen eine schnelle SSD inkl. Datenübertragung.', 'Privatkunden', 49.00, 'pauschal', true, 8),
-('RAM-Erweiterung', 'Aufrüstung des Arbeitsspeichers für bessere Performance (exkl. Hardware).', 'Privatkunden', 29.00, 'pauschal', true, 9),
-('Grafikkarten-Einbau', 'Installation einer neuen Grafikkarte inkl. Treiberinstallation (exkl. Hardware).', 'Privatkunden', 39.00, 'pauschal', true, 10),
+('PC-Aufrüstung', 'Mehr Leistung für Ihren Computer durch gezielte Hardware-Upgrades. SSD-Upgrade, RAM-Erweiterung, Grafikkarten-Einbau, CPU-Wechsel.', 'Privatkunden', 15.00, 'Stunde', true, 7),
+('SSD-Upgrade', 'Austausch Ihrer alten Festplatte gegen eine schnelle SSD inkl. Datenübertragung.', 'Privatkunden', 29.00, 'pauschal', true, 8),
+('RAM-Erweiterung', 'Aufrüstung des Arbeitsspeichers für bessere Performance (exkl. Hardware).', 'Privatkunden', 15.00, 'pauschal', true, 9),
+('Grafikkarten-Einbau', 'Installation einer neuen Grafikkarte inkl. Treiberinstallation (exkl. Hardware).', 'Privatkunden', 19.00, 'pauschal', true, 10),
+('CPU-Wechsel', 'Prozessor-Upgrade inkl. Wärmeleitpaste und Funktionstest (exkl. Hardware).', 'Privatkunden', 35.00, 'pauschal', true, 11),
 
 -- Netzwerk & WLAN
 ('Netzwerk & WLAN Einrichtung', 'Einrichtung und Optimierung Ihres Heimnetzwerks für beste Verbindung. Router-Setup, WLAN-Optimierung, Netzwerk-Sicherheit.', 'Privatkunden', 45.00, 'pauschal', true, 11),

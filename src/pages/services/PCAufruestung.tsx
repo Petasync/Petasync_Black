@@ -10,10 +10,10 @@ import { RelatedServices } from "@/components/RelatedServices";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
 
 const upgradeServices = [
-  { icon: HardDriveIcon, title: "SSD-Upgrade", description: "Windows auf SSD umziehen für drastisch schnelleren PC.", price: "45€ + SSD" },
-  { icon: MemoryStick, title: "RAM-Erweiterung", description: "Mehr Arbeitsspeicher für flüssiges Multitasking.", price: "25€ + RAM" },
-  { icon: Gamepad2, title: "Grafikkarten-Einbau", description: "Leistungsstarke GPU für Gaming und Grafikarbeiten.", price: "29€ + GPU" },
-  { icon: Cpu, title: "CPU-Wechsel", description: "Prozessor-Upgrade inkl. Wärmeleitpaste.", price: "59€ + CPU" },
+  { icon: HardDriveIcon, title: "SSD-Upgrade", description: "Windows auf SSD umziehen für drastisch schnelleren PC.", price: "29€ + SSD" },
+  { icon: MemoryStick, title: "RAM-Erweiterung", description: "Mehr Arbeitsspeicher für flüssiges Multitasking.", price: "15€ + RAM" },
+  { icon: Gamepad2, title: "Grafikkarten-Einbau", description: "Leistungsstarke GPU für Gaming und Grafikarbeiten.", price: "19€ + GPU" },
+  { icon: Cpu, title: "CPU-Wechsel", description: "Prozessor-Upgrade inkl. Wärmeleitpaste.", price: "35€ + CPU" },
 ];
 
 const packages = [

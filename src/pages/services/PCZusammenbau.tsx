@@ -176,7 +176,7 @@ export default function PCZusammenbau() {
       </section>
 
       <RelatedServices services={[
-        { title: "PC-Aufrüstung", href: "/services/pc-aufruestung", price: "ab 25€", icon: Wrench },
+        { title: "PC-Aufrüstung", href: "/services/pc-aufruestung", price: "ab 15€", icon: Wrench },
         { title: "PC Reinigung", href: "/services/pc-reinigung", price: "ab 25€", icon: Sparkles },
       ]} />
 
