@@ -176,7 +176,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       { type: "paragraph", text: "Ausstehende Updates können Performance-Fixes enthalten. Einstellungen → Update → Jetzt nach Updates suchen." },
       { type: "heading", text: "7. SSD als Systemlaufwerk" },
       { type: "paragraph", text: "Der größte Einzeleffekt: Wenn Sie noch eine HDD als Systemlaufwerk haben, ist der Wechsel auf eine SSD der mit Abstand wirksamste Upgrade. Bootzeit von 2 Minuten auf 15 Sekunden." },
-      { type: "tip", text: "SSD-Upgrade inklusive Windows-Migration gibt es bei uns ab 45€ (+ SSD-Kosten). Der Unterschied ist wie ein neuer PC." },
+      { type: "tip", text: "SSD-Upgrade inklusive Windows-Migration gibt es bei uns ab 29€ (+ SSD-Kosten). Der Unterschied ist wie ein neuer PC." },
     ],
   },
 ];

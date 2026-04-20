@@ -335,7 +335,7 @@ export default function PCReinigung() {
 
       <RelatedServices services={[
         { title: "PC-Reparatur", href: "/services/pc-reparatur", price: "ab 29€", icon: Monitor },
-        { title: "PC-Aufrüstung", href: "/services/pc-aufruestung", price: "ab 25€", icon: Wrench },
+        { title: "PC-Aufrüstung", href: "/services/pc-aufruestung", price: "ab 15€", icon: Wrench },
       ]} />
 
       {/* CTA */}
