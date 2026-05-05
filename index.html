@@ -19,7 +19,14 @@
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
+    <!-- Favicon: multiple formats so Google/Browsers den korrekten Petasync-Logo finden.
+         Reihenfolge wichtig: ICO zuerst (Google bevorzugt /favicon.ico), dann PNG, dann SVG.
+         Das Web-App-Manifest wird vom VitePWA-Plugin im Build automatisch eingehängt. -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+    <meta name="theme-color" content="#050505" />
 
     <!-- DNS Prefetch for external domains -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">

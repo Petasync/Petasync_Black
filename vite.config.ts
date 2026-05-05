@@ -19,6 +19,38 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'favicon.svg', 'favicon.png', 'robots.txt'],
+      manifest: {
+        name: 'Petasync - IT-Service & PC-Reparatur',
+        short_name: 'Petasync',
+        description: 'Petasync - Ihr IT-Partner für PC-Reparatur, IT-Support und Webdesign in Ansbach, Nürnberg und Umgebung',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        background_color: '#050505',
+        theme_color: '#050505',
+        lang: 'de',
+        icons: [
+          {
+            src: '/favicon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/favicon.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: '/favicon.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
