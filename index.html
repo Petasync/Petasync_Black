@@ -100,6 +100,62 @@
       };
     })();
     </script>
+    <!--
+      Stale-SW watchdog. After a deploy, an old Service Worker can serve a
+      cached index.html that references chunk hashes that no longer exist
+      on the server. Result: 404 on the entry script, main.tsx never runs,
+      the loading spinner stays forever (black screen).
+      This watchdog detects that scenario and recovers by unregistering the
+      SW, clearing caches and hard-reloading.
+    -->
+    <script data-cfasync="false">
+    (function(){
+      var FLAG='petasync_sw_recover';
+      var TIMEOUT=15000;
+      var recovered=false;
+      function recover(reason){
+        if(recovered)return;
+        recovered=true;
+        if(sessionStorage.getItem(FLAG)){
+          console.warn('[sw-watchdog] already retried, giving up:',reason);
+          return;
+        }
+        sessionStorage.setItem(FLAG,'1');
+        console.warn('[sw-watchdog] recovering:',reason);
+        var done=function(){window.location.reload();};
+        if('serviceWorker' in navigator){
+          navigator.serviceWorker.getRegistrations()
+            .then(function(regs){return Promise.all(regs.map(function(r){return r.unregister();}));})
+            .then(function(){
+              if('caches' in window){
+                return caches.keys().then(function(names){
+                  return Promise.all(names.map(function(n){return caches.delete(n);}));
+                });
+              }
+            })
+            .catch(function(){})
+            .then(done,done);
+        }else{done();}
+      }
+      // Catch chunk load failures (script/link errors for /assets/*)
+      window.addEventListener('error',function(e){
+        var t=e&&e.target;
+        if(!t||(t.tagName!=='SCRIPT'&&t.tagName!=='LINK'))return;
+        var src=t.src||t.href||'';
+        if(src&&src.indexOf('/assets/')!==-1)recover('chunk-error: '+src);
+      },true);
+      // Watchdog timer: if React hasn't signalled mount, recover
+      setTimeout(function(){
+        if(!window.__PRERENDER_READY)recover('mount-timeout');
+      },TIMEOUT);
+      // Clear flag after successful mount (gives React a moment after pageshow)
+      window.addEventListener('pageshow',function(){
+        setTimeout(function(){
+          if(window.__PRERENDER_READY)sessionStorage.removeItem(FLAG);
+        },2000);
+      });
+    })();
+    </script>
     <script data-cfasync="false" type="module" src="/src/main.tsx"></script>
   </body>
 </html>
