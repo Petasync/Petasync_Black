@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { cn } from "@/lib/utils";
-import { Suspense, useState, useEffect, useCallback } from "react";
+import { Suspense, useCallback } from "react";
 import { Floating3DScene } from "@/components/3d/Floating3DScene";
 import privatkundenHero from "@/assets/privatkunden-hero.png";
 import { useSEO, SEO_PAGES } from "@/hooks/useSEO";
@@ -157,14 +157,6 @@ export default function Privatkunden() {
   const { ref: networkRef, isRevealed: networkRevealed } = useScrollReveal();
   const { ref: trustRef, isRevealed: trustRevealed } = useScrollReveal();
   const { ref: faqRef, isRevealed: faqRevealed } = useScrollReveal();
-
-  /* Sticky CTA – sichtbar nach Hero-Scroll */
-  const [showStickyCTA, setShowStickyCTA] = useState(false);
-  useEffect(() => {
-    const handleScroll = () => setShowStickyCTA(window.scrollY > 600);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleScrollTo = useCallback((id: string) => scrollToSection(id), []);
 
@@ -780,30 +772,6 @@ export default function Privatkunden() {
         </div>
       </section>
 
-      {/* Spacer for sticky CTA on mobile */}
-      <div className="h-16 lg:hidden" />
-
-      {/* ─── STICKY CTA (Mobile) ─── */}
-      <div
-        className={cn(
-          "fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-all duration-300 bg-background/95 backdrop-blur-lg border-t border-white/10 p-3",
-          showStickyCTA ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-        )}
-      >
-        <div className="flex gap-2 max-w-lg mx-auto">
-          <Button className="flex-1 bg-foreground text-background hover:bg-foreground/90 rounded-full text-sm" asChild>
-            <Link to="/kontakt">
-              Jetzt anfragen
-              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-            </Link>
-          </Button>
-          <Button variant="outline" className="rounded-full border-white/20 hover:bg-white/5 px-4" asChild>
-            <a href="tel:+491637117198">
-              <Phone className="h-4 w-4" />
-            </a>
-          </Button>
-        </div>
-      </div>
     </Layout>
   );
 }

@@ -28,7 +28,7 @@ const webServices = [
     icon: Globe,
     title: "Professionelle Websites",
     description: "Maßgeschneiderte Webauftritte, die Ihr Unternehmen perfekt repräsentieren und Kunden überzeugen.",
-    features: ["Individuelles Design", "Responsive Layout", "CMS Integration", "SSL-Zertifikat"]
+    features: ["Individuelles Design", "Responsive Layout", "CMS Integration", "Performance-Optimierung"]
   },
   {
     icon: Palette,
@@ -61,8 +61,7 @@ const packages = [
       "Ihre Texte & Bilder",
       "Bis zu 5 Seiten",
       "Mobile-optimiert",
-      "Kontaktformular",
-      "SSL-Zertifikat"
+      "Kontaktformular"
     ],
     highlight: false,
     badge: "Günstigste Option",
