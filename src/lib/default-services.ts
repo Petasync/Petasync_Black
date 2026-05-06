@@ -394,7 +394,7 @@ export const DEFAULT_SERVICES: DefaultService[] = [
   // =====================================================
   {
     name: 'Website Template',
-    description: 'Schnell & günstig: Professionelles Design auf Basis bewährter Templates. Fertige Design-Vorlage, Ihre Texte & Bilder, bis zu 5 Seiten, Mobile-optimiert, Kontaktformular, SSL-Zertifikat. Live in 5-7 Tagen!',
+    description: 'Schnell & günstig: Professionelles Design auf Basis bewährter Templates. Fertige Design-Vorlage, Ihre Texte & Bilder, bis zu 5 Seiten, Mobile-optimiert, Kontaktformular. Live in 5-7 Tagen!',
     category: 'Webdesign',
     default_price: 599,
     unit: 'Projekt',

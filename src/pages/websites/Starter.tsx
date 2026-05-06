@@ -12,7 +12,6 @@ const features = [
   "Vollständig responsive (alle Geräte)",
   "Modernes Kontaktformular",
   "Basis-SEO Optimierung",
-  "SSL-Zertifikat inklusive",
   "1 Monat technischer Support",
   "Google Analytics Integration",
   "Cookie-Banner (DSGVO-konform)",

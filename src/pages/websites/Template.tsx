@@ -12,7 +12,6 @@ const features = [
   "Bis zu 5 Seiten (Startseite, Über uns, Leistungen, Kontakt, Impressum)",
   "Mobile-optimiert (Responsive Design)",
   "Kontaktformular mit E-Mail-Benachrichtigung",
-  "SSL-Zertifikat inklusive",
   "Basis-SEO (Meta-Tags, Seitentitel)",
   "Google Maps Integration",
   "Social Media Links"
