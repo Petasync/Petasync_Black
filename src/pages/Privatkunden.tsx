@@ -286,7 +286,7 @@ export default function Privatkunden() {
       </section>
 
       {/* ─── 3. PC-REPARATUR (Stundenmodell) ─── */}
-      <section id="reparatur" className="section-padding relative scroll-mt-24">
+      <section id="reparatur" className="section-padding relative scroll-mt-24 overflow-hidden">
         <div className="absolute top-0 left-0 w-[500px] h-[300px] bg-primary/5 rounded-full blur-[120px]" />
 
         <div className="container-tight relative">
@@ -470,7 +470,7 @@ export default function Privatkunden() {
       </section>
 
       {/* ─── 5. DATEN & SICHERHEIT ─── */}
-      <section id="datensicherheit" className="section-padding relative scroll-mt-24">
+      <section id="datensicherheit" className="section-padding relative scroll-mt-24 overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-accent/5 rounded-full blur-[120px]" />
 
         <div className="container-tight relative">
@@ -592,7 +592,7 @@ export default function Privatkunden() {
       </section>
 
       {/* ─── 7. NETZWERK & WLAN ─── */}
-      <section id="netzwerk" className="section-padding relative scroll-mt-24">
+      <section id="netzwerk" className="section-padding relative scroll-mt-24 overflow-hidden">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[120px]" />
 
         <div className="container-tight relative">
